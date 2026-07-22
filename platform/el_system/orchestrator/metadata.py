@@ -10,7 +10,6 @@ class Metadata:
 
         log.info("Metadata Loading Completed...")
 
-
     def get_metadata(self):
 
         exec_cfg = self.job_cfg["exec"]
@@ -25,7 +24,6 @@ class Metadata:
         exec_type = exec_cfg["exec_type"]
 
         self.sub_jobtype = exec_type.split("ExecCmd", 1)[0]
-
 
     def build_job_metadata(
         self, job_run_id, job_name, status, error_message, job_metrics

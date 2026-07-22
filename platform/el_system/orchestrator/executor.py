@@ -9,20 +9,22 @@ from el_system.orchestrator.metadata import Metadata
 from el_system.orchestrator.runner import Runner
 
 
-
 log.remove()
 
 log.add(
     sink=sys.stdout,
-    filter=lambda record: record["level"].name in {"INFO", "SUCCESS", "ERROR", "WARNING", "DEBUG", "TRACE"},
-    format="{message}"
-    )
+    filter=lambda record: (
+        record["level"].name
+        in {"INFO", "SUCCESS", "ERROR", "WARNING", "DEBUG", "TRACE"}
+    ),
+    format="{message}",
+)
 
 log.add(
     sink=sys.stderr,
     filter=lambda record: record["level"].name == "CRITICAL",
-    format="{message}"
-    )
+    format="{message}",
+)
 
 
 class Executor:

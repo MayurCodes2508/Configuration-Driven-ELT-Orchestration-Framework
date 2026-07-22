@@ -13,13 +13,18 @@ log.remove()
 
 log.add(
     sink=sys.stdout,
-    filter=lambda record:
+    filter=lambda record: (
         record["level"].name
-        in {"INFO", "SUCCESS", "ERROR", "WARNING", "DEBUG", "TRACE"},
-    format="{message}"
-    )
+        in {"INFO", "SUCCESS", "ERROR", "WARNING", "DEBUG", "TRACE"}
+    ),
+    format="{message}",
+)
 
-log.add(sink=sys.stderr, filter=lambda record: record["level"].name == "CRITICAL", format="{message}")
+log.add(
+    sink=sys.stderr,
+    filter=lambda record: record["level"].name == "CRITICAL",
+    format="{message}",
+)
 
 
 class Executor:
@@ -32,7 +37,9 @@ class Executor:
         try:
             job_run_id = str(uid())
 
-            log.info(f"Job: {job_name} | ID: {job_run_id} | System: metadata | CREATED...")
+            log.info(
+                f"Job: {job_name} | ID: {job_run_id} | System: metadata | CREATED..."
+            )
 
             job_cfg_loader = JobConfigLoader(fp=fp)
 

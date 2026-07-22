@@ -1,12 +1,11 @@
 from loguru import logger as log
 from uuid6 import uuid7 as uid
 import subprocess
-from subprocess import Popen as sp, CalledProcessError as spe
+from subprocess import Popen as sp
 import json
 import sys
 from concurrent.futures import ThreadPoolExecutor as tpe
 from el_system.orchestrator.loader import JobCatalog
-
 
 
 log.remove()
@@ -20,7 +19,6 @@ log.add(
 )
 
 log.add(sink=sys.stderr, filter=lambda record: record["level"].name == "CRITICAL")
-
 
 
 class Orchestrator:
@@ -37,8 +35,10 @@ class Orchestrator:
                 "docker",
                 "run",
                 "--rm",
-                "-e", "ENV",
-                "-e", "COINGECKO_API_KEY",
+                "-e",
+                "ENV",
+                "-e",
+                "COINGECKO_API_KEY",
                 "platform-job:latest",
                 "el_system.orchestrator.executor",
                 "--job_name",
@@ -54,19 +54,14 @@ class Orchestrator:
         processes.append(process)
 
         for process in processes:
-
             for line in process.stdout:
-
                 log.info(line.rstrip())
 
             process.wait()
 
             if process.returncode != 0:
-
                 for line in process.stderr:
-
                     log.error(line.rstrip())
-
 
 
 if __name__ == "__main__":
