@@ -5,6 +5,7 @@ from subprocess import Popen as sp
 import json
 import sys
 from concurrent.futures import ThreadPoolExecutor as tpe
+from google.cloud.run_v2 import JobsClient, RunJobRequest
 from metadata_system.orchestrator.loader import JobCatalog
 
 
@@ -22,13 +23,44 @@ log.add(sink=sys.stderr, filter=lambda record: record["level"].name == "CRITICAL
 
 
 class Orchestrator:
-    def __init__(self):
+    def __init__(self, env):
 
-        pass
+        self.env = env
 
     def run_concurrent_jobs(self, path, job_name):
 
-        pass
+        try:
+
+            client = JobsClient()
+
+            run_job_name = "dev-metadata-system-run"
+
+            if self.env == "PROD":
+
+                run_job_name = "prod-metadata-system-run"
+
+            request = RunJobRequest(
+                name=run_job_name,
+                overrides=RunJobRequest.Overrides(
+                    container_overrides=[
+                        RunJobRequest.Overrides.ContainerOverride(
+                            args=[
+                                "metadata_system.orchestrator.executor",
+                                "--job_name", str(object=job_name),
+                                "--file_path", str(object=path)
+                            ]
+                        )
+                    ]
+                )
+            )
+
+            operation = client.run_job(request=request)
+
+        except Exception:
+
+            log.error("Error Occured: While Calling Run Jobs")
+
+            return
 
     def run_concurrent_jobs_local(self, path, job_name):
 
@@ -48,7 +80,7 @@ class Orchestrator:
                 "--job_name",
                 str(object=job_name),
                 "--file_path",
-                str(object=path),
+                str(object=path)
             ],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -69,37 +101,38 @@ class Orchestrator:
 
 
 if __name__ == "__main__":
+
     job_catalog_loader = None
 
     try:
         job_catalog_loader = JobCatalog()
 
-        job_catalog_loader.job_catalog_run()
+        env = job_catalog_loader.job_catalog_run()
 
     except Exception as load_err:
-        log.critical(
-            "System: metadata | Failed to Load Job Catalog, Aborting Job Executions"
-        )
+        log.critical("System: metadata | Failed to Load Job Catalog, Aborting Job Executions")
 
         log.error(f"Details: {str(object=load_err)}")
 
         raise
 
     try:
-        log.info("All Job Executions Started...")
 
-        orchestrator = Orchestrator()
+        orchestrator = Orchestrator(env=env)
+
+        log.info("All Job Executions Started...")
 
         with tpe(max_workers=5) as executor:
             for job in job_catalog_loader.jobs:
-                if getattr(job_catalog_loader, "env") == "LOCAL":
+
+                if env == "LOCAL":
                     future = executor.submit(
                         orchestrator.run_concurrent_jobs_local,
                         job["path"],
                         job["job_name"],
                     )
 
-                elif getattr(job_catalog_loader, "env") in {"DEV", "PROD"}:
+                elif env in {"DEV", "PROD"}:
                     future = executor.submit(
                         orchestrator.run_concurrent_jobs, job["path"], job["job_name"]
                     )
