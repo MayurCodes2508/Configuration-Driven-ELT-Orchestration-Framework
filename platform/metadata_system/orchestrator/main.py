@@ -1,7 +1,7 @@
 from loguru import logger as log
 from uuid6 import uuid7 as uid
 import subprocess
-from subprocess import Popen as sp, run as ps
+from subprocess import Popen as sp
 import json
 import sys
 from concurrent.futures import ThreadPoolExecutor as tpe
