@@ -19,11 +19,6 @@ class ApiExecCommand:
         self.page_size_param = page_size_config["param"]
         self.page_size_value = page_size_config["value"]
 
-        self.env = os.getenv("ENV")
-
-        if self.env == "PROD":
-            self.page_size_value = 250
-
         query_params_config = exec_cfg["query_params"]
         self.vs_currency = query_params_config["vs_currency"]
         self.custom_query_params = {
