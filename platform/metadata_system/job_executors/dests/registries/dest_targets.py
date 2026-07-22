@@ -1,5 +1,5 @@
 from loguru import logger as log
-from job_executors.dests.bq_dest import BQ
+from metadata_system.job_executors.dests.bq_dest import BQ
 
 
 class BQDest:
