@@ -26,11 +26,9 @@ class Orchestrator:
 
         pass
 
-
     def run_concurrent_jobs(self, path, job_name):
 
         pass
-
 
     def run_concurrent_jobs_local(self, path, job_name):
 
@@ -69,8 +67,6 @@ class Orchestrator:
 
 
 if __name__ == "__main__":
-
-
     job_catalog_loader = None
 
     try:
@@ -92,15 +88,14 @@ if __name__ == "__main__":
 
         with tpe(max_workers=5) as executor:
             for job in job_catalog_loader.jobs:
-
-                if getattr(job_catalog_loader, 'env') == 'LOCAL':
-
+                if getattr(job_catalog_loader, "env") == "LOCAL":
                     future = executor.submit(
-                        orchestrator.run_concurrent_jobs_local, job["path"], job["job_name"]
+                        orchestrator.run_concurrent_jobs_local,
+                        job["path"],
+                        job["job_name"],
                     )
 
-                elif getattr(job_catalog_loader, 'env') in {'DEV', 'PROD'}:
-
+                elif getattr(job_catalog_loader, "env") in {"DEV", "PROD"}:
                     future = executor.submit(
                         orchestrator.run_concurrent_jobs, job["path"], job["job_name"]
                     )

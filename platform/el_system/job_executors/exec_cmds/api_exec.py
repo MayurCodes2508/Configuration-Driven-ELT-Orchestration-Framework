@@ -1,6 +1,5 @@
 from loguru import logger as log
 import requests
-import os
 from el_system.job_executors.auth.auth import Auth
 
 
