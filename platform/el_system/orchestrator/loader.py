@@ -8,9 +8,9 @@ from json import JSONDecodeError
 class JobCatalog:
     def __init__(self):
 
-        env = os.getenv(key="ENV")
+        self.env = os.getenv(key="ENV", default="LOCAL")
 
-        if env == "PROD":
+        if self.env == "PROD":
             self.file_path = (
                 Path(__file__).parent.parent
                 / "configs"
@@ -19,7 +19,7 @@ class JobCatalog:
                 / "config.json"
             )
 
-        elif env == "DEV":
+        elif self.env in {"LOCAL", "DEV"}:
             self.file_path = (
                 Path(__file__).parent.parent
                 / "configs"
@@ -29,7 +29,7 @@ class JobCatalog:
             )
 
         else:
-            raise ValueError(f"Unknown Env: {env} | Provide a Valid Env")
+            raise ValueError(f"Unknown Env: {self.env} | Provide a Valid Env")
 
         log.info("Obj: job_catalog | Instance Initialized Successfully...")
 
