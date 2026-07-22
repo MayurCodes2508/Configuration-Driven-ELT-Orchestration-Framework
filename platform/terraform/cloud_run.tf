@@ -10,6 +10,9 @@ resource "google_cloud_run_v2_job" "dev_el_system_run" {
     template {
       containers {
         image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/el-job:testing"
+        args = [
+          "el_system.orchestrator.main"
+        ]
         env {
           name = "COINGECKO_API_KEY"
           value_source {
@@ -90,6 +93,9 @@ resource "google_cloud_run_v2_job" "dev_metadata_system_run" {
     template {
       containers {
         image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/metadata-job:testing"
+        args = [
+          "metadata_system.orchestrator.main"
+        ]
          env {
           name = "ENV"
           value = "DEV"
