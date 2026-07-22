@@ -67,6 +67,8 @@ class JobCatalog:
 
         self.load_job_catalog()
 
+        return self.env
+
 
 class JobConfigLoader:
     def __init__(self, fp):
