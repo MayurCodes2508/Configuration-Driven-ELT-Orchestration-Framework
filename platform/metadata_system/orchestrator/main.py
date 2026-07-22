@@ -1,12 +1,12 @@
-from concurrent.futures import ThreadPoolExecutor as tpe
 from loguru import logger as log
 from uuid6 import uuid7 as uid
+import subprocess
+from subprocess import Popen as sp, CalledProcessError as spe
 import json
-from orchestrator.loader import JobCatalog, JobConfigLoader
-from orchestrator.validator import Validator
-from orchestrator.metadata import Metadata
-from orchestrator.runner import Runner
 import sys
+from concurrent.futures import ThreadPoolExecutor as tpe
+from metadata_system.orchestrator.loader import JobCatalog
+
 
 
 log.remove()
@@ -22,119 +22,50 @@ log.add(
 log.add(sink=sys.stderr, filter=lambda record: record["level"].name == "CRITICAL")
 
 
+
 class Orchestrator:
     def __init__(self):
 
         pass
 
-    def run_concurrent_job(self, fp, job_name):
+    def run_concurrent_jobs(self, path, job_name):
 
-        try:
-            job_run_id = str(uid())
+        processes = []
 
-            log.info(
-                f"Job: {job_name} | ID: {job_run_id} | System: metadata | CREATED..."
-            )
-
-            job_cfg_loader = JobConfigLoader(fp=fp)
-
-            job_cfg_loader.job_cfg_loader_run()
-
-        except Exception as load_err:
-            dump = {
-                "job_run_id": job_run_id,
-                "job_name": job_name,
-                "system": "metadata",
-                "job_type": None,
-                "sub_jobtype": None,
-                "status": "FAILED",
-                "error_message": str(object=load_err),
-                "job_metrics": None,
-            }
-
-            log.info(f"METADATA_DUMP: {json.dumps(obj=dump)}")
-
-            log.error(
-                f"Job: {job_name} | ID: {job_run_id} | System: metadata | Job Cfg Loading Failed"
-            )
-
-            log.error(f"Details: {str(object=load_err)}")
-
-            return
-
-        try:
-            validator = Validator(loader=job_cfg_loader)
-
-            validator.validator_run()
-
-        except Exception as valid_err:
-            dump = {
-                "job_run_id": job_run_id,
-                "job_name": job_name,
-                "system": "metadata",
-                "job_type": None,
-                "sub_jobtype": None,
-                "status": "FAILED",
-                "error_message": str(object=valid_err),
-                "job_metri": None,
-            }
-
-            log.info(f"METADATA_DUMP: {json.dumps(obj=dump)}")
-
-            log.error(
-                f"Job Execution: {job_name} | ID: {job_run_id} | System: metadata | Job Cfg Validation Failed"
-            )
-
-            log.error(f"Details: {str(object=valid_err)}")
-
-            return
-
-        log.info(
-            f"Job Execution: {job_name} | ID: {job_run_id} | System: metadata | RUNNING..."
+        process = sp(
+            [
+                "docker",
+                "run",
+                "--rm",
+                "-e", "ENV",
+                "-e", "NEON_DB_URL",
+                "platform-job:latest",
+                "metadata_system.orchestrator.executor",
+                "--job_name",
+                str(object=job_name),
+                "--file_path",
+                str(object=path),
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
         )
 
-        try:
-            runner = Runner(loader=job_cfg_loader)
+        processes.append(process)
 
-            runner.runner_run()
+        for process in processes:
 
-        except Exception as exec_err:
-            metadata = Metadata(loader=job_cfg_loader)
+            for line in process.stdout:
 
-            job_metadata_dump = metadata.build_job_metadata(
-                job_run_id=job_run_id,
-                job_name=job_name,
-                status="FAILED",
-                error_message=str(object=exec_err),
-                job_metrics=getattr(runner, "job_metrics", None) if runner else None,
-            )
+                log.info(line.rstrip())
 
-            log.info(f"METADATA_DUMP: {json.dumps(obj=job_metadata_dump)}")
+            process.wait()
 
-            log.error(
-                f"Job Execution: {job_name} | ID: {job_run_id} | System: metadata | Job Type: {job_metadata_dump['job_type']} | Sub JobType: {job_metadata_dump['sub_jobtype']}"
-            )
+            if process.returncode != 0:
 
-            log.error(f"Details: {str(object=exec_err)}")
+                for line in process.stderr:
 
-        else:
-            metadata = Metadata(loader=job_cfg_loader)
-
-            metadata.get_metadata()
-
-            job_metadata_dump = metadata.build_job_metadata(
-                job_run_id=job_run_id,
-                job_name=job_name,
-                status="SUCCESS",
-                error_message=None,
-                job_metrics=getattr(runner, "job_metrics", None) if runner else None,
-            )
-
-            log.info(f"METADATA_DUMP: {json.dumps(obj=job_metadata_dump)}")
-
-            log.success(
-                f"Job Execution: {job_name} | ID: {job_run_id} | System: metadata | Job Type: {job_metadata_dump['job_type']} | Sub JobType: {job_metadata_dump['sub_jobtype']}"
-            )
+                    log.error(line.rstrip())
 
 
 if __name__ == "__main__":
@@ -144,9 +75,7 @@ if __name__ == "__main__":
         job_catalog_loader.job_catalog_run()
 
     except Exception as load_err:
-        log.critical(
-            "System: metadata | Failed to Load Job Catalog, Aborting Job Executions"
-        )
+        log.critical("System: metadata | Failed to Load Job Catalog, Aborting Job Executions")
 
         log.error(f"Details: {str(object=load_err)}")
 
@@ -160,7 +89,7 @@ if __name__ == "__main__":
         with tpe(max_workers=5) as executor:
             for job in job_catalog_loader.jobs:
                 future = executor.submit(
-                    orchestrator.run_concurrent_job, job["path"], job["job_name"]
+                    orchestrator.run_concurrent_jobs, job["path"], job["job_name"]
                 )
 
         log.info("All Job Executions Completed...")
