@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor as tpe
 from el_system.orchestrator.loader import JobCatalog
 
 
+
 log.remove()
 
 log.add(
@@ -18,8 +19,8 @@ log.add(
     ),
 )
 
-
 log.add(sink=sys.stderr, filter=lambda record: record["level"].name == "CRITICAL")
+
 
 
 class Orchestrator:
@@ -29,50 +30,43 @@ class Orchestrator:
 
     def run_concurrent_jobs(self, path, job_name):
 
-        try:
+        processes = []
 
-            processes = []
+        process = sp(
+            [
+                "docker",
+                "run",
+                "--rm",
+                "-e", "ENV",
+                "-e", "COINGECKO_API_KEY",
+                "platform-job:latest",
+                "el_system.orchestrator.executor",
+                "--job_name",
+                str(object=job_name),
+                "--file_path",
+                str(object=path),
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
 
-            process = sp(
-                [
-                    "docker",
-                    "run",
-                    "--rm",
-                    "-e", "ENV",
-                    "-e", "COINGECKO_API_KEY",
-                    "el-job:latest",
-                    "el_system.orchestrator.executor",
-                    "--job_name",
-                    str(object=job_name),
-                    "--file_path",
-                    str(object=path),
-                ],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-            )
+        processes.append(process)
 
-            log.info("HI")
+        for process in processes:
 
-            processes.append(process)
+            for line in process.stdout:
 
-            for process in processes:
+                log.info(line.rstrip())
 
-                stdout, stderr = process.communicate()
+            process.wait()
 
-                log.info("HI")
+            if process.returncode != 0:
 
-                if process.returncode != 0:
-                    log.error(stderr)
+                for line in process.stderr:
 
-                else:
-                    log.info(stdout)
+                    log.error(line.rstrip())
 
-            log.info("HI")
-
-        except Exception as e:
-
-            log.exception(e)
 
 
 if __name__ == "__main__":
@@ -111,7 +105,7 @@ if __name__ == "__main__":
                 "sub_jobtype": None,
                 "status": "FAILED",
                 "error_message": str(object=strt_err),
-                "rows_processed": None,
+                "job_metrics": None,
             }
 
             log.info(f"METADATA_DUMP: {json.dumps(obj=dump)}")
