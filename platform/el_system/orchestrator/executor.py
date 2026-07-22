@@ -115,7 +115,7 @@ class Executor:
             log.info(f"METADATA_DUMP: {json.dumps(obj=job_metadata_dump)}")
 
             log.error(
-                f"Job Execution: {job_name} | ID: {job_run_id} | System: el | Job Type: {job_metadata_dump['job_type']} | Sub JobType: {job_metadata_dump['sub_jobtype']}"
+                f"Job Execution: {job_name} | ID: {job_run_id} | System: el | Job Type: {job_metadata_dump['job_type']} | Sub JobType: {job_metadata_dump['sub_jobtype']} | Status: FAILED"
             )
 
             log.error(f"Details: {str(object=exec_err)}")
@@ -136,7 +136,7 @@ class Executor:
             log.info(f"METADATA_DUMP: {json.dumps(obj=job_metadata_dump)}")
 
             log.success(
-                f"Job Execution: {job_name} | ID: {job_run_id} | System: el | Job Type: {job_metadata_dump['job_type']} | Sub JobType: {job_metadata_dump['sub_jobtype']}"
+                f"Job Execution: {job_name} | ID: {job_run_id} | System: el | Job Type: {job_metadata_dump['job_type']} | Sub JobType: {job_metadata_dump['sub_jobtype']} | Status: SUCCESS"
             )
 
 
