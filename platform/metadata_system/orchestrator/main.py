@@ -1,7 +1,7 @@
 from loguru import logger as log
 from uuid6 import uuid7 as uid
 import subprocess
-from subprocess import Popen as sp
+from subprocess import Popen as sp, run as ps
 import json
 import sys
 from concurrent.futures import ThreadPoolExecutor as tpe
@@ -39,6 +39,8 @@ class Orchestrator:
                 "ENV",
                 "-e",
                 "NEON_DB_URL",
+                "-e",
+                "DBT_TARGET",
                 "platform-job:latest",
                 "metadata_system.orchestrator.executor",
                 "--job_name",
