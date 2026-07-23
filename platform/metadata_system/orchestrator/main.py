@@ -60,7 +60,7 @@ class Orchestrator:
 
             log.error("Error Occured: While Calling Run Jobs")
 
-            return
+            raise
 
     def run_concurrent_jobs_local(self, path, job_name):
 
@@ -102,17 +102,13 @@ class Orchestrator:
 
 if __name__ == "__main__":
 
-    job_catalog_loader = None
-
     try:
         job_catalog_loader = JobCatalog()
 
         env = job_catalog_loader.job_catalog_run()
 
-    except Exception as load_err:
-        log.critical("System: metadata | Failed to Load Job Catalog, Aborting Job Executions")
-
-        log.error(f"Details: {str(object=load_err)}")
+    except Exception:
+        log.opt(exception=True).critical("System: metadata | Failed to Load Job Catalog, Aborting Job Executions")
 
         raise
 
@@ -154,10 +150,8 @@ if __name__ == "__main__":
 
             log.info(f"METADATA_DUMP: {json.dumps(obj=dump)}")
 
-        log.critical(
+        log.opt(exception=True).critical(
             "System: metadata | Failed to Start the Thread Pool Executor, Aborting Job Executions"
         )
-
-        log.error(f"Details: {str(object=strt_err)}")
 
         raise

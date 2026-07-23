@@ -59,13 +59,11 @@ class Executor:
 
             log.info(f"METADATA_DUMP: {json.dumps(obj=dump)}")
 
-            log.error(
+            log.opt(exception=True).error(
                 f"Job: {job_name} | ID: {job_run_id} | System: metadata | Job Cfg Loading Failed"
             )
 
-            log.error(f"Details: {str(object=load_err)}")
-
-            return
+            raise
 
         try:
             validator = Validator(loader=job_cfg_loader)
@@ -86,13 +84,11 @@ class Executor:
 
             log.info(f"METADATA_DUMP: {json.dumps(obj=dump)}")
 
-            log.error(
+            log.opt(exception=True).error(
                 f"Job Execution: {job_name} | ID: {job_run_id} | System: metadata | Job Cfg Validation Failed"
             )
 
-            log.error(f"Details: {str(object=valid_err)}")
-
-            return
+            raise
 
         log.info(
             f"Job Execution: {job_name} | ID: {job_run_id} | System: metadata | RUNNING..."
@@ -116,11 +112,11 @@ class Executor:
 
             log.info(f"METADATA_DUMP: {json.dumps(obj=job_metadata_dump)}")
 
-            log.error(
+            log.opt(exception=True).error(
                 f"Job Execution: {job_name} | ID: {job_run_id} | System: metadata | Job Type: {job_metadata_dump['job_type']} | Sub JobType: {job_metadata_dump['sub_jobtype']} | Status: FAILED"
             )
 
-            log.error(f"Details: {str(object=exec_err)}")
+            raise
 
         else:
             metadata = Metadata(loader=job_cfg_loader)

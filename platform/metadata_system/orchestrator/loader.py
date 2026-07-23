@@ -50,18 +50,26 @@ class JobCatalog:
                 f"File Not Found Error: {self.file_path} | Provide a Valid JSON Job Catalog File Path"
             )
 
-        except JSONDecodeError as e:
+            raise
+
+        except JSONDecodeError:
             log.error(
-                f"JSON Parsing/Decoding Error: {self.file_path} | Provide Valid JSON Format | Details: {e}"
+                f"JSON Parsing/Decoding Error: {self.file_path} | Provide Valid JSON Format"
             )
+
+            raise
 
         except UnicodeDecodeError:
             log.error(f"Unicode Decoding Error: {self.file_path} | Expected UTF-8")
 
+            raise
+
         except Exception:
-            log.exception(
+            log.error(
                 f"Unknown Error Occured While Loading Job Catalog: {self.file_path}"
             )
+
+            raise
 
     def job_catalog_run(self):
 
@@ -94,18 +102,26 @@ class JobConfigLoader:
                 f"File Not Found Error: {self.file_path} | Provide a Valid JSON Job Cfg File Path"
             )
 
-        except JSONDecodeError as e:
+            raise
+
+        except JSONDecodeError:
             log.error(
-                f"JSON Parsing/Decoding Error: {self.file_path} | Provide Valid JSON Format | Details: {e}"
+                f"JSON Parsing/Decoding Error: {self.file_path} | Provide Valid JSON Format"
             )
+
+            raise
 
         except UnicodeDecodeError:
             log.error(f"Unicode Decoding Error: {self.file_path} | Expected UTF-8")
 
+            raise
+
         except Exception:
-            log.exception(
+            log.error(
                 f"Unknown Error Occured While Loading Job Cfg: {self.file_path}"
             )
+
+            raise
 
     def load_schema_cfg(self):
 
@@ -120,18 +136,26 @@ class JobConfigLoader:
                 f"File Not Found Error: {self.schema_path} | Provide a Valid JSON Schema Cfg File Path"
             )
 
-        except JSONDecodeError as e:
+            raise
+
+        except JSONDecodeError:
             log.error(
-                f"Parsing/Decoding Error: {self.schema_path} | Provide Valid JSON Format | Details: {e}"
+                f"Parsing/Decoding Error: {self.schema_path} | Provide Valid JSON Format"
             )
+
+            raise
 
         except UnicodeDecodeError:
             log.error(f"Unicode Decoding Error: {self.schema_path} | Expected UTF-8")
 
+            raise
+
         except Exception:
-            log.exception(
+            log.error(
                 f"Unknown Error Occured While Loading Schema Cfg: {self.schema_path}"
             )
+
+            raise
 
     def job_cfg_loader_run(self):
 
