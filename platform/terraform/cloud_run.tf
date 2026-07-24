@@ -9,7 +9,7 @@ resource "google_cloud_run_v2_job" "dev_el_system_run" {
   template {
     template {
       containers {
-        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/el-job:testing"
+        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/platform-job:testing"
         args = [
           "el_system.orchestrator.main"
         ]
@@ -92,7 +92,7 @@ resource "google_cloud_run_v2_job" "dev_metadata_system_run" {
   template {
     template {
       containers {
-        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/metadata-job:testing"
+        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/platform-job:testing"
         args = [
           "metadata_system.orchestrator.main"
         ]
@@ -100,6 +100,10 @@ resource "google_cloud_run_v2_job" "dev_metadata_system_run" {
           name = "ENV"
           value = "DEV"
           
+         }
+         env {
+          name = "DBT_TARGET"
+          value = "dev"
          }
          env {
           name = "NEON_DB_URL"
