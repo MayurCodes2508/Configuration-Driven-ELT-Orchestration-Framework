@@ -16,14 +16,12 @@ log.add(
     filter=lambda record: (
         record["level"].name
         in {"INFO", "SUCCESS", "ERROR", "WARNING", "DEBUG", "TRACE"}
-    ),
-    format="{message}",
+    )
 )
 
 log.add(
     sink=sys.stderr,
-    filter=lambda record: record["level"].name == "CRITICAL",
-    format="{message}",
+    filter=lambda record: record["level"].name == "CRITICAL"
 )
 
 
