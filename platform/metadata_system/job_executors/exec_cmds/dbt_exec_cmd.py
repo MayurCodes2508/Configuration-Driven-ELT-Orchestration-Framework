@@ -1,7 +1,11 @@
 from loguru import logger as log
-from subprocess import run as sp, CalledProcessError as cpe
-import shlex
+from subprocess import Popen as sp
+import subprocess
 from pathlib import Path
+import shlex
+import json
+
+
 
 
 class dbtExecCommand:
@@ -9,9 +13,9 @@ class dbtExecCommand:
 
         self.exec_cfg = exec_cfg
 
-        cmd = exec_cfg["command"]
+        self._cmd = exec_cfg["command"]
 
-        self.cmd = shlex.split(s=cmd)
+        self.cmd = shlex.split(s=self._cmd)
 
         log.info("Obj: dbtexeccmd | Instance Initialization Completed...")
 
@@ -19,46 +23,71 @@ class dbtExecCommand:
 
     def run_dbt(self):
 
-        try:
-            result = sp(
-                [
-                    "dbt",
-                    *self.cmd,
-                    "--fail-fast",
-                    "--project-dir",
-                    str(Path(__file__).parent.parent.parent / "dbt/"),
-                    "--profiles-dir",
-                    str(Path(__file__).parent.parent.parent / "dbt/"),
-                ],
-                text=True,
-                check=True,
-                capture_output=True,
-            )
+        processes = []
 
-            log.info(result.stdout)
+        process = sp(
+            [
+                "dbt",
+                *self.cmd,
+                "--fail-fast",
+                "--project-dir",
+                str(Path(__file__).parent.parent.parent / "dbt/"),
+                "--profiles-dir",
+                str(Path(__file__).parent.parent.parent / "dbt/"),
+            ],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
 
-            log.info("Execution of dbt Completed...")
+        processes.append(process)
 
-        except cpe as e:
-            if e.stdout:
-                log.error(e.stdout)
+        for process in processes:
 
-            if e.stderr:
-                log.error(e.stderr)
+            for line in process.stdout:
+
+                log.info(line.rstrip())
+
+            process.wait()
+
+            if process.returncode != 0:
+
+                for line in process.stderr:
+
+                    log.error(line.rstrip())
+
+        log.info("Execution of dbt Completed...")
+ 
+        artifact_path = Path(__file__).parent.parent.parent / "dbt/target/run_results.json"
+
+        with open(file=artifact_path, mode="+r") as f:
+
+            data = json.load(fp=f)
+
+        nodes = {}
+
+        for result in data["results"]:
+
+            node = result["unique_id"]
+
+            nodes[node] = {
+                "status": result["status"],
+                "execution_time": result["execution_time"],
+                "message": result["message"],
+                "failures": result["failures"],
+                "rows_affected": result["adapter_response"].get("rows_affected"), 
+                "bytes_billed": result["adapter_response"].get("bytes_billed"), 
+                "job_id": result["adapter_response"].get("job_id"), 
+                "slot_ms": result["adapter_response"].get("slot_ms") 
+            }
+
+        return nodes
+
 
     def run(self):
 
-        self.run_dbt()
+        job_metrics = self.run_dbt()
 
         data = None
-
-        job_metrics = {
-            "total_models": None,
-            "successful_models": None,
-            "failed_models": None,
-            "total_tests": None,
-            "successful_tests": None,
-            "failed_tests": None,
-        }
 
         return data, job_metrics
