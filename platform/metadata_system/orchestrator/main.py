@@ -145,7 +145,15 @@ class Orchestrator:
                 text=True,
             )
 
-            log.info(process.stdout)
+            output = process.stdout
+            
+            dump = output.rsplit("METADATA_DUMP: ", 1)[-1]
+
+            decoder = json.JSONDecoder()
+
+            obj, end = decoder.raw_decode(dump)
+
+            return json.dumps(obj=obj)
         
         except sperr as err:
 
@@ -193,13 +201,20 @@ if __name__ == "__main__":
                         )
                     )
 
+        results = []
+
         for future in futures:
 
-            future.result()
+            results.append(future.result())
 
         log.info("All Job Executions Completed...")
 
+        log.info(f"ALL_METADATA_DUMPS: {results}")
+
     except Exception as strt_err:
+
+        results = []
+
         for job in job_catalog_loader.jobs:
             dump = {
                 "job_run_id": str(object=uid()),
@@ -212,10 +227,12 @@ if __name__ == "__main__":
                 "job_metrics": None,
             }
 
-            log.info(f"METADATA_DUMP: {json.dumps(obj=dump)}")
+            results.append(json.dumps(obj=dump))
 
         log.opt(exception=True).critical(
             "System: metadata | Failed to Start the Thread Pool Executor, Aborting Job Executions"
         )
+
+        log.info(f"ALL_METADATA_DUMPS: {results}")
 
         raise
