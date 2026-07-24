@@ -90,7 +90,7 @@ class Orchestrator:
 
             '''
 
-            metadata = None
+            dump = None
 
             while True:
 
@@ -104,7 +104,7 @@ class Orchestrator:
 
                     break
 
-                if metadata is not None:
+                if dump is not None:
 
                     break
                 
