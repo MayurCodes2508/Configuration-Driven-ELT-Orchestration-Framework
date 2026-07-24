@@ -5,9 +5,11 @@ from google.api_core.exceptions import GoogleAPIError, NotFound, InvalidArgument
 from google.cloud import logging_v2 as lv2
 
 from datetime import datetime as dt
+from ast import literal_eval as le
 import json
 import time
 import os
+
 
 
 class Pipeline_Metadata:
@@ -139,7 +141,7 @@ class Job_Metadata:
 
                     break
 
-                time.sleep(5)
+                time.sleep(1)
 
             start_time = execution.start_time
 
@@ -172,21 +174,28 @@ class Job_Metadata:
 
                 '''
 
-            time.sleep(10)
+            all_metadata_dump = None
 
-            entries = logging_client.list_entries(filter_=job_filter)
+            while True:
 
-            job_metadata_dumps = []
+                entries = logging_client.list_entries(filter_=job_filter)
 
-            for entry in entries:
-                log_text = entry.payload
+                for entry in entries:
 
-                dump = log_text.rsplit("METADATA_DUMP: ", 1)[-1]
+                    log_text = entry.payload
 
-                metadata = json.loads(dump)
+                    all_metadata_dump = log_text.rsplit("ALL_METADATA_DUMPS: ", 1)[-1]
 
-                job_metadata_dumps.append(metadata)
+                    break
 
+                if all_metadata_dump is not None:
+
+                    break
+
+                time.sleep(1)
+
+            all_metadata_dump = le(all_metadata_dump)
+            
         except GoogleAPIError:
             log.exception("API Error Occured, Affecting Job Metadata")
 
@@ -202,7 +211,13 @@ class Job_Metadata:
         job_metadatas = []
 
         try:
-            for metadata in job_metadata_dumps:
+
+            for metadata_dump in all_metadata_dump:
+
+                metadata = json.loads(metadata_dump)
+
+                log.info(metadata)
+
                 dump = {
                     "job_run_id": metadata["job_run_id"],
                     "pipeline_run_id": self.pipeline_run_id,
@@ -215,7 +230,7 @@ class Job_Metadata:
                     "end_time": end_time.isoformat(),
                     "created_at": created_at.isoformat(),
                     "error_message": metadata["error_message"],
-                    "job_metrics": {"rows_processed": metadata["rows_processed"]},
+                    "job_metrics": metadata["job_metrics"],
                     "extra_metadata": {
                         "cloud_run_job_id": cloud_run_job_id,
                         "cloud_run_job_name": cloud_run_job_name,

@@ -8,7 +8,7 @@ from json import JSONDecodeError
 class PipelineLoader:
     def __init__(self):
 
-        env = os.getenv(key="ENV")
+        env = os.getenv(key="ENV", default="LOCAL")
 
         if env == "PROD":
             self.file_path = (
@@ -19,7 +19,7 @@ class PipelineLoader:
                 / "config.json"
             )
 
-        elif env == "DEV":
+        elif env in {"DEV", "LOCAL"}:
             self.file_path = (
                 Path(__file__).parent.parent
                 / "configs"
