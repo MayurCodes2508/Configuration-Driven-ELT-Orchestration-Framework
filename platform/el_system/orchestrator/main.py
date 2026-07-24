@@ -102,8 +102,6 @@ class Orchestrator:
 
                     dump = txt_log.rsplit("METADATA_DUMP: ", 1)[-1]
 
-                    metadata = json.loads(dump)
-
                     break
 
                 if metadata is not None:
@@ -112,7 +110,7 @@ class Orchestrator:
                 
                 time.sleep(1)
 
-            log.info(metadata)
+            return dump
 
         except Exception:
 
