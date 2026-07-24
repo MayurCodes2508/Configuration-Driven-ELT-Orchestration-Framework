@@ -58,16 +58,26 @@ jobs:
 
       - name: Setup Dependencies & Validate
         run: |
+          echo "=== Step Start ==="
           python -m ensurepip --default-pip
           pip install pip-tools
           pip-compile requirements.in 
           pip-sync requirements.txt
+          echo "=== Broken Requirements Check ==="
           pip check
+          echo "=== Step End ==="
 
       - name: Run Code
         run: |
+          echo "=== Step Start ==="
+          echo "$ENV"
+          echo "$DBT_TARGET"
+          echo "=== Code Run Start ==="
           python -u -m el_system.orchestrator.main
+          echo "=== Code Run End ==="
+          echo "=== Step End ==="
         env:
           COINGECKO_API_KEY: ${{ secrets.COINGECKO_API_KEY }}
           ENV: ${{ vars.ENV }}
+          DBT_TARGET: ${{ vars.DBT_TARGET }}
           GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
