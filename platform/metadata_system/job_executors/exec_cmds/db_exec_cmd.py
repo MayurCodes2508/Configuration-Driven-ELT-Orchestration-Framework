@@ -2,7 +2,7 @@ import psycopg2
 from loguru import logger as log
 
 from metadata_system.job_executors.auth.auth import Auth
-from metadata_system.job_executors.exceptions.db_exceptions import DBExceptions
+from metadata_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
 
 
 class DBExecCommand:
@@ -51,14 +51,12 @@ class DBExecCommand:
 
                     self.rows_processed = len(self.data)
 
-        except Exception as e:
-            db_exception = type(e).__name__
-
-            error_message = DBExceptions.exceptions.get(
-                db_exception, "Unexpected Database Error"
+        except Exception as excp:
+            log.error(
+                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
             )
 
-            log.error(f"{error_message}")
+            raise
 
     def run(self):
 

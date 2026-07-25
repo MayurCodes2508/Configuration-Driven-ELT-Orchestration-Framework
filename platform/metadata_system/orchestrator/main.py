@@ -12,6 +12,8 @@ from uuid6 import uuid7 as uid
 
 from metadata_system.orchestrator.loader import JobCatalog
 
+from metadata_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
+
 log.remove()
 
 log.add(
@@ -109,8 +111,10 @@ class Orchestrator:
 
             return dump
 
-        except Exception:
-            log.exception("Error Occured: While Executing Job")
+        except Exception as excp:
+            log.error(
+                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
+            )
 
             raise
 

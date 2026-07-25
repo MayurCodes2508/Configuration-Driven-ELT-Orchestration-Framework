@@ -1,5 +1,4 @@
-from metadata_system.job_executors.auth.registries.strategies import \
-    AuthRegistry
+from metadata_system.job_executors.auth.registries.strategies import AuthRegistry
 
 
 class Auth:

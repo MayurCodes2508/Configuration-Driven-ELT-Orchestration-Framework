@@ -1,9 +1,10 @@
 import json
 import os
-from json import JSONDecodeError
 from pathlib import Path
 
 from loguru import logger as log
+
+from metadata_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
 
 
 class JobCatalog:
@@ -46,28 +47,9 @@ class JobCatalog:
 
                 log.info("Job Catalog Loading Completed...")
 
-        except FileNotFoundError:
+        except Exception as excp:
             log.error(
-                f"File Not Found Error: {self.file_path} | Provide a Valid JSON Job Catalog File Path"
-            )
-
-            raise
-
-        except JSONDecodeError:
-            log.error(
-                f"JSON Parsing/Decoding Error: {self.file_path} | Provide Valid JSON Format"
-            )
-
-            raise
-
-        except UnicodeDecodeError:
-            log.error(f"Unicode Decoding Error: {self.file_path} | Expected UTF-8")
-
-            raise
-
-        except Exception:
-            log.error(
-                f"Unknown Error Occured While Loading Job Catalog: {self.file_path}"
+                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
             )
 
             raise
@@ -98,27 +80,10 @@ class JobConfigLoader:
 
                 log.info("Job Cfg Loading Completed...")
 
-        except FileNotFoundError:
+        except Exception as excp:
             log.error(
-                f"File Not Found Error: {self.file_path} | Provide a Valid JSON Job Cfg File Path"
+                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
             )
-
-            raise
-
-        except JSONDecodeError:
-            log.error(
-                f"JSON Parsing/Decoding Error: {self.file_path} | Provide Valid JSON Format"
-            )
-
-            raise
-
-        except UnicodeDecodeError:
-            log.error(f"Unicode Decoding Error: {self.file_path} | Expected UTF-8")
-
-            raise
-
-        except Exception:
-            log.error(f"Unknown Error Occured While Loading Job Cfg: {self.file_path}")
 
             raise
 
@@ -130,28 +95,9 @@ class JobConfigLoader:
 
                 log.info("Schema Cfg Loading Completed...")
 
-        except FileNotFoundError:
+        except Exception as excp:
             log.error(
-                f"File Not Found Error: {self.schema_path} | Provide a Valid JSON Schema Cfg File Path"
-            )
-
-            raise
-
-        except JSONDecodeError:
-            log.error(
-                f"Parsing/Decoding Error: {self.schema_path} | Provide Valid JSON Format"
-            )
-
-            raise
-
-        except UnicodeDecodeError:
-            log.error(f"Unicode Decoding Error: {self.schema_path} | Expected UTF-8")
-
-            raise
-
-        except Exception:
-            log.error(
-                f"Unknown Error Occured While Loading Schema Cfg: {self.schema_path}"
+                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
             )
 
             raise
