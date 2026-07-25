@@ -11,7 +11,6 @@
 
         "exec_type": "dbtExecCmd",
 
-        "command": "test -s +exposure:*,tag:observability"
-
+        "command": "test -s +exposure:slo_report"
     }
 }
