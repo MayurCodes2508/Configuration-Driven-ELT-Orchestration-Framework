@@ -4,8 +4,7 @@ import time
 from ast import literal_eval as le
 from datetime import datetime as dt
 
-from google.api_core.exceptions import (GoogleAPIError, InvalidArgument,
-                                        NotFound)
+from google.api_core.exceptions import GoogleAPIError, InvalidArgument, NotFound
 from google.cloud import logging_v2 as lv2
 from google.cloud.run_v2 import ExecutionsClient
 from loguru import logger as log
