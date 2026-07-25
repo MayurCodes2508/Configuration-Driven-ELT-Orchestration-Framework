@@ -10,6 +10,7 @@ from google.cloud.run_v2 import ExecutionsClient, JobsClient, RunJobRequest
 from loguru import logger as log
 from uuid6 import uuid7 as uid
 
+from el_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
 from el_system.orchestrator.loader import JobCatalog
 
 log.remove()
@@ -109,8 +110,10 @@ class Orchestrator:
 
             return dump
 
-        except Exception:
-            log.exception("Error Occured: While Calling Run Jobs")
+        except Exception as excp:
+            log.error(
+                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
+            )
 
             raise
 
@@ -142,7 +145,7 @@ class Orchestrator:
 
             decoder = json.JSONDecoder()
 
-            obj, end = decoder.raw_decode(dump)
+            obj, _end = decoder.raw_decode(dump)
 
             return json.dumps(obj=obj)
 

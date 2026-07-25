@@ -1,6 +1,8 @@
 import requests
 from loguru import logger as log
 
+from el_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
+
 from el_system.job_executors.auth.auth import Auth
 
 
@@ -61,8 +63,10 @@ class ApiExecCommand:
 
             return full_url
 
-        except Exception as e:
-            log.error(f"Error building URL: {e}")
+        except Exception as excp:
+            log.error(
+                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
+            )
 
             raise
 
@@ -89,8 +93,10 @@ class ApiExecCommand:
 
             return headers
 
-        except Exception as e:
-            log.error(f"Error building headers: {e}")
+        except Exception as excp:
+            log.error(
+                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
+            )
 
             raise
 
@@ -108,8 +114,10 @@ class ApiExecCommand:
 
             return params
 
-        except Exception as e:
-            log.error(f"Error building query params: {e}")
+        except Exception as excp:
+            log.error(
+                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
+            )
 
             raise
 
@@ -126,8 +134,10 @@ class ApiExecCommand:
 
             return response
 
-        except Exception as e:
-            log.error(f"Error making request: {e}")
+        except Exception as excp:
+            log.error(
+                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
+            )
 
             raise
 
@@ -142,15 +152,12 @@ class ApiExecCommand:
 
             log.info(f"rows processed fetched: {rows_processed}")
 
-            if response.status_code != 200:
-                raise Exception(
-                    f"Request_failed: {response.status_code} - {response.text}"
-                )
-
             return data, rows_processed
 
-        except Exception as e:
-            log.error(f"Error handling response: {e}")
+        except Exception as excp:
+            log.error(
+                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
+            )
 
             raise
 

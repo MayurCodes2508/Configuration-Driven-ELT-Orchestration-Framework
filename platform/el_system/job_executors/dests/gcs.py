@@ -5,6 +5,8 @@ import pandas as pd
 from google.cloud import storage
 from loguru import logger as log
 
+from el_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
+
 
 class GCS:
     def __init__(self, metadata_cfg, dest_cfg, data):
@@ -47,8 +49,10 @@ class GCS:
 
             return formatted_path, now
 
-        except Exception:
-            log.exception("Error creating formatted_path")
+        except Exception as excp:
+            log.error(
+                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
+            )
 
             raise
 
@@ -86,8 +90,10 @@ class GCS:
 
             log.info("Successfully uploaded the parquet data to GCS")
 
-        except Exception:
-            log.exception("Error Uploading the data to GCS")
+        except Exception as excp:
+            log.error(
+                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
+            )
 
             raise
 
