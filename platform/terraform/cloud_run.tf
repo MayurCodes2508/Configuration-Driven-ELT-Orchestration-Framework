@@ -8,11 +8,21 @@ resource "google_cloud_run_v2_job" "dev_el_system_run" {
   deletion_protection = false
   template {
     template {
+      max_retries = 2
+      timeout = "600s"
       containers {
         image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/platform-job:testing"
         args = [
           "el_system.orchestrator.main"
         ]
+        env {
+          name = "ENV"
+          value = "DEV"
+        }
+        env {
+          name = "DBT_TARGET"
+          value = "dev"
+        }
         env {
           name = "COINGECKO_API_KEY"
           value_source {
@@ -22,34 +32,8 @@ resource "google_cloud_run_v2_job" "dev_el_system_run" {
             }
           }
         }
-        env {
-          name = "ENV"
-          value = "DEV"
-        }
       }
       service_account = "development-cloud-resources-jo@instant-medium-491107-t6.iam.gserviceaccount.com"
-    }
-  }
-}
-
-resource "google_cloud_run_v2_job" "dev_dbt_transformations_run" {
-  name = "dev-dbt-transformations-run"
-  location = "asia-south1"
-  deletion_protection = false
-  template {
-    template {
-      containers {
-        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/dbt-job:testing"
-        command = ["bash", "-c"]
-        args = [
-          "dbt deps && dbt source freshness --target $DBT_TARGET --profiles-dir . && dbt build --target $DBT_TARGET -s tag:dev --fail-fast --store-failures --profiles-dir ."
-        ]
-        env {
-          name = "DBT_TARGET"
-          value = "dev"
-        }
-      }
-      service_account = "development-cloud-resource-396@instant-medium-491107-t6.iam.gserviceaccount.com"
     }
   }
 }
@@ -60,6 +44,8 @@ resource "google_cloud_run_v2_job" "dev_pipeline_run" {
   deletion_protection = false
   template {
     template {
+      max_retries = 2
+      timeout = "600s"
       containers {
         image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/pipeline_run:testing"
          env {
@@ -91,6 +77,8 @@ resource "google_cloud_run_v2_job" "dev_metadata_system_run" {
   deletion_protection = false
   template {
     template {
+      max_retries = 2
+      timeout = "600s"
       containers {
         image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/platform-job:testing"
         args = [
@@ -150,31 +138,6 @@ resource "google_cloud_run_v2_job" "prod_el_system_run" {
         }
       }
       service_account = "production-cloud-resources-job@instant-medium-491107-t6.iam.gserviceaccount.com"
-    }
-  }
-}
-
-resource "google_cloud_run_v2_job" "prod_dbt_transformations_run" {
-  name = "prod-dbt-transformations-run"
-  location = "asia-south1"
-  deletion_protection = true
-  lifecycle {
-    prevent_destroy = true
-  }
-  template {
-    template {
-      containers {
-        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/dbt-job:latest"
-        command = ["bash", "-c"]
-        args = [
-          "dbt deps && dbt source freshness --target $DBT_TARGET --profiles-dir . && dbt build --target $DBT_TARGET -s tag:prod --fail-fast --store-failures --profiles-dir ."
-        ]
-        env {
-          name = "DBT_TARGET"
-          value = "prod"
-        }
-      }
-      service_account = "production-cloud-resources-960@instant-medium-491107-t6.iam.gserviceaccount.com"
     }
   }
 }
