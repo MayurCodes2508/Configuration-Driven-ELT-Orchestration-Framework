@@ -16,18 +16,6 @@ models:
       relation: true
       columns: true
 
-    business:
-      +tags: ['business']
-
-      staging:
-        +schema: staging
-        +materialized: view
-
-      reporting:
-        +schema: reporting
-        +materialized: table
-
-
     observability:
       +tags: ['observability']
 
@@ -46,10 +34,6 @@ models:
 
 data_tests:
   market_analytics_platform:
-
-    business:
-      +tags: ['business']
-
 
     observability:
       +tags: ['observability']
