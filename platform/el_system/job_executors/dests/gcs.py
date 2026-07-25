@@ -1,8 +1,9 @@
-from loguru import logger as log
-from datetime import datetime, timezone
-from google.cloud import storage
 import io
+from datetime import datetime, timezone
+
 import pandas as pd
+from google.cloud import storage
+from loguru import logger as log
 
 
 class GCS:

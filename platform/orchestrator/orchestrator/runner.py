@@ -1,5 +1,6 @@
+from google.api_core.exceptions import (GoogleAPIError, InvalidArgument,
+                                        NotFound)
 from google.cloud.run_v2 import JobsClient
-from google.api_core.exceptions import GoogleAPIError, NotFound, InvalidArgument
 from loguru import logger as log
 
 

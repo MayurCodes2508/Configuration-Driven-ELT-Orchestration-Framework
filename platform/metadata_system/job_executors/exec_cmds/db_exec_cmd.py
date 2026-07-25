@@ -1,7 +1,8 @@
-from loguru import logger as log
 import psycopg2
-from metadata_system.job_executors.exceptions.db_exceptions import DBExceptions
+from loguru import logger as log
+
 from metadata_system.job_executors.auth.auth import Auth
+from metadata_system.job_executors.exceptions.db_exceptions import DBExceptions
 
 
 class DBExecCommand:

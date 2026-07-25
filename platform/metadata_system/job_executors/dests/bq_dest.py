@@ -1,6 +1,7 @@
-from loguru import logger as log
 from datetime import datetime
+
 from google.cloud import bigquery as bqcl
+from loguru import logger as log
 
 
 class BQ:

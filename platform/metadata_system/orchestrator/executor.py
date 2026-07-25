@@ -1,13 +1,14 @@
-from loguru import logger as log
-from uuid6 import uuid7 as uid
 import argparse as arg
 import json
 import sys
+
+from loguru import logger as log
+from uuid6 import uuid7 as uid
+
 from metadata_system.orchestrator.loader import JobConfigLoader
-from metadata_system.orchestrator.validator import Validator
 from metadata_system.orchestrator.metadata import Metadata
 from metadata_system.orchestrator.runner import Runner
-
+from metadata_system.orchestrator.validator import Validator
 
 log.remove()
 

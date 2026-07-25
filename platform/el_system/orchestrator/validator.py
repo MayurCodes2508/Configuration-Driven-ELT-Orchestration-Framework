@@ -1,7 +1,8 @@
-from loguru import logger as log
-import jsonschema_rs
-from jsonschema.exceptions import ValidationError, SchemaError
 from pathlib import Path
+
+import jsonschema_rs
+from jsonschema.exceptions import SchemaError, ValidationError
+from loguru import logger as log
 
 
 class Validator:

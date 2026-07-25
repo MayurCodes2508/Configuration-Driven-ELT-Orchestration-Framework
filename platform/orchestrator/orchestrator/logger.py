@@ -1,6 +1,6 @@
-from loguru import logger as log
 import psycopg2
-from psycopg2.errors import DatabaseError, OperationalError, InterfaceError
+from loguru import logger as log
+from psycopg2.errors import DatabaseError, InterfaceError, OperationalError
 from psycopg2.extras import Json
 
 

@@ -1,8 +1,9 @@
-import os
-from pathlib import Path
-from loguru import logger as log
 import json
+import os
 from json import JSONDecodeError
+from pathlib import Path
+
+from loguru import logger as log
 
 
 class JobCatalog:

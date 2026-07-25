@@ -1,13 +1,6 @@
-from psycopg2.errors import (
-    IntegrityError,
-    InterfaceError,
-    DatabaseError,
-    ProgrammingError,
-    OperationalError,
-    NotSupportedError,
-    DataError,
-    InternalError,
-)
+from psycopg2.errors import (DatabaseError, DataError, IntegrityError,
+                             InterfaceError, InternalError, NotSupportedError,
+                             OperationalError, ProgrammingError)
 
 
 class DBExceptions:

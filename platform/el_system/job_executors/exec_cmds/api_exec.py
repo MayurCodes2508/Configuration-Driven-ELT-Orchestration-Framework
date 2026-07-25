@@ -1,5 +1,6 @@
-from loguru import logger as log
 import requests
+from loguru import logger as log
+
 from el_system.job_executors.auth.auth import Auth
 
 

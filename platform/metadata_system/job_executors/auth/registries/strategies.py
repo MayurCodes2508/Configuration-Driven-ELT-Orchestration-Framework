@@ -1,5 +1,6 @@
-from loguru import logger as log
 import os
+
+from loguru import logger as log
 
 
 class DBUrl:

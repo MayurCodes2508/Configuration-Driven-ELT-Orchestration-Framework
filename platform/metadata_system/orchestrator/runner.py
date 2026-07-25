@@ -1,6 +1,9 @@
 from loguru import logger as log
-from metadata_system.job_executors.exec_cmds.registries.exec_cmds import ExecCmdType
-from metadata_system.job_executors.dests.registries.dest_targets import DestType
+
+from metadata_system.job_executors.dests.registries.dest_targets import \
+    DestType
+from metadata_system.job_executors.exec_cmds.registries.exec_cmds import \
+    ExecCmdType
 
 
 class Runner:
