@@ -77,6 +77,7 @@ class JobCatalog:
 
         return self.env
 
+
 class JobConfigLoader:
     def __init__(self, fp):
 
@@ -116,9 +117,7 @@ class JobConfigLoader:
             raise
 
         except Exception:
-            log.error(
-                f"Unknown Error Occured While Loading Job Cfg: {self.file_path}"
-            )
+            log.error(f"Unknown Error Occured While Loading Job Cfg: {self.file_path}")
 
             raise
 

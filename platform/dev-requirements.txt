@@ -50,7 +50,9 @@ click==8.4.2
 colorama==0.4.6
     # via
     #   -r requirements.txt
+    #   click
     #   dbt-common
+    #   loguru
 cryptography==49.0.0
     # via
     #   -r requirements.txt
@@ -558,6 +560,11 @@ typing-inspection==0.4.2
     # via
     #   -r requirements.txt
     #   pydantic
+tzdata==2026.3
+    # via
+    #   -r requirements.txt
+    #   agate
+    #   pandas
 urllib3==2.7.0
     # via
     #   -r requirements.txt
@@ -568,6 +575,10 @@ websockets==16.1.1
     # via
     #   -r requirements.txt
     #   google-genai
+win32-setctime==1.2.0
+    # via
+    #   -r requirements.txt
+    #   loguru
 zipp==4.1.0
     # via
     #   -r requirements.txt

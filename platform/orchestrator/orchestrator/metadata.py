@@ -11,7 +11,6 @@ import time
 import os
 
 
-
 class Pipeline_Metadata:
     def __init__(
         self,
@@ -177,11 +176,9 @@ class Job_Metadata:
             all_metadata_dump = None
 
             while True:
-
                 entries = logging_client.list_entries(filter_=job_filter)
 
                 for entry in entries:
-
                     log_text = entry.payload
 
                     all_metadata_dump = log_text.rsplit("ALL_METADATA_DUMPS: ", 1)[-1]
@@ -189,13 +186,12 @@ class Job_Metadata:
                     break
 
                 if all_metadata_dump is not None:
-
                     break
 
                 time.sleep(1)
 
             all_metadata_dump = le(all_metadata_dump)
-            
+
         except GoogleAPIError:
             log.exception("API Error Occured, Affecting Job Metadata")
 
@@ -211,9 +207,7 @@ class Job_Metadata:
         job_metadatas = []
 
         try:
-
             for metadata_dump in all_metadata_dump:
-
                 metadata = json.loads(metadata_dump)
 
                 log.info(metadata)

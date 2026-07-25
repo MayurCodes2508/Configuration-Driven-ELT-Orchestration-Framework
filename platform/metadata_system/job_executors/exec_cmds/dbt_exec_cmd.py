@@ -6,8 +6,6 @@ import shlex
 import json
 
 
-
-
 class dbtExecCommand:
     def __init__(self, exec_cfg):
 
@@ -43,31 +41,27 @@ class dbtExecCommand:
         processes.append(process)
 
         for process in processes:
-
             for line in process.stdout:
-
                 log.info(line.rstrip())
 
             process.wait()
 
             if process.returncode != 0:
-
                 for line in process.stderr:
-
                     log.error(line.rstrip())
 
         log.info("Execution of dbt Completed...")
- 
-        artifact_path = Path(__file__).parent.parent.parent / "dbt/target/run_results.json"
+
+        artifact_path = (
+            Path(__file__).parent.parent.parent / "dbt/target/run_results.json"
+        )
 
         with open(file=artifact_path, mode="+r") as f:
-
             data = json.load(fp=f)
 
         nodes = {}
 
         for result in data["results"]:
-
             node = result["unique_id"]
 
             nodes[node] = {
@@ -75,14 +69,13 @@ class dbtExecCommand:
                 "execution_time": result["execution_time"],
                 "message": result["message"],
                 "failures": result["failures"],
-                "rows_affected": result["adapter_response"].get("rows_affected"), 
-                "bytes_billed": result["adapter_response"].get("bytes_billed"), 
-                "job_id": result["adapter_response"].get("job_id"), 
-                "slot_ms": result["adapter_response"].get("slot_ms") 
+                "rows_affected": result["adapter_response"].get("rows_affected"),
+                "bytes_billed": result["adapter_response"].get("bytes_billed"),
+                "job_id": result["adapter_response"].get("job_id"),
+                "slot_ms": result["adapter_response"].get("slot_ms"),
             }
 
         return nodes
-
 
     def run(self):
 

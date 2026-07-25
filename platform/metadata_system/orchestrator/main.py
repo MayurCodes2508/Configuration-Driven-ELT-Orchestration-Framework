@@ -31,7 +31,6 @@ class Orchestrator:
     def run_concurrent_jobs(self, path, job_name):
 
         try:
-
             job_client = JobsClient()
 
             executions_client = ExecutionsClient()
@@ -43,7 +42,6 @@ class Orchestrator:
             base_path = "projects/instant-medium-491107-t6/locations/asia-south1/jobs"
 
             if self.env == "PROD":
-
                 run_job_name = "prod-metadata-system-run"
 
             request = RunJobRequest(
@@ -53,12 +51,14 @@ class Orchestrator:
                         RunJobRequest.Overrides.ContainerOverride(
                             args=[
                                 "metadata_system.orchestrator.executor",
-                                "--job_name", str(object=job_name),
-                                "--file_path", str(object=path)
+                                "--job_name",
+                                str(object=job_name),
+                                "--file_path",
+                                str(object=path),
                             ]
                         )
                     ]
-                )
+                ),
             )
 
             operation = job_client.run_job(request=request)
@@ -68,11 +68,9 @@ class Orchestrator:
             log.info(f"Job Execution Name: {execution_name}...")
 
             while True:
-
                 execution = executions_client.get_execution(name=execution_name)
 
                 if execution.completion_time:
-
                     log.info("Successfully Got Final Job Execution...")
 
                     break
@@ -93,11 +91,9 @@ class Orchestrator:
             dump = None
 
             while True:
-
                 entries = logging_client.list_entries(filter_=job_filter)
 
                 for entry in entries:
-
                     txt_log = entry.payload
 
                     dump = txt_log.rsplit("METADATA_DUMP: ", 1)[-1]
@@ -105,15 +101,13 @@ class Orchestrator:
                     break
 
                 if dump is not None:
-
                     break
-                
+
                 time.sleep(1)
 
             return dump
 
         except Exception:
-
             log.exception("Error Occured: While Executing Job")
 
             raise
@@ -121,7 +115,6 @@ class Orchestrator:
     def run_concurrent_jobs_local(self, path, job_name):
 
         try:
-
             process = sp(
                 [
                     "docker",
@@ -136,7 +129,7 @@ class Orchestrator:
                     "--job_name",
                     str(object=job_name),
                     "--file_path",
-                    str(object=path)
+                    str(object=path),
                 ],
                 capture_output=True,
                 check=True,
@@ -144,7 +137,7 @@ class Orchestrator:
             )
 
             output = process.stdout
-            
+
             dump = output.rsplit("METADATA_DUMP: ", 1)[-1]
 
             decoder = json.JSONDecoder()
@@ -152,9 +145,8 @@ class Orchestrator:
             obj, end = decoder.raw_decode(dump)
 
             return json.dumps(obj=obj)
-        
-        except sperr as err:
 
+        except sperr as err:
             log.exception("Error Occured: While Executing Job")
 
             log.error(f"{err.stderr}")
@@ -163,19 +155,19 @@ class Orchestrator:
 
 
 if __name__ == "__main__":
-
     try:
         job_catalog_loader = JobCatalog()
 
         env = job_catalog_loader.job_catalog_run()
 
     except Exception:
-        log.opt(exception=True).critical("System: metadata | Failed to Load Job Catalog, Aborting Job Executions")
+        log.opt(exception=True).critical(
+            "System: metadata | Failed to Load Job Catalog, Aborting Job Executions"
+        )
 
         raise
 
     try:
-
         orchestrator = Orchestrator(env=env)
 
         log.info("All Job Executions Started...")
@@ -184,25 +176,27 @@ if __name__ == "__main__":
 
         with tpe(max_workers=5) as executor:
             for job in job_catalog_loader.jobs:
-
                 if env == "LOCAL":
-                    futures.append(executor.submit(
-                        orchestrator.run_concurrent_jobs_local,
-                        job["path"],
-                        job["job_name"],
+                    futures.append(
+                        executor.submit(
+                            orchestrator.run_concurrent_jobs_local,
+                            job["path"],
+                            job["job_name"],
                         )
                     )
 
                 elif env in {"DEV", "PROD"}:
-                    futures.append(executor.submit(
-                        orchestrator.run_concurrent_jobs, job["path"], job["job_name"]
+                    futures.append(
+                        executor.submit(
+                            orchestrator.run_concurrent_jobs,
+                            job["path"],
+                            job["job_name"],
                         )
                     )
 
         results = []
 
         for future in futures:
-
             results.append(future.result())
 
         log.info("All Job Executions Completed...")
@@ -210,7 +204,6 @@ if __name__ == "__main__":
         log.info(f"ALL_METADATA_DUMPS: {results}")
 
     except Exception as strt_err:
-
         results = []
 
         for job in job_catalog_loader.jobs:
