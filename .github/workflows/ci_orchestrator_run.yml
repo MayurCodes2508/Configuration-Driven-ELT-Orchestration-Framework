@@ -15,18 +15,11 @@ on:
     branches:
       - main
       - dev
-      - feature/**
 
-    paths:
-      - platform/orchestrator/**
-  
   pull_request:
     branches:
       - main
       - dev
-
-    paths:
-      - platform/orchestrator/**
 
   workflow_dispatch:
 
