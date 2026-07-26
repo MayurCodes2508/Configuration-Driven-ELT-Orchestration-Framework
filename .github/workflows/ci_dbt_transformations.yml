@@ -8,6 +8,10 @@ permissions:
   id-token: write
   contents: read
 
+concurrency:
+  group: -${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
 ####################### Triggers ###############################
 
 on:
