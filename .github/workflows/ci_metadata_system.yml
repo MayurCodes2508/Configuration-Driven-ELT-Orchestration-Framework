@@ -8,26 +8,12 @@ permissions:
   id-token: write
   contents: read
 
-concurrency:
-  group: -${{ github.event.pull_request.number }}
-  cancel-in-progress: false
-
 ####################### Triggers ###############################
 
 on:
   push:
     branches:
-      - main
-      - dev
       - feature/**
-
-    paths:
-      - platform/metadata_system/**
-  
-  pull_request:
-    branches:
-      - main
-      - dev
 
     paths:
       - platform/metadata_system/**
