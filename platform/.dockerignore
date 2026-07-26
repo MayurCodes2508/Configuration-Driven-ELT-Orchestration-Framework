@@ -1,0 +1,14 @@
+.venv/
+.gcloudignore
+terraform/
+docs/
+.vscode/
+__pycache__/
+dbt_packages/
+logs/
+macros/
+snapshots/
+state/
+target/
+*user*
+*lock*

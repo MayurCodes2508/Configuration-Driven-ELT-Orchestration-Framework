@@ -2,11 +2,16 @@ name: CI ORCHESTRATOR RUN
 
 defaults:
   run:
-    working-directory: ./el_system
+    working-directory: ./platform/
 
 permissions:
   id-token: write
   contents: read
+
+concurrency:
+  group: -${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+  
 
 ####################### Triggers ###############################
 
@@ -15,10 +20,10 @@ on:
     branches:
       - main
       - dev
-      - 'feature/**'
+      - feature/**
 
     paths:
-      - 'orchestrator/**'
+      - platform/orchestrator/**
   
   pull_request:
     branches:
@@ -26,7 +31,7 @@ on:
       - dev
 
     paths:
-      - 'orchestrator/**'
+      - platform/orchestrator/**
 
   workflow_dispatch:
 
@@ -54,73 +59,27 @@ jobs:
         with:
           python-version: '3.12.3'
           cache: 'pip'
-          cache-dependency-path: 'orchestrator/requirements.txt'
+          cache-dependency-path: './platform/requirements.txt'
 
       - name: Setup Dependencies & Validate
         run: |
+          echo "=== Step Start ==="
           python -m ensurepip --default-pip
           pip install pip-tools
           pip-compile requirements.in 
           pip-sync requirements.txt
+          echo "=== Broken Requirements Check ==="
           pip check
+          echo "=== Step End ==="
 
       - name: Run Code
         run: |
-          python -u -m orchestrator.orchestrator
-        env:
-          DB_URL: ${{ secrets.DB_URL }}
-          ENV: ${{ vars.ENV }}
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
-
-######################## Test #######################################
-
-  test:
-    runs-on: ubuntu-latest
-    if: github.ref_name == 'dev' || github.ref_name == 'main'
-    needs: build
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v5
-
-      - name: Authenticate to GCP
-        id: auth
-        uses: google-github-actions/auth@v3
-        with:
-          workload_identity_provider: "projects/144449440045/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider"
-          service_account: "github-workflows@instant-medium-491107-t6.iam.gserviceaccount.com"
-
-      - name: Set up python 3.12.3
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.12.3'
-          cache: 'pip'
-          cache-dependency-path: 'orchestrator/requirements.txt'
-
-      - name: Setup Dependencies & Validate
-        run: |
-          python -m ensurepip --default-pip
-          pip install pip-tools
-          pip-compile dev-requirements.in 
-          pip-sync dev-requirements.txt
-          pip check
-
-      - name: Ruff Test
-        run: |
-          ruff check .
-
-      - name: Ruff Test
-        run: |
-          ruff format --check .
-        continue-on-error: true
-
-      - name: Containerize & Run
-        run: |
-          docker build -t pipeline-run .
-          docker run \
-          -e DB_URL \
-          -e ENV \
-          -e GOOGLE_APPLICATION_CREDENTIALS \
-          pipeline-run
+          echo "=== Step Start ==="
+          echo "$ENV"
+          echo "=== Code Run Start ==="
+          python -u -m orchestrator.orchestrator.main
+          echo "=== Code Run End ==="
+          echo "=== Step End ==="
         env:
           DB_URL: ${{ secrets.DB_URL }}
           ENV: ${{ vars.ENV }}

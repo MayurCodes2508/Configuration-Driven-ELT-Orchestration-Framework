@@ -1,8 +1,0 @@
-.venv
-logs/
-target/
-state/
-.gcloudignore
-dbt_packages/
-requirements.in
-package-lock.yml

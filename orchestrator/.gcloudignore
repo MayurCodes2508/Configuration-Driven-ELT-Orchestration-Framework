@@ -1,7 +1,0 @@
-__pycache__/
-*.pyc*
-.venv/
-*dev-requirements*
-*requirements.in*
-*.ruff_cache*
-*.mypy_cache*

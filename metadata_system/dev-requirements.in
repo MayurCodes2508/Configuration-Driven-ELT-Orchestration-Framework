@@ -1,6 +1,0 @@
-pytest
-pylint
-mypy
-ruff
-responses
-types-psycopg2
