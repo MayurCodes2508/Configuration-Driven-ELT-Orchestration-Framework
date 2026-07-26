@@ -8,11 +8,6 @@ permissions:
   id-token: write
   contents: read
 
-concurrency:
-  group: -${{ github.event.pull_request.number }}
-  cancel-in-progress: false
-  
-
 ####################### Triggers ###############################
 
 on:
@@ -20,18 +15,11 @@ on:
     branches:
       - main
       - dev
-      - feature/**
 
-    paths:
-      - platform/orchestrator/**
-  
   pull_request:
     branches:
       - main
       - dev
-
-    paths:
-      - platform/orchestrator/**
 
   workflow_dispatch:
 
