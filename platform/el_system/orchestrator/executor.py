@@ -4,6 +4,7 @@ import sys
 
 from loguru import logger as log
 from uuid6 import uuid7 as uid
+from uuid import UUID
 
 from el_system.orchestrator.loader import JobConfigLoader
 from el_system.orchestrator.metadata import Metadata
@@ -30,10 +31,23 @@ class Executor:
 
     def execute_job(self, fp, job_name):
 
-        try:
-            job_run_id = str(uid())
+        log.info("Creating Job Run ID...")
 
-            log.info(f"Job: {job_name} | ID: {job_run_id} | System: el | CREATED...")
+        def build_run_id():
+
+            run_id = str(uid())
+
+            log.info("Job Run ID Created...")
+
+            return run_id
+        
+        try:
+
+            self.job_run_id = build_run_id()
+
+            if not UUID(self.job_run_id):
+
+                raise ValueError("Invalid UUID")
 
             job_cfg_loader = JobConfigLoader(fp=fp)
 
@@ -41,7 +55,7 @@ class Executor:
 
         except Exception as load_err:
             dump = {
-                "job_run_id": job_run_id,
+                "job_run_id": self.job_run_id,
                 "job_name": job_name,
                 "system": "el",
                 "job_type": None,
@@ -54,10 +68,14 @@ class Executor:
             log.info(f"METADATA_DUMP: {json.dumps(obj=dump)}")
 
             log.opt(exception=True).error(
-                f"Job: {job_name} | ID: {job_run_id} | System: el | Job Cfg Loading Failed"
+                f"Job: {job_name} | ID: {self.job_run_id} | System: el | Job Cfg Loading Failed"
             )
 
             raise
+
+        log.info(f"Job: {job_name} | ID: {self.job_run_id} | System: el | CREATED...")
+
+        sys.exit(0)
 
         try:
             validator = Validator(loader=job_cfg_loader)
@@ -66,7 +84,7 @@ class Executor:
 
         except Exception as valid_err:
             dump = {
-                "job_run_id": job_run_id,
+                "job_run_id": self.job_run_id,
                 "job_name": job_name,
                 "system": "el",
                 "job_type": None,
@@ -79,13 +97,13 @@ class Executor:
             log.info(f"METADATA_DUMP: {json.dumps(obj=dump)}")
 
             log.opt(exception=True).error(
-                f"Job Execution: {job_name} | ID: {job_run_id} | System: el | Job Cfg Validation Failed"
+                f"Job Execution: {job_name} | ID: {self.job_run_id} | System: el | Job Cfg Validation Failed"
             )
 
             raise
 
         log.info(
-            f"Job Execution: {job_name} | ID: {job_run_id} | System: el | RUNNING..."
+            f"Job Execution: {job_name} | ID: {self.job_run_id} | System: el | RUNNING..."
         )
 
         try:
@@ -97,7 +115,7 @@ class Executor:
             metadata = Metadata(loader=job_cfg_loader)
 
             job_metadata_dump = metadata.build_job_metadata(
-                job_run_id=job_run_id,
+                job_run_id=self.job_run_id,
                 job_name=job_name,
                 status="FAILED",
                 error_message=str(object=exec_err),
@@ -107,7 +125,7 @@ class Executor:
             log.info(f"METADATA_DUMP: {json.dumps(obj=job_metadata_dump)}")
 
             log.opt(exception=True).error(
-                f"Job Execution: {job_name} | ID: {job_run_id} | System: el | Job Type: {job_metadata_dump['job_type']} | Sub JobType: {job_metadata_dump['sub_jobtype']} | Status: FAILED"
+                f"Job Execution: {job_name} | ID: {self.job_run_id} | System: el | Job Type: {job_metadata_dump['job_type']} | Sub JobType: {job_metadata_dump['sub_jobtype']} | Status: FAILED"
             )
 
             raise
@@ -118,7 +136,7 @@ class Executor:
             metadata.get_metadata()
 
             job_metadata_dump = metadata.build_job_metadata(
-                job_run_id=job_run_id,
+                job_run_id=self.job_run_id,
                 job_name=job_name,
                 status="SUCCESS",
                 error_message=None,
@@ -128,7 +146,7 @@ class Executor:
             log.info(f"METADATA_DUMP: {json.dumps(obj=job_metadata_dump)}")
 
             log.success(
-                f"Job Execution: {job_name} | ID: {job_run_id} | System: el | Job Type: {job_metadata_dump['job_type']} | Sub JobType: {job_metadata_dump['sub_jobtype']} | Status: SUCCESS"
+                f"Job Execution: {job_name} | ID: {self.job_run_id} | System: el | Job Type: {job_metadata_dump['job_type']} | Sub JobType: {job_metadata_dump['sub_jobtype']} | Status: SUCCESS"
             )
 
 
