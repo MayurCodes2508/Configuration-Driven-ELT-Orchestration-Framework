@@ -73,8 +73,6 @@ class Executor:
 
         log.info(f"Job: {job_name} | ID: {self.job_run_id} | System: el | CREATED...")
 
-        sys.exit(0)
-
         try:
             validator = Validator(loader=job_cfg_loader)
 

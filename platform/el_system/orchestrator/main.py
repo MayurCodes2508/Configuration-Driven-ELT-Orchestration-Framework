@@ -78,7 +78,7 @@ class Orchestrator:
 
                     break
 
-                time.sleep(1)
+                time.sleep(2)
 
             exec_name = execution_name.rsplit("/", 1)[-1]
 
@@ -106,7 +106,7 @@ class Orchestrator:
                 if dump is not None:
                     break
 
-                time.sleep(1)
+                time.sleep(2)
 
             return dump
 
