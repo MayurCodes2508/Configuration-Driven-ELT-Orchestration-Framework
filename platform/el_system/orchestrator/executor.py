@@ -40,13 +40,11 @@ class Executor:
             log.info("Job Run ID Created...")
 
             return run_id
-        
-        try:
 
+        try:
             self.job_run_id = build_run_id()
 
             if not UUID(self.job_run_id):
-
                 raise ValueError("Invalid UUID")
 
             job_cfg_loader = JobConfigLoader(fp=fp)
