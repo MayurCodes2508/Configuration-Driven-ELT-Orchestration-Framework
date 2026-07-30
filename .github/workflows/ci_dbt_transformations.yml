@@ -49,11 +49,12 @@ jobs:
       - name: Setup Dependencies & Validate
         working-directory: './platform/'
         run: |
+          echo "=== Step Start ==="
           python -m ensurepip --default-pip
-          pip install pip-tools
-          pip-compile requirements.in 
-          pip-sync requirements.txt
+          pip install -r requirements.txt
+          echo "=== Broken Requirements Check ==="
           pip check
+          echo "=== Step End ==="
 
       - name: Setup dbt Dependencies
         run: |
