@@ -7,11 +7,13 @@ from el_system.job_executors.exec_cmds.registries.exec_cmds import ExecCmdType
 
 
 class Runner:
-    def __init__(self, loader):
+    def __init__(self, loader, job_run_id):
 
         self.job_cfg = loader.job_cfg
 
         self.metadata_cfg = self.job_cfg["metadata"]
+
+        self.job_run_id = job_run_id
 
         log.info("Obj: runner | Instance Initialized Successfully...")
 
@@ -56,6 +58,7 @@ class Runner:
                 dest_cfg=self.dest_cfg,
                 metadata_cfg=self.metadata_cfg,
                 data=self.data,
+                job_run_id=self.job_run_id
             )
 
             dest.run()
