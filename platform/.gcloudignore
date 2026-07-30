@@ -11,3 +11,4 @@ state/
 target/
 *user*
 *lock*
+el_system/tests/
