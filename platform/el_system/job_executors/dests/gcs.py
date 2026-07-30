@@ -9,7 +9,7 @@ from el_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
 
 
 class GCS:
-    def __init__(self, metadata_cfg, dest_cfg, data):
+    def __init__(self, metadata_cfg, dest_cfg, data, job_run_id):
 
         self.metadata_cfg = metadata_cfg
         self.source = metadata_cfg["source"]
@@ -23,6 +23,8 @@ class GCS:
         self.path_template = dest_cfg["path_template"]
 
         self.data = data
+
+        self.job_run_id = job_run_id
 
         log.info("Obj: gcsdest | Instance Initialized Successfully...")
 
@@ -38,6 +40,7 @@ class GCS:
                 "source": self.source,
                 "dataset": self.dataset,
                 "entity": self.entity,
+                "job_run_id": self.job_run_id,
                 "ingestion_dt": now.strftime("%Y-%m-%d"),
                 "ingestion_ts": now.strftime("%Y%m%dT%H%M%SZ"),
                 "format": self.format,
