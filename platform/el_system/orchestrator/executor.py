@@ -103,7 +103,7 @@ class Executor:
         )
 
         try:
-            runner = Runner(loader=job_cfg_loader)
+            runner = Runner(loader=job_cfg_loader, job_run_id=self.job_run_id)
 
             runner.runner_run()
 

@@ -78,7 +78,7 @@ class Orchestrator:
 
                     break
 
-                time.sleep(2)
+                time.sleep(3)
 
             exec_name = execution_name.rsplit("/", 1)[-1]
 
@@ -93,7 +93,7 @@ class Orchestrator:
 
             dump = None
 
-            while True:
+            for sec in range(100):
                 entries = logging_client.list_entries(filter_=job_filter)
 
                 for entry in entries:
@@ -106,7 +106,11 @@ class Orchestrator:
                 if dump is not None:
                     break
 
-                time.sleep(2)
+                time.sleep(3)
+
+            else:
+
+                raise TimeoutError("TImeout Hit | Couldnt Fetch Metadata Dump")
 
             return dump
 
