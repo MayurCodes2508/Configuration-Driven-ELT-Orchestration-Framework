@@ -58,6 +58,15 @@ jobs:
           pip check
           echo "=== Step End ==="
 
+      - name: Build Image
+        run: |
+          echo "=== Step Start ==="
+          echo "=== Image Build ==="
+          docker build -t platform-job:latest .
+          echo "=== Image List ==="
+          docker image ls
+          echo "=== Step End ==="
+
       - name: Run Code
         run: |
           echo "=== Step Start ==="
