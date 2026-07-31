@@ -94,7 +94,7 @@ class Orchestrator:
 
             dump = None
 
-            while True:
+            for sec in range(100):
                 entries = logging_client.list_entries(filter_=job_filter)
 
                 for entry in entries:
@@ -107,7 +107,11 @@ class Orchestrator:
                 if dump is not None:
                     break
 
-                time.sleep(1)
+                time.sleep(3)
+
+            else:
+
+                raise TimeoutError("TImeout Hit | Couldnt Fetch Metadata Dump")
 
             return dump
 
