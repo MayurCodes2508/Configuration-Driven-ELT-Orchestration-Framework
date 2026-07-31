@@ -36,7 +36,7 @@
             "path_template": {
                 
                 "type": "string",
-                "const":"{layer}/{source}/{dataset}/{entity}/job_run_id={job_run_id}/ingestion_dt={ingestion_dt}/ingestion_ts={ingestion_ts}.{format}"
+                "const":"{layer}/{source}/{dataset}/{entity}/ingestion_dt={ingestion_dt}/ingestion_ts={ingestion_ts}/job_run_id={job_run_id}.{format}"
             }
         },
         "additionalProperties": false
