@@ -1,6 +1,7 @@
 .venv/
 .vscode/
 __pycache__/
+.pytest_cache/
 *.pyc*
 .DS_Store
 *.ruff_cache*
@@ -13,6 +14,7 @@ LICENSE.txt
 *.tfstate*
 *.tfvars*
 logs/
+tests/
 target/
 state/
 macros/

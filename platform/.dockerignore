@@ -4,8 +4,10 @@ terraform/
 docs/
 .vscode/
 __pycache__/
+.pytest_cache/
 dbt_packages/
 logs/
+tests/
 macros/
 snapshots/
 state/
