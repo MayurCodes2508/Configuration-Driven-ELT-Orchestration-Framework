@@ -27,6 +27,104 @@ log.add(
 log.add(sink=sys.stderr, filter=lambda record: record["level"].name == "CRITICAL")
 
 
+class Main:
+
+    def __init__(self):
+
+        pass
+
+
+    def main(self):
+
+        def getenv(job_catalog_loader):
+
+            try:
+
+                env = job_catalog_loader.job_catalog_run()
+
+                log.info(f"Successfully Loaded the Env: {env}")
+
+                return env
+
+            except Exception:
+                log.opt(exception=True).critical(
+                    "System: metadata | Failed to Load Env, Aborting Job Executions"
+                )
+
+                raise
+
+        job_catalog_loader = JobCatalog()
+        
+        env = getenv(job_catalog_loader=job_catalog_loader)
+
+        try:
+
+            orchestrator = Orchestrator(env=env)
+
+            log.info("All Job Executions Started...")
+
+            futures = []
+
+            with tpe(max_workers=5) as executor:
+                for job in job_catalog_loader.jobs:
+                    if env == "LOCAL":
+                        futures.append(
+                            executor.submit(
+                                orchestrator.run_concurrent_jobs_local,
+                                job["path"],
+                                job["job_name"],
+                            )
+                        )
+
+                    elif env in {"DEV", "PROD"}:
+                        futures.append(
+                            executor.submit(
+                                orchestrator.run_concurrent_jobs,
+                                job["path"],
+                                job["job_name"],
+                            )
+                        )
+
+            results = []
+
+            try:
+
+                for future in futures:
+                    results.append(future.result())
+
+            except Exception as job_err:
+
+                pass
+
+            log.info("All Job Executions Completed...")
+
+            log.info(f"ALL_METADATA_DUMPS: {results}")
+
+        except Exception as strt_err:
+            results = []
+
+            for job in job_catalog_loader.jobs:
+                dump = {
+                    "job_run_id": str(object=uid()),
+                    "job_name": job.get("job_name"),
+                    "system": "metadata",
+                    "job_type": None,
+                    "sub_jobtype": None,
+                    "status": "FAILED",
+                    "error_message": str(object=strt_err),
+                    "job_metrics": None,
+                }
+
+                results.append(json.dumps(obj=dump))
+
+            log.opt(exception=True).critical(
+                "System: metadata | Failed to Start the Thread Pool Executor, Aborting Job Executions"
+            )
+
+            log.info(f"ALL_METADATA_DUMPS: {results}")
+
+            raise  
+
 class Orchestrator:
     def __init__(self, env):
 
@@ -79,7 +177,7 @@ class Orchestrator:
 
                     break
 
-                time.sleep(1)
+                time.sleep(3)
 
             exec_name = execution_name.rsplit("/", 1)[-1]
 
@@ -148,6 +246,8 @@ class Orchestrator:
 
             output = process.stdout
 
+            log.info(output)
+
             dump = output.rsplit("METADATA_DUMP: ", 1)[-1]
 
             decoder = json.JSONDecoder()
@@ -165,75 +265,7 @@ class Orchestrator:
 
 
 if __name__ == "__main__":
-    try:
-        job_catalog_loader = JobCatalog()
 
-        env = job_catalog_loader.job_catalog_run()
+    main = Main()
 
-    except Exception:
-        log.opt(exception=True).critical(
-            "System: metadata | Failed to Load Job Catalog, Aborting Job Executions"
-        )
-
-        raise
-
-    try:
-        orchestrator = Orchestrator(env=env)
-
-        log.info("All Job Executions Started...")
-
-        futures = []
-
-        with tpe(max_workers=5) as executor:
-            for job in job_catalog_loader.jobs:
-                if env == "LOCAL":
-                    futures.append(
-                        executor.submit(
-                            orchestrator.run_concurrent_jobs_local,
-                            job["path"],
-                            job["job_name"],
-                        )
-                    )
-
-                elif env in {"DEV", "PROD"}:
-                    futures.append(
-                        executor.submit(
-                            orchestrator.run_concurrent_jobs,
-                            job["path"],
-                            job["job_name"],
-                        )
-                    )
-
-        results = []
-
-        for future in futures:
-            results.append(future.result())
-
-        log.info("All Job Executions Completed...")
-
-        log.info(f"ALL_METADATA_DUMPS: {results}")
-
-    except Exception as strt_err:
-        results = []
-
-        for job in job_catalog_loader.jobs:
-            dump = {
-                "job_run_id": str(object=uid()),
-                "job_name": job.get("job_name"),
-                "system": "metadata",
-                "job_type": None,
-                "sub_jobtype": None,
-                "status": "FAILED",
-                "error_message": str(object=strt_err),
-                "job_metrics": None,
-            }
-
-            results.append(json.dumps(obj=dump))
-
-        log.opt(exception=True).critical(
-            "System: metadata | Failed to Start the Thread Pool Executor, Aborting Job Executions"
-        )
-
-        log.info(f"ALL_METADATA_DUMPS: {results}")
-
-        raise
+    main.main()
