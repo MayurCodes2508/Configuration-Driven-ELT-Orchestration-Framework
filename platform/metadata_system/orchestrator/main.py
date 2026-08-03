@@ -38,24 +38,28 @@ class Main:
 
         def getenv(job_catalog_loader):
 
-            try:
+            env = job_catalog_loader.job_catalog_run()
 
-                env = job_catalog_loader.job_catalog_run()
+            if not env:
 
-                log.info(f"Successfully Loaded the Env: {env}")
+                raise ValueError(f"Invalid or Missing Env: {env}")
 
-                return env
+            log.info(f"Successfully Loaded the Env: {env}")
 
-            except Exception:
-                log.opt(exception=True).critical(
-                    "System: metadata | Failed to Load Env, Aborting Job Executions"
-                )
+            return env
 
-                raise
+        try:
 
-        job_catalog_loader = JobCatalog()
-        
-        env = getenv(job_catalog_loader=job_catalog_loader)
+            job_catalog_loader = JobCatalog()
+            
+            env = getenv(job_catalog_loader=job_catalog_loader)
+
+        except Exception:
+            log.opt(exception=True).critical(
+                "System: metadata | Failed to Load Job Catalog, Aborting Job Executions"
+            )
+
+            raise
 
         try:
 
