@@ -155,6 +155,17 @@ class Orchestrator:
 
     def run_concurrent_jobs(self, path, job_name):
 
+        def get_run_job_name_and_base_path(env):
+
+            run_job_name = "dev-el-system-run"
+
+            if env == "PROD":
+                run_job_name = "prod-el-system-run"
+
+            base_path = "projects/instant-medium-491107-t6/locations/asia-south1/jobs"
+
+            return run_job_name, base_path
+
         try:
             jobs_client = JobsClient()
 
@@ -162,12 +173,7 @@ class Orchestrator:
 
             logging_client = lv2.Client(project="instant-medium-491107-t6")
 
-            run_job_name = "dev-el-system-run"
-
-            base_path = "projects/instant-medium-491107-t6/locations/asia-south1/jobs"
-
-            if self.env == "PROD":
-                run_job_name = "prod-el-system-run"
+            run_job_name, base_path = get_run_job_name_and_base_path(env=self.env)
 
             request = RunJobRequest(
                 name=(f"{base_path}/{run_job_name}"),
