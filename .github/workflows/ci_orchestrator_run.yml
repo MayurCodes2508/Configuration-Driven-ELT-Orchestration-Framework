@@ -70,7 +70,7 @@ jobs:
       - name: Run Code
         run: |
           echo "=== Step Start ==="
-          echo "$ENV"
+          echo "ENV: $ENV"
           echo "=== Code Run Start ==="
           python -u -m orchestrator.orchestrator.main
           echo "=== Code Run End ==="
