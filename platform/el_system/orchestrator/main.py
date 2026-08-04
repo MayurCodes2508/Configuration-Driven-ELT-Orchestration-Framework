@@ -43,8 +43,6 @@ class Main:
 
                 raise ValueError(f"Invalid or Missing Env: {env}")
 
-            log.info(f"Successfully Loaded the Env: {env}")
-
             return env
 
         try:
@@ -52,6 +50,8 @@ class Main:
             job_catalog_loader = JobCatalog()
             
             env = getenv(job_catalog_loader=job_catalog_loader)
+
+            log.info(f"Successfully Loaded the Env: {env}...")
 
         except Exception:
             log.opt(exception=True).critical(
@@ -88,20 +88,7 @@ class Main:
                             )
                         )
 
-            results = []
-
-            try:
-
-                for future in futures:
-                    results.append(future.result())
-
-            except Exception as job_err:
-
-                pass
-
             log.info("All Job Executions Completed...")
-
-            log.info(f"ALL_METADATA_DUMPS: {results}")
 
         except Exception as strt_err:
             results = []
@@ -126,7 +113,39 @@ class Main:
 
             log.info(f"ALL_METADATA_DUMPS: {results}")
 
-            raise     
+            raise  
+
+        results = []
+
+        try:
+
+            for future in futures:
+                results.append(future.result())
+
+            log.info(f"ALL_METADATA_DUMPS: {results}")
+
+        except Exception as job_err:
+
+            for job in job_catalog_loader.jobs:
+                dump = {
+                    "job_run_id": str(object=uid()),
+                    "job_name": job.get("job_name"),
+                    "system": "el",
+                    "job_type": None,
+                    "sub_jobtype": None,
+                    "status": "FAILED",
+                    "error_message": str(object=job_err),
+                    "job_metrics": None,
+                }
+
+                results.append(json.dumps(obj=dump))
+
+            log.opt(exception=True).critical(
+                "System: metadata | One or More Jobs Failed"
+            )
+            
+            log.info(f"ALL_METADATA_DUMPS: {results}")
+
 
 
 class Orchestrator:

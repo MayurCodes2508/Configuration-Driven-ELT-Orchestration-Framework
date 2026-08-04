@@ -10,9 +10,8 @@ from google.cloud.run_v2 import ExecutionsClient, JobsClient, RunJobRequest
 from loguru import logger as log
 from uuid6 import uuid7 as uid
 
-from metadata_system.orchestrator.loader import JobCatalog
-
 from metadata_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
+from metadata_system.orchestrator.loader import JobCatalog
 
 log.remove()
 
@@ -89,20 +88,7 @@ class Main:
                             )
                         )
 
-            results = []
-
-            try:
-
-                for future in futures:
-                    results.append(future.result())
-
-            except Exception as job_err:
-
-                pass
-
             log.info("All Job Executions Completed...")
-
-            log.info(f"ALL_METADATA_DUMPS: {results}")
 
         except Exception as strt_err:
             results = []
@@ -129,6 +115,36 @@ class Main:
 
             raise  
 
+        results = []
+
+        try:
+
+            for future in futures:
+                results.append(future.result())
+
+            log.info(f"ALL_METADATA_DUMPS: {results}")
+
+        except Exception as job_err:
+
+            for job in job_catalog_loader.jobs:
+                dump = {
+                    "job_run_id": str(object=uid()),
+                    "job_name": job.get("job_name"),
+                    "system": "metadata",
+                    "job_type": None,
+                    "sub_jobtype": None,
+                    "status": "FAILED",
+                    "error_message": str(object=job_err),
+                    "job_metrics": None,
+                }
+
+                results.append(json.dumps(obj=dump))
+
+            log.opt(exception=True).critical(
+                "System: metadata | One or More Jobs Failed"
+            )
+
+            log.info(f"ALL_METADATA_DUMPS: {results}")
 class Orchestrator:
     def __init__(self, env):
 
