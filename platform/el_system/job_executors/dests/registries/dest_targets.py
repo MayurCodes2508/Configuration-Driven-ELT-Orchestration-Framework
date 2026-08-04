@@ -7,7 +7,12 @@ class GCSDest:
     @classmethod
     def run(cls, dest_cfg, metadata_cfg, data, job_run_id):
 
-        return GCS(dest_cfg=dest_cfg, metadata_cfg=metadata_cfg, data=data, job_run_id=job_run_id)
+        return GCS(
+            dest_cfg=dest_cfg,
+            metadata_cfg=metadata_cfg,
+            data=data,
+            job_run_id=job_run_id,
+        )
 
 
 class DestType:

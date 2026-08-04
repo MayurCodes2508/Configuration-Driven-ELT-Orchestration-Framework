@@ -27,11 +27,9 @@ log.add(sink=sys.stderr, filter=lambda record: record["level"].name == "CRITICAL
 
 
 class Main:
-
     def __init__(self):
 
         pass
-
 
     def main(self):
 
@@ -40,15 +38,13 @@ class Main:
             env = job_catalog_loader.job_catalog_run()
 
             if not env:
-
                 raise ValueError(f"Invalid or Missing Env: {env}")
 
             return env
 
         try:
-
             job_catalog_loader = JobCatalog()
-            
+
             env = getenv(job_catalog_loader=job_catalog_loader)
 
             log.info(f"Successfully Loaded the Env: {env}...")
@@ -61,7 +57,6 @@ class Main:
             raise
 
         try:
-
             orchestrator = Orchestrator(env=env)
 
             log.info("All Job Executions Started...")
@@ -113,19 +108,17 @@ class Main:
 
             log.info(f"ALL_METADATA_DUMPS: {results}")
 
-            raise  
+            raise
 
         results = []
 
         try:
-
             for future in futures:
                 results.append(future.result())
 
             log.info(f"ALL_METADATA_DUMPS: {results}")
 
         except Exception as job_err:
-
             for job in job_catalog_loader.jobs:
                 dump = {
                     "job_run_id": str(object=uid()),
@@ -143,9 +136,8 @@ class Main:
             log.opt(exception=True).critical(
                 "System: metadata | One or More Jobs Failed"
             )
-            
-            log.info(f"ALL_METADATA_DUMPS: {results}")
 
+            log.info(f"ALL_METADATA_DUMPS: {results}")
 
 
 class Orchestrator:
@@ -237,7 +229,6 @@ class Orchestrator:
                 time.sleep(3)
 
             else:
-
                 raise TimeoutError("TImeout Hit | Couldnt Fetch Metadata Dump")
 
             return dump
@@ -292,7 +283,6 @@ class Orchestrator:
 
 
 if __name__ == "__main__":
-
     main = Main()
 
     main.main()

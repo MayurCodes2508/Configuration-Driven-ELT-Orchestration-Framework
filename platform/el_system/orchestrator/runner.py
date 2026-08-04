@@ -58,7 +58,7 @@ class Runner:
                 dest_cfg=self.dest_cfg,
                 metadata_cfg=self.metadata_cfg,
                 data=self.data,
-                job_run_id=self.job_run_id
+                job_run_id=self.job_run_id,
             )
 
             dest.run()
