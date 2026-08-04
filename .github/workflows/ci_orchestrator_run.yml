@@ -45,15 +45,13 @@ jobs:
       - name: Set up python 3.12.3
         uses: actions/setup-python@v6
         with:
-          python-version: '3.12.3'
-          cache: 'pip'
-          cache-dependency-path: './platform/requirements.txt'
+          python-version: "3.12.3"
 
       - name: Setup Dependencies & Validate
         run: |
           echo "=== Step Start ==="
           python -m ensurepip --default-pip
-          pip install -r requirements.txt
+          pip install --no-cache-dir -r requirements.txt
           echo "=== Broken Requirements Check ==="
           pip check
           echo "=== Step End ==="
@@ -79,3 +77,39 @@ jobs:
           DB_URL: ${{ secrets.DB_URL }}
           ENV: ${{ vars.ENV }}
           GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
+
+######################## Test #######################################
+
+  test:
+    runs-on:
+      ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v5
+
+      - name: Setup Up python 3.12.3
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12.3"
+
+      - name: Setup Dependencies & Validate
+        run: |
+          echo "=== Step Start ==="
+          python -m ensurepip --default-pip
+          pip install --no-cache-dir -r dev-requirements.txt
+          echo "=== Broken Requirements Check ==="
+          pip check
+          echo "=== Step End ==="
+
+      - name: ruff Tests
+        run: |
+          echo "=== Step Start ==="
+          echo "=== ruff check ==="
+          ruff check el_system/
+          ruff check metadata_system/
+          ruff check orchestrator/
+          echo "=== ruff format ==="
+          ruff format --check el_system/
+          ruff format --check metadata_system/
+          ruff format --check orchestrator/
+          echo "=== Step End ==="
