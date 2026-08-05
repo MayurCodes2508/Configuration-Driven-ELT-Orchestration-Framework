@@ -4,24 +4,24 @@
         {
 
             "job_name": "prod_neon_pipeline_runs",
-            "path": "configs/job/neon_sources/prod/pipeline_runs.json"
+            "path": "metadata_system/configs/job/neon_sources/prod/pipeline_runs.json"
         },
 
         {
             "job_name": "prod_neon_job_runs",
-            "path": "configs/job/neon_sources/prod/job_runs.json" 
+            "path": "metadata_system/configs/job/neon_sources/prod/job_runs.json" 
         },
 
         {
 
             "job_name": "prod_bigquery_test_exposures",
-            "path": "configs/job/bigquery_sources/prod/test_exposures.json"
+            "path": "metadata_system/configs/job/bigquery_sources/prod/test_exposures.json"
         },
 
         {
 
             "job_name": "prod_bigquery_run_exposures",
-            "path": "configs/job/bigquery_sources/prod/run_exposures.json"
+            "path": "metadata_system/configs/job/bigquery_sources/prod/run_exposures.json"
         }
     ]
 }
