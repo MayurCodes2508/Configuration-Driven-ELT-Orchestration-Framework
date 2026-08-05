@@ -140,7 +140,6 @@ class Main:
             log.info(f"ALL_METADATA_DUMPS: {results}")
 
             if job_err:
-
                 raise
 
 
