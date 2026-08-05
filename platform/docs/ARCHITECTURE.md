@@ -4,7 +4,7 @@
 
 The Market Analytics Platform is a modular, config-driven data engineering system designed to extract, process, and analyze cryptocurrency market data.
 
-The platform follows a declarative architecture where pipeline behavior is defined through structured JSON configurations, validated against strict JSON schemas, and executed through a custom-built orchestration engine in `el_system/`.
+The platform follows a declarative architecture where pipeline behavior is defined through structured JSON configurations, validated against strict JSON schemas, and executed through a custom-built orchestration engine.
 
 The system is designed with clear separation of concerns between execution, data extraction, and data loading, enabling extensibility, maintainability, and scalability.
 
