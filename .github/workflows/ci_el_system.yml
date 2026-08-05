@@ -50,9 +50,7 @@ jobs:
         run: |
           echo "=== Step Start ==="
           python -m ensurepip --default-pip
-          pip install pip-tools
-          pip-compile requirements.in 
-          pip-sync requirements.txt
+          pip install -r requirements.txt
           echo "=== Broken Requirements Check ==="
           pip check
           echo "=== Step End ==="
@@ -60,8 +58,8 @@ jobs:
       - name: Run Code
         run: |
           echo "=== Step Start ==="
-          echo "$ENV"
-          echo "$DBT_TARGET"
+          echo "ENV: $ENV"
+          echo "DBT_TARGET: $DBT_TARGET"
           echo "=== Code Run Start ==="
           python -u -m el_system.orchestrator.main
           echo "=== Code Run End ==="

@@ -43,6 +43,6 @@
         "bucket": "dev-market-analytics-platform-bucket",
         "layer": "dev",
         "format": "parquet",
-        "path_template": "{layer}/{source}/{dataset}/{entity}/ingestion_dt={ingestion_dt}/ingestion_ts={ingestion_ts}.{format}"
+        "path_template": "{layer}/{source}/{dataset}/{entity}/ingestion_dt={ingestion_dt}/ingestion_ts={ingestion_ts}/job_run_id={job_run_id}.{format}"
     }
 }
