@@ -81,6 +81,7 @@ jobs:
 ######################## Test #######################################
 
   test:
+    needs: build
     runs-on:
       ubuntu-latest
     steps:
