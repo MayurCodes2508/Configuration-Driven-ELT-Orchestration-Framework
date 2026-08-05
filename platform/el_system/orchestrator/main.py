@@ -134,11 +134,14 @@ class Main:
                 results.append(json.dumps(obj=dump))
 
             log.opt(exception=True).critical(
-                "System: metadata | One or More Jobs Failed"
+                "System: el | One or More Jobs Failed"
             )
 
             log.info(f"ALL_METADATA_DUMPS: {results}")
 
+            if job_err:
+
+                raise
 
 class Orchestrator:
     def __init__(self, env):
