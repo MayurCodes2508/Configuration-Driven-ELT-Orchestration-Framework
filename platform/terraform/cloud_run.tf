@@ -121,6 +121,8 @@ resource "google_cloud_run_v2_job" "prod_el_system_run" {
   }
   template {
     template {
+      max_retries = 2
+      timeout = "600s"
       containers {
         image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/el-job:latest"
         env {
@@ -136,6 +138,10 @@ resource "google_cloud_run_v2_job" "prod_el_system_run" {
           name = "ENV"
           value = "PROD"
         }
+         env {
+          name = "DBT_TARGET"
+          value = "prod"
+         }
       }
       service_account = "production-cloud-resources-job@instant-medium-491107-t6.iam.gserviceaccount.com"
     }
@@ -151,6 +157,8 @@ resource "google_cloud_run_v2_job" "prod_pipeline_run" {
   }
   template {
     template {
+      max_retries = 2
+      timeout = "600s"
       containers {
         image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/pipeline_run:latest"
         env {
@@ -185,12 +193,18 @@ resource "google_cloud_run_v2_job" "prod_metadata_system_run" {
   }
   template {
     template {
+      max_retries = 2
+      timeout = "600s"
       containers {
         image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/metadata-job:latest"
          env {
           name = "ENV"
           value = "PROD"
           
+         }
+         env {
+          name = "DBT_TARGET"
+          value = "prod"
          }
          env {
           name = "NEON_DB_URL"
