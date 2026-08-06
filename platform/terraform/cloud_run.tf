@@ -47,7 +47,7 @@ resource "google_cloud_run_v2_job" "dev_pipeline_run" {
       max_retries = 2
       timeout = "600s"
       containers {
-        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/pipeline_run:testing"
+        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/platform-job:testing"
          env {
           name = "TRIGGERED_BY"
           value = "scheduler"
@@ -124,7 +124,7 @@ resource "google_cloud_run_v2_job" "prod_el_system_run" {
       max_retries = 2
       timeout = "600s"
       containers {
-        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/el-job:latest"
+        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/platform-job:latest"
         env {
           name = "COINGECKO_API_KEY"
           value_source {
@@ -160,7 +160,7 @@ resource "google_cloud_run_v2_job" "prod_pipeline_run" {
       max_retries = 2
       timeout = "600s"
       containers {
-        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/pipeline_run:latest"
+        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/platform-job:latest"
         env {
         name = "DB_URL"
         value_source {
@@ -196,7 +196,7 @@ resource "google_cloud_run_v2_job" "prod_metadata_system_run" {
       max_retries = 2
       timeout = "600s"
       containers {
-        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/metadata-job:latest"
+        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/platform-job:latest"
          env {
           name = "ENV"
           value = "PROD"
