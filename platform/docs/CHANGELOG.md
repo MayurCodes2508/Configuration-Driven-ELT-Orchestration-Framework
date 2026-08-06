@@ -6,342 +6,163 @@ This release introduces significant architectural improvements to the data platf
 
 ---
 
-### **1. CI/CD & INFRASTRUCTURE IMPROVEMENTS**
+## Quick summary (top-level)
 
-#### **New Workflows Added**
-
-- **dbt Transformations CI** (`.github/workflows/ci_dbt_transformations.yml`)
-  - Automated build and test pipeline for dbt models
-  - GCP authentication with workload identity
-  - Python 3.12.3 support with pip dependency management
-  - Separate build and test jobs with conditional test execution on dev branch
-
-#### **Workflow Standardization**
-
-- Unified workflow structure across `ci_el_system.yml`, `ci_metadata_system.yml`, and `ci_orchestrator_run.yml`
-- Added `defaults.run.working-directory` for consistent working paths
-- Standardized job structure: **Build** (main execution) + **Test** (conditional on dev branch)
-- Added `workflow_dispatch` trigger for manual executions
-- Restructured dependency compilation and validation steps
-- Docker containerization for reproducible test environments
-
-#### **Key Workflow Changes**
-
-- Removed per-workflow YAML path triggers (`.github/workflows/*.yml` removed from paths)
-- Removed feature branch (`feature/**`) pattern from metadata and orchestrator workflows
-- Unified authentication pattern with `id: auth` for credential reuse
-- Python version pinned to `3.12.3` for consistency
+- Major reorganization: many components were consolidated under a new `platform/` directory. Several previous top-level packages (e.g. `el_system`, `metadata_system`, `orchestrator`, `dbt_transformations`) were moved/renamed into `platform/…` or removed and restructured.
+- CI overhaul: new and standardized GitHub Actions workflows added/modified (including a new dbt CI workflow).
+- Orchestration refactor: the orchestration modules (`el_system`, `metadata_system`, `orchestrator`) were refactored — loader/validator/metadata/runner/executor logic rewritten; new executor entrypoints added.
+- dbt / observability: dbt models and tests were reorganized into an `observability` domain; new models, tests, and SLO/alerts logic added; runtime SLO threshold increased (15s → 120s).
+- Execution & destinations: API execution logic centralized (root_url registry), GCS destination now includes job_run_id in path template, and job metrics shape changed (job_metrics JSON).
+- Packaging & infra: new `platform/Dockerfile`, Terraform Cloud Run jobs updated, changed Docker image names and added job timeouts/retries.
+- Many deleted files and many new files — this is a large refactor consolidating platforms and standardizing behavior.
 
 ---
 
-### **2. DATA TRANSFORMATION LAYER (dbt) RESTRUCTURING**
+## Notable CI / GitHub Actions changes
 
-#### **Project Structure Reorganization**
-
-- **Moved** `models/staging/`, `models/reporting/`, `models/docs.md`, `models/exposures/`, `models/sources/` → `models/observability/`
-- Created **two business domains**:
-  - **`business/`** - Business-focused analytics models
-  - **`observability/`** - Pipeline and system monitoring models
-
-#### **Model Reorganization**
-
-- **Staging Models** (`dbt_transformations/models/observability/staging/`)
-  - New: `stg_pipeline_runs.sql` - Pipeline execution tracking
-  - New: `stg_job_runs.sql` - Individual job execution tracking
-
-- **Reporting Models** (`dbt_transformations/models/observability/reporting/`)
-  - `slo_successful_runs_success_rate_for_the_day_and_over_30_days.sql` - SLO tracking for success rates
-  - `slo_successful_runs_success_rate_of_runtime_in_seconds_for_the_day_and_over_30_days.sql`
-  - Updated runtime threshold: **15 seconds → 120 seconds**
-  - New metadata YAML files for both models with comprehensive column definitions
-
-- **New Alerts Module** (`dbt_transformations/models/observability/alerts/`)
-  - `alert_daily_runs_consistency.sql` - Daily pipeline execution consistency monitoring
-  - Detects anomalies using 30-day rolling average
-
-#### **Data Tests**
-
-- **20+ new tests** added to `dbt_transformations/tests/observability/`:
-  - Alert consistency validation
-  - SLO threshold validation (for runs and runtime)
-  - Job/pipeline run state consistency
-  - Timestamp ordering validation
-  - Error message correlation with status
-
-#### **Configuration Updates**
-
-- **dbt_project.yml**: New tag-based organization
-  - Models tagged with `business` or `observability`
-  - Sub-tags: `prod`, `dev` for environment control
-  - New data_tests section for test tagging
-
-- **Dockerfile** (`dbt_transformations/Dockerfile`):
-  - Separated `COPY` commands for better caching
-  - Added `ENTRYPOINT` with dbt commands
-  - Runs: source freshness → tests → models
-
-#### **Documentation Updates**
-
-- Enhanced column descriptions in `docs.md`
-- New documentation for `alert_daily_runs_consistency` model
-- Improved markdown formatting with headers
-
-#### **Source Configuration**
-
-- New `sources.yml` with comprehensive raw data documentation:
-  - `raw_pipeline_runs` - Pipeline execution records
-  - `raw_job_runs` - Individual job records
-  - Freshness checks (warn after 3h, error after 6h)
-  - Data quality tests with SQL validators
+- New workflow added:
+  - `.github/workflows/ci_dbt_transformations.yml` — CI for dbt transformations (GCP auth via Workload Identity, Python 3.12.3, dbt deps/build).
+- Existing workflows (`ci_el_system.yml`, `ci_metadata_system.yml`, `ci_orchestrator_run.yml`) standardized:
+  - Added `defaults.run.working-directory: ./platform/`
+  - Standardized permission blocks (id-token write, contents read) and GCP auth steps.
+  - Reworked steps into Build / Test jobs, added `workflow_dispatch` triggers.
+  - Standardized Python version to 3.12.3 and dependency installs using `platform/requirements.txt`.
+  - Test job added to orchestrator workflow (ruff checks and formatting checks).
+- Removed some path filters and old branch triggers (many workflows now trigger on `feature/**` or `workflow_dispatch` only).
 
 ---
 
-### **3. ORCHESTRATION SYSTEM REFACTORING**
+## Code & repo structure (reorganization)
 
-#### **Architecture Changes** (el_system, metadata_system, orchestrator)
-
-**Job Configuration Schema Simplification:**
-
-- **Removed** from job configs: `job_name`, `system`, `job_type`, `sub_jobtype`
-- **New approach**: Dynamically derived from execution context:
-  - `job_type`: "extraction" or "ingestion" (determined by presence of `dest`)
-  - `sub_jobtype`: Derived from `exec_type` (e.g., "Api" from "ApiExecCmd")
-  - `system`: Set to "el" or "metadata" at runtime
-
-**Metadata Class Improvements:**
-
-- New `get_metadata()` method for dynamic metadata derivation
-- Updated `build_job_metadata()` to accept `job_name` parameter
-- Centralized system identifier logic
-
-**Orchestrator Error Handling:**
-
-- New structured error handling in `orchestrator.py`:
-  - Separate try-catch blocks for: loading, validation, execution
-  - Detailed METADATA_DUMP at each failure point
-  - Graceful error propagation with context
-
-- Logging enhancements:
-  - Removed default logger configuration
-  - Added stdout/stderr filtering by log level
-  - CRITICAL logs go to stderr only
-
-**Runner Class Refactoring:**
-
-- Constructor now takes `loader` instead of `metadata`
-- Lazy evaluation of exec_cfg and dest_cfg
-- Improved null-safety checks
+- A top-level `platform/` subtree was created and many files/directories were moved or recreated there:
+  - `platform/el_system/…`, `platform/metadata_system/…`, `platform/orchestrator/…`, `platform/dbt/…` (dbt under `metadata_system/dbt/`), plus `platform/Dockerfile`, `platform/.dockerignore`, `platform/.gcloudignore`.
+- Old repo modules (e.g., separate `el_system/`, `orchestrator/`, `metadata_system/`, `dbt_transformations/`) were largely deleted or moved into `platform/`.
+- Many docs were moved under `platform/docs/` (renamed from `docs/…`).
 
 ---
 
-#### **API Execution Command Enhancement** (el_system)
+## Orchestration refactor (el_system, metadata_system, orchestrator)
 
-**Before:**
-
-```json
-{
-  "base_url": "https://api.coingecko.com/api/v3",
-  "path": "/coins/markets"
-}
-```
-
-**After:**
-
-- `base_url` removed from job configs
-- New `root_url_registry` in `APIExec` class:
-
-  ```python
-  root_url_registry = {"coingecko": "https://api.coingecko.com/api/v3"}
-  ```
-
-- URL construction is now centralized and source-driven
-- ApiExecCommand now accepts `url` parameter
-
-**Benefits:**
-
-- Eliminates hardcoded URLs in configs
-- Single source of truth for API endpoints
-- Easier to manage across environments
+- New and reorganized orchestrator code:
+  - New executor entrypoints: `platform/el_system/orchestrator/executor.py`, `platform/el_system/orchestrator/main.py`.
+  - New loader/validator/metadata/runner modules for el_system and metadata_system under `platform/.../orchestrator/`.
+  - `Executor` classes now generate UUID-based job_run_id and produce structured METADATA_DUMP JSON objects returned to callers.
+  - Logging standardized using loguru with separate stdout/stderr filters; critical logs to stderr.
+  - Error handling improved: more specific logging, exception-to-description mapping via `exceptions` modules.
+- Job catalog and config loader:
+  - Load paths are environment-aware (`ENV` defaulting to LOCAL/DEV/PROD).
+  - Schema files (root schemas) updated and consolidated under `platform/*/schemas/`.
+- Runner changes:
+  - Runner constructors and method signatures changed (accepting loader and job_run_id in places).
+  - Run flow: run_exec_cmd() → run_dest_target() always used; job metrics are returned in a structured object (job_metrics).
+- Metadata:
+  - Metadata derivation is dynamic: `job_type` inferred from presence of `dest`; `sub_jobtype` from `exec_type`.
+  - build_job_metadata now includes job_name, job_metrics, and standardized fields.
 
 ---
 
-#### **Schema Validation Updates**
+## Execution commands & registries
 
-**Removed Requirements:**
-
-- `job_name`, `system`, `job_type`, `sub_jobtype` no longer required in root schema
-
-**API Exec Schema Changes:**
-
-- Removed `base_url` field requirement
-- Updated path minLength: 1 → 2
-- Changed `vs_currency` from enum to constant: `"inr"`
-
-**GCS Destination Schema:**
-
-- Updated bucket minLength: 1 → 2
-- Updated format minLength: 1 → 2
+- API execution:
+  - `ApiExecCommand` now receives a root URL from a `root_url_registry` (no `base_url` in job JSONs).
+  - `root_url_registry = {"coingecko": "https://api.coingecko.com/api/v3"}`
+  - Url building, error handling, and exception descriptions improved.
+- DB exec & dbt:
+  - `DBExecCommand` updated to return `job_metrics` instead of the raw rows integer directly.
+  - New `dbtExecCommand` implemented under `platform/metadata_system/job_executors/exec_cmds/`:
+    - Runs dbt commands via subprocess, parses `target/run_results.json`, and returns an artifact mapping (nodes → status/metrics).
+  - Exec registries updated to include `"dbtExecCmd"` and wire dbt runner logic.
+- Destinations:
+  - GCS: `GCS` class now accepts `job_run_id`, path_template updated to include job_run_id.
+  - Dest registry changed to pass job_run_id to GCS factory.
 
 ---
 
-### **4. JOB CONFIGURATION UPDATES**
+## Schema & validation changes
 
-**Simplified Job Configs:**
-
-- Removed static metadata from:
-  - `el_system/configs/job/coingecko_sources/dev/market_price.json`
-  - `el_system/configs/job/coingecko_sources/prod/market_price.json`
-  - `metadata_system/configs/job/neon_sources/*/job_runs.json`
-  - `metadata_system/configs/job/neon_sources/*/pipeline_runs.json`
-
-- Configs now contain only:
-  - `metadata` (source, dataset, entity)
-  - `exec` (execution type and parameters)
-  - `dest` (destination configuration, if applicable)
+- Root schema simplified: `job_name`, `system`, `job_type`, `sub_jobtype` are no longer required in job JSONs — metadata is derived at runtime.
+- `api_exec_schema.json`:
+  - `base_url` requirement removed (URL now provided by runtime registry).
+  - `path` minLength tightened to 2.
+  - `vs_currency` changed from enum to constant `"inr"`.
+- `gcs_dest_schema.json`:
+  - `bucket` and `format` minLength increased to 2.
+  - `path_template` constant changed to include `job_run_id`.
+- New dbt exec schema added (`dbt_exec_cmd_schema.json`) to validate dbt command forms.
+- Validator classes updated to unify exception handling and use `jsonschema_rs`.
 
 ---
 
-### **5. DEPENDENCY & ENVIRONMENT MANAGEMENT**
+## dbt / Observability changes
 
-#### **Python Requirements Updates**
-
-**Standardization:**
-
-- Python version: 3.14 → **3.12** (across all systems)
-- Requirements regenerated with explicit dependency documentation
-
-**Key Changes:**
-
-- dbt-core: **1.11.11** with all adapters updated
-- google-cloud-bigquery: **3.41.0** with pandas support
-- Removed python-dotenv from explicit dependencies
-- Added comprehensive dependency tree comments
-
-#### **Dev Requirements**
-
-- Removed `-c requirements.txt` constraint lines (cleaner dependency management)
-- Explicit dependency tracking improved
+- dbt project relocated to `platform/metadata_system/dbt/`; `dbt_project.yml` updated to tag models into `observability` (staging/reporting/alerts).
+- New observability models:
+  - `stg_pipeline_runs.sql`, `stg_job_runs.sql` (staging)
+  - `reporting/slo_successful_runs_*` — SLO tracking for success rate & runtime
+  - `alerts/alert_daily_runs_consistency.sql` — daily runs consistency alert
+- Tests: 20+ data tests and assertions added under `platform/metadata_system/dbt/tests/observability/` for SLOs, timestamps, naming, and alert logic.
+- SLO runtime threshold changed from 15 seconds to 120 seconds.
+- `profiles.yml` adjusted to use env var for `DBT_TARGET`.
 
 ---
 
-### **6. GITIGNORE & ENVIRONMENT CONFIGURATION**
+## Exceptions & logging
 
-#### **Updated .gitignore**
-
-- Changed: `*dev_testing.py*` → `dev_test*` (broader pattern)
-- Removed: `tests/` directory from ignore
-- Added: `state/` directory to ignore
-
-#### **Environment Variables**
-
-- **example.env** formatting normalized:
-  - Changed: `API_KEY = ABC...` → `API_KEY=ABC...` (no spaces around `=`)
+- New centralized `exceptions/exceptions.py` modules added under `platform/el_system` and `platform/metadata_system`. They map exception classes to human-friendly descriptions (EXCEPTION_DESCRIPTIONS).
+- Logging:
+  - loguru configuration standardized across executor/ orchestrator entrypoints (stdout for INFO..TRACE, stderr for CRITICAL).
+  - Logging messages reordered to be more consistent (initialization message then completion).
 
 ---
 
-### **7. LOGGING IMPROVEMENTS**
+## Packaging, Docker & runtime
 
-#### **Log Statement Reordering**
-
-Consistent pattern applied across all systems:
-
-- Success/initialization message first
-- Completion/metadata message last
-
-Example (el_system, metadata_system, orchestrator):
-
-```python
-# Before
-log.info("Metadata Loading Completed...")
-log.info("Obj: X | Instance Initialized Successfully...")
-
-# After
-log.info("Obj: X | Instance Initialized Successfully...")
-log.info("Metadata Loading Completed...")
-```
-
-#### **New Logging Configuration** (orchestrator)
-
-- Loguru logger setup with stream filtering
-- INFO, SUCCESS, ERROR, WARNING, DEBUG, TRACE → stdout
-- CRITICAL → stderr
+- New `platform/Dockerfile` (Python 3.12.3-slim) that installs `requirements.txt`, runs `dbt deps` for metadata/dbt subproject, and sets entrypoint to python -m.
+- Docker image names in Terraform and CI updated to `platform-job` (replacing older job-specific images like el-job, metadata-job, dbt-job).
+- Docker build steps added to orchestrator workflow for local-run/test reproducibility.
 
 ---
 
-### **8. ERROR HANDLING IMPROVEMENTS**
+## Terraform / Cloud Run changes
 
-#### **Exception Handling Pattern**
-
-- **Before**: Generic `raise` statements
-- **After**: Removed automatic re-raise; errors logged with context
-
-Applied to:
-
-- `orchestrator/loader.py` - Job catalog and config loading
-- `orchestrator/validator.py` - Schema validation
-- `el_system/orchestrator/validator.py`
-- `metadata_system/orchestrator/validator.py`
+- Cloud Run jobs updated to:
+  - Use `platform-job` images;
+  - Add `max_retries = 2` and `timeout = "600s"` to templates;
+  - Add DBT envs (`DBT_TARGET`) to Cloud Run args and set run args so Cloud Run invokes `metadata_system.orchestrator.main` or `el_system.orchestrator.main`.
+- Secrets references changed in a few places (e.g., secret name used for NEON_DB_URL changed to a prod secret for some resource).
 
 ---
 
-### **9. RUNTIME ADJUSTMENTS**
+## Dependencies & requirements
 
-#### **Sleep Time Adjustments** (orchestrator)
-
-- Execution start time polling: 3 seconds → **5 seconds**
-- Cloud Logging query delay: 5 seconds → **10 seconds**
-- Better reliability for external service queries
+- Consolidated platform-level requirements: `platform/requirements.txt` (large, pinned set) and `platform/dev-requirements.txt`.
+- Standardized Python target across CI and Docker to 3.12.x.
+- Many smaller requirement & dev files removed from old subprojects; `pip-compile` generated pinned lists included.
 
 ---
 
-### **10. DOCKERFILE OPTIMIZATIONS**
+## .gitignore & repo housekeeping
 
-**Layer Caching Improvements:**
-
-- Separated COPY statements for better rebuild efficiency
-- Requirements copied separately
-- dbt_project.yml copied as its own layer
-- packages.yml separated from dependencies
+- `.gitignore` updated:
+  - Added `.pytest_cache/`, `tests/`, `state/`, and other platform-specific items.
+  - Kept `!platform/` and `!.github/` to ensure platform and GitHub workflows tracked.
+- Many transient and per-subproject .dockerignore/.gcloudignore/Dockerfile files removed because consolidation into `platform/`.
 
 ---
 
-## **MIGRATION GUIDE FOR PRODUCTION**
+## Deleted / removed items
 
-### **Critical Changes**
-
-1. **Job Configuration Update Required**
-   - Remove `job_name`, `system`, `job_type`, `sub_jobtype` from all job JSONs
-   - Test with new metadata derivation logic
-
-2. **API Endpoint Management**
-   - Review all API configurations
-   - Ensure source names match `root_url_registry`
-   - Remove hardcoded `base_url` fields
-
-3. **dbt Models**
-   - Update any documentation references to old model paths
-   - Review observability/business model separation
-   - Test all 20+ new data quality tests
-
-4. **Schema Validation**
-   - Update client code expecting old required fields
-   - Validate new runtime thresholds (120s for runtime SLO)
-
-5. **Environment Compatibility**
-   - Pin to Python 3.12.3
-   - Update container base images
-   - Regenerate requirements.txt if needed
+- Large number of old subproject files deleted (old `el_system/`, `orchestrator/`, `metadata_system/`, `dbt_transformations/` top-level copies), replaced by consolidated versions under `platform/`.
+- Many Dockerfiles, `.dockerignore`, requirements files for previous subprojects removed; their replacements live under `platform/`.
 
 ---
 
-## **TESTING CHECKLIST**
+## Files of interest (high-level)
 
-- [ ] dbt models compile successfully
-- [ ] All 20+ new data quality tests pass
-- [ ] API orchestration with new URL registry works
-- [ ] Database orchestration without job_name in config works
-- [ ] New alerting models populate correctly
-- [ ] SLO tracking with 120s threshold functional
-- [ ] Logging output to stdout/stderr correct
-- [ ] Docker builds for all systems complete
-- [ ] GitHub Actions workflows trigger correctly
+- New/updated CI: `.github/workflows/ci_dbt_transformations.yml`, `.github/workflows/ci_el_system.yml`, `.github/workflows/ci_metadata_system.yml`, `.github/workflows/ci_orchestrator_run.yml`
+- High-level platform entry: `platform/Dockerfile`, `platform/requirements.txt`, `platform/dev-requirements.txt`
+- Orchestration: `platform/el_system/orchestrator/`, `platform/metadata_system/orchestrator/`, `platform/orchestrator/…`
+- dbt: `platform/metadata_system/dbt/` (models, tests, `dbt_project.yml`, `profiles.yml`)
+- Exceptions and shared utils: `platform/*/exceptions/exceptions.py`
+- Terraform: `platform/terraform/*` (Cloud Run job images/timeouts adjusted)
+- Many deleted top-level module files (moved into `platform/`)
