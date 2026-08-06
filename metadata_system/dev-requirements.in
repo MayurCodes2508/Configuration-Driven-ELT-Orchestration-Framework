@@ -1,7 +1,0 @@
--c requirements.txt
-pytest
-pylint
-mypy
-ruff
-responses
-types-psycopg2

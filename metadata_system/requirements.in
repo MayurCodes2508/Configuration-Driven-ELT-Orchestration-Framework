@@ -1,6 +1,0 @@
-loguru
-psycopg2-binary
-jsonschema_rs
-jsonschema
-uuid6
-google-cloud-bigquery

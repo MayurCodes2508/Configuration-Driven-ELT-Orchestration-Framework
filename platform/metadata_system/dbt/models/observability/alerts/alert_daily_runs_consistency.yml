@@ -1,0 +1,48 @@
+version: 2
+
+models: 
+
+    - name: alert_daily_runs_consistency
+      description: |
+        This table tracks the operational consistency of various pipelines.
+        It records daily execution counts for these pipelines.
+        The table also indicates if the daily execution volume deviates significantly from historical averages.
+        This data supports monitoring and alerting for pipeline stability.
+
+      config:
+        tags: ['prod']
+
+      data_tests:
+
+        - dbt_utils.unique_combination_of_columns:
+            arguments:
+              combination_of_columns:
+                - pipeline_name
+                - _day
+
+      columns:
+
+        - name: pipeline_name
+          description: The name of the pipeline that was executed.
+          data_tests:
+            - not_null
+
+        - name: _day
+          description: The date when the record of the pipeline execution was first created.
+          data_tests:
+            - not_null
+
+        - name: total_runs
+          description: Total Pipeline Execution Count
+          data_tests:
+            - not_null
+
+        - name: avg_total_runs_over_30_days
+          description: Rolling 30-day Average Total Pipeline Execution Count
+          data_tests:
+            - not_null
+
+        - name: is_alert_threshold_for_the_day_breached
+          description: "{{ doc('is_alert_threshold_for_the_day_breached') }}"
+          data_tests:
+            - not_null

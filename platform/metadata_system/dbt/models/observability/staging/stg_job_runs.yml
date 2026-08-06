@@ -1,0 +1,76 @@
+version: 2
+
+models:
+  
+  - name: stg_job_runs
+    
+    description: |
+      This table stores comprehensive records of individual executions of jobs.
+      It captures details about the execution of these jobs, including their initiation, completion, and operational status.
+      The table supports analysis of execution performance and identification of operational issues.
+      It provides a historical log of all processing activities.
+
+    config:
+      contract:
+        enforced: true
+      tags: ['prod']
+
+    columns:
+
+      - name: run_id
+        description: A unique identifier for each individual job execution.
+        data_tests:
+          - unique
+        data_type: string
+
+      - name: pipeline_run_id
+        description: A unique identifier of the pipeline execution the job belongs to.
+        data_type: string
+
+      - name: job_name
+        description: The descriptive name of the processing job. 
+        data_type: string
+
+      - name: system
+        description: The originating system where the processing job belongs to.
+        data_type: string
+
+      - name: job_type
+        description: The general category or classification of the processing job.
+        data_type: string
+
+      - name: sub_jobtype
+        description: A more specific classification or sub-category of the processing job.
+        data_type: string
+
+      - name: status
+        description: "{{ doc('job_runs_status') }}"
+        data_type: string
+        
+      - name: start_time
+        description: The timestamp when the job execution began.
+        data_type: timestamp
+
+      - name: end_time
+        description: The timestamp when the job execution concluded.
+        data_type: timestamp
+
+      - name: created_at
+        description: The timestamp when the record of the job execution was first created.
+        data_type: timestamp
+
+      - name: error_message
+        description: A detailed message describing any error that occurred during the job execution.
+        data_type: string
+
+      - name: job_metrics
+        description: A JSON object containing performance indicators and statistical data related to the processing job's execution.
+        data_type: json
+
+      - name: extra_metadata
+        description: A JSON object containing additional, unstructured information pertinent to the processing job.
+        data_type: json
+
+      - name: ingestion_ts
+        description: Timestamp when this record was ingested into the warehouse.
+        data_type: timestamp

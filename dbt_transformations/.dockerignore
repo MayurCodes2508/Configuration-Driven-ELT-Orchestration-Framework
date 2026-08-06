@@ -1,5 +1,0 @@
-.venv
-logs/
-target/
-.gcloudignore
-dbt_packages/

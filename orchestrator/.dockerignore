@@ -1,8 +1,0 @@
-__pycache__/
-*.pyc*
-.venv/
-.gcloudignore
-*dev-requirements*
-*requirements.in*
-*.ruff_cache*
-*.mypy_cache*

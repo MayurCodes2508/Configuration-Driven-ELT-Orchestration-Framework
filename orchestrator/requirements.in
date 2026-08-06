@@ -1,7 +1,0 @@
-loguru
-jsonschema_rs
-jsonschema
-google-cloud-run
-google-cloud-logging
-psycopg2-binary
-uuid6

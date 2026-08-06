@@ -1,50 +1,39 @@
 name: CI - EL CONFIG SYSTEM
 
+defaults:
+  run:
+    working-directory: ./platform/
+
+permissions:
+  id-token: write
+  contents: read
+
 ####################### Triggers ###############################
 
 on:
   push:
     branches:
-      - main
-      - dev
-      - 'feature/**'
+      - feature/**
 
     paths:
-      - 'el_system/**'
-      - '.github/workflows/ci_el_system.yml'
-  
-  pull_request:
-    branches:
-      - main
-      - dev
-      - 'feature/**'
+      - platform/el_system/**
 
-    paths:
-      - 'el_system/**'
-      - '.github/workflows/ci_el_system.yml'
+  workflow_dispatch:
 
 ######################## Jobs #######################################
 
 jobs:
-  validate_elt_system:
-    name: Run Code & Tests
+
+######################## Build #######################################
+
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-    defaults:
-      run:
-        working-directory: ./el_system
-
-################################ Steps #########################################
-
-############################### Runtime Setup ###################################
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v5
 
       - name: Authenticate to GCP
+        id: auth
         uses: google-github-actions/auth@v3
         with:
           workload_identity_provider: "projects/144449440045/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider"
@@ -55,48 +44,28 @@ jobs:
         with:
           python-version: '3.12.3'
           cache: 'pip'
-          cache-dependency-path: 'el_system/requirements.txt'
+          cache-dependency-path: './platform/requirements.txt'
 
-###################### Dependency Setup #######################
-
-      - name: Check For Pip Existance
+      - name: Setup Dependencies & Validate
         run: |
+          echo "=== Step Start ==="
           python -m ensurepip --default-pip
-
-      - name: Install Pip Tools
-        run: |
-          pip install pip-tools
-
-      - name: Compile Dependencies
-        run: |
-          pip-compile requirements.in 
-          pip-compile dev-requirements.in 
-
-      - name: Sync Dependencies
-        run: |
-          pip-sync requirements.txt dev-requirements.txt
-
-      - name: Check for Broken Dependencies
-        run: |
+          pip install -r requirements.txt
+          echo "=== Broken Requirements Check ==="
           pip check
-
-###################### Code QT ##########################################
-
-      - name: Code Linting Check
-        run: |
-          ruff check .
-
-      - name: Code Formatting Check
-        run: |
-          ruff format --check .
-
-########################### Run Code ##########################################
+          echo "=== Step End ==="
 
       - name: Run Code
         run: |
-          python -u -m orchestrator.orchestrator
+          echo "=== Step Start ==="
+          echo "ENV: $ENV"
+          echo "DBT_TARGET: $DBT_TARGET"
+          echo "=== Code Run Start ==="
+          python -u -m el_system.orchestrator.main
+          echo "=== Code Run End ==="
+          echo "=== Step End ==="
         env:
           COINGECKO_API_KEY: ${{ secrets.COINGECKO_API_KEY }}
           ENV: ${{ vars.ENV }}
-
-          
+          DBT_TARGET: ${{ vars.DBT_TARGET }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}

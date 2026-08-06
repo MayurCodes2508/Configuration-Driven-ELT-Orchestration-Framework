@@ -1,0 +1,23 @@
+{
+
+    "type": "object",
+
+    "required": ["exec_type", "command"],
+
+    "properties": {
+
+        "exec_type": {
+
+            "type": "string",
+            "const": "dbtExecCmd"
+        },
+
+        "command": {
+
+            "type": "string",
+            "pattern": "^(build -s|test -s|run -s) .+"
+        }
+    },
+
+    "additionalProperties": false
+}
