@@ -26,11 +26,6 @@ on:
       - main
       - dev
 
-    paths:
-      - platform/el_system
-      - platform/metadata_system
-      - platform/orchestrator
-
   workflow_dispatch:
 
 ######################## Jobs #######################################
