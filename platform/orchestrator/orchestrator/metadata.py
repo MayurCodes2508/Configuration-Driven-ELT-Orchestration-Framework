@@ -219,9 +219,9 @@ class Job_Metadata:
                     "job_type": metadata["job_type"],
                     "sub_jobtype": metadata["sub_jobtype"],
                     "job_status": metadata["status"],
+                    "created_at": created_at.isoformat(),
                     "start_time": start_time.isoformat(),
                     "end_time": end_time.isoformat(),
-                    "created_at": created_at.isoformat(),
                     "error_message": metadata["error_message"],
                     "job_metrics": metadata["job_metrics"],
                     "extra_metadata": {
