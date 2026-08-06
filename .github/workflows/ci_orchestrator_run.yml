@@ -16,10 +16,20 @@ on:
       - main
       - dev
 
+    paths:
+      - platform/el_system
+      - platform/metadata_system
+      - platform/orchestrator
+
   pull_request:
     branches:
       - main
       - dev
+
+    paths:
+      - platform/el_system
+      - platform/metadata_system
+      - platform/orchestrator
 
   workflow_dispatch:
 
