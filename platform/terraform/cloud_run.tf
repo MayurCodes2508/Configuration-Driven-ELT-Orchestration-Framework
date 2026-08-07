@@ -128,6 +128,17 @@ resource "google_cloud_run_v2_job" "prod_el_system_run" {
       timeout = "600s"
       containers {
         image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/platform-job:latest"
+        args = [
+          "el_system.orchestrator.main"
+        ]
+        env {
+          name = "ENV"
+          value = "PROD"
+        }
+         env {
+          name = "DBT_TARGET"
+          value = "prod"
+         }
         env {
           name = "COINGECKO_API_KEY"
           value_source {
@@ -137,14 +148,6 @@ resource "google_cloud_run_v2_job" "prod_el_system_run" {
             }
           }
         }
-        env {
-          name = "ENV"
-          value = "PROD"
-        }
-         env {
-          name = "DBT_TARGET"
-          value = "prod"
-         }
       }
       service_account = "production-cloud-resources-job@instant-medium-491107-t6.iam.gserviceaccount.com"
     }
@@ -164,6 +167,17 @@ resource "google_cloud_run_v2_job" "prod_pipeline_run" {
       timeout = "600s"
       containers {
         image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/platform-job:latest"
+        args = [
+          "orchestrator.orchestrator.main"
+        ]
+        env {
+          name = "TRIGGERED_BY"
+          value = "scheduler"
+        }
+        env {
+          name = "ENV"
+          value = "PROD"
+        }
         env {
         name = "DB_URL"
         value_source {
@@ -172,14 +186,6 @@ resource "google_cloud_run_v2_job" "prod_pipeline_run" {
             version = "1"
             }
           }
-        }
-        env {
-          name = "TRIGGERED_BY"
-          value = "scheduler"
-        }
-        env {
-          name = "ENV"
-          value = "PROD"
         }
       }
       service_account = "production-cloud-resources-518@instant-medium-491107-t6.iam.gserviceaccount.com"
@@ -200,6 +206,9 @@ resource "google_cloud_run_v2_job" "prod_metadata_system_run" {
       timeout = "600s"
       containers {
         image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/platform-job:latest"
+        args = [
+          "metadata_system.orchestrator.main"
+        ]
          env {
           name = "ENV"
           value = "PROD"
