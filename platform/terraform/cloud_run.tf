@@ -13,7 +13,7 @@ resource "google_cloud_run_v2_job" "dev_el_system_run" {
       containers {
         image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/platform-job:testing"
         args = [
-          "el_system.orchestrator.main"
+          "python -u -m el_system.orchestrator.main"
         ]
         env {
           name = "ENV"
@@ -82,7 +82,7 @@ resource "google_cloud_run_v2_job" "dev_metadata_system_run" {
       containers {
         image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/platform-job:testing"
         args = [
-          "metadata_system.orchestrator.main"
+          "python -u -m metadata_system.orchestrator.main"
         ]
          env {
           name = "ENV"
