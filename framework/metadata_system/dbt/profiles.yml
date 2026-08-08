@@ -1,4 +1,4 @@
-market-analytics-platform:
+configuration-driven-elt-orchestration-framework:
   target: "{{ env_var('DBT_TARGET') }}"
   outputs: 
     dev:

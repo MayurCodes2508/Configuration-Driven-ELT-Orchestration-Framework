@@ -2,8 +2,8 @@
 #DEV
 ################################################################################
 
-resource "google_cloud_run_v2_job" "dev_el_system_run" {
-  name     = "dev-el-system-run"
+resource "google_cloud_run_v2_job" "dev_elt_system_run" {
+  name     = "dev-elt-system-run"
   location = "asia-south1"
   deletion_protection = false
   template {
@@ -11,9 +11,9 @@ resource "google_cloud_run_v2_job" "dev_el_system_run" {
       max_retries = 2
       timeout = "600s"
       containers {
-        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/platform-job:testing"
+        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/configuration-driven-elt-orchestration-framework-repository/framework:testing"
         args = [
-          "el_system.orchestrator.main"
+          "elt_system.orchestrator.main"
         ]
         env {
           name = "ENV"
@@ -27,7 +27,7 @@ resource "google_cloud_run_v2_job" "dev_el_system_run" {
           name = "COINGECKO_API_KEY"
           value_source {
             secret_key_ref {
-              secret  = "dev-market-analytics-platform-coingecko-api-key-secret"
+              secret  = "dev-configuration-driven-elt-orchestration-framework-coingecko-api-key-secret"
               version = "1"
             }
           }
@@ -47,7 +47,7 @@ resource "google_cloud_run_v2_job" "dev_pipeline_run" {
       max_retries = 2
       timeout = "600s"
       containers {
-        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/platform-job:testing"
+        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/configuration-driven-elt-orchestration-framework-repository/framework:testing"
         args = [
           "orchestrator.orchestrator.main"
         ]
@@ -63,7 +63,7 @@ resource "google_cloud_run_v2_job" "dev_pipeline_run" {
           name = "DB_URL"
           value_source {
             secret_key_ref {
-              secret  = "dev-market-analytics-platform-neon-db-url-secret"
+              secret  = "dev-configuration-driven-elt-orchestration-framework-neon-db-url-secret"
               version = "1"
             }
           }
@@ -83,7 +83,7 @@ resource "google_cloud_run_v2_job" "dev_metadata_system_run" {
       max_retries = 2
       timeout = "600s"
       containers {
-        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/platform-job:testing"
+        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/configuration-driven-elt-orchestration-framework-repository/framework:testing"
         args = [
           "metadata_system.orchestrator.main"
         ]
@@ -100,7 +100,7 @@ resource "google_cloud_run_v2_job" "dev_metadata_system_run" {
           name = "NEON_DB_URL"
           value_source {
             secret_key_ref {
-              secret  = "prod-market-analytics-platform-neon-db-url-secret"
+              secret  = "dev-configuration-driven-elt-orchestration-framework-neon-db-url-secret"
               version = "1"
             }
           }

@@ -1,8 +1,8 @@
-name: market_analytics_platform
+name: configuration_driven_elt_orchestration_framework
 version: '1.0'
 config-version: 2
 
-profile: market-analytics-platform
+profile: configuration-driven-elt-orchestration-framework
 
 model-paths: ["models"]
 snapshot-paths: ["snapshots"]
@@ -10,7 +10,7 @@ macro-paths: ["macros"]
 test-paths: ["tests"]
 
 models:
-  market_analytics_platform:
+  configuration_driven_elt_orchestration_framework:
     +on_configuration_change: apply
     +persist_docs:  
       relation: true
@@ -33,7 +33,7 @@ models:
 
 
 data_tests:
-  market_analytics_platform:
+  configuration_driven_elt_orchestration_framework:
 
     observability:
       +tags: ['observability']

@@ -5,7 +5,7 @@
 resource "google_iam_workload_identity_pool" "github_pool" {
   workload_identity_pool_id = "github-actions-pool"
   display_name              = "GitHub Actions Pool"
-  description               = "Identity pool for market analytics CI pipeline"
+  description               = "Identity pool for Configuration-Driven ELT Orchestration Framework CI pipeline"
 }
 
 resource "google_iam_workload_identity_pool_provider" "github_provider" {
@@ -28,7 +28,7 @@ resource "google_iam_workload_identity_pool_provider" "github_provider" {
 resource "google_service_account_iam_member" "wif_binding" {
   service_account_id = "projects/instant-medium-491107-t6/serviceAccounts/github-workflows@instant-medium-491107-t6.iam.gserviceaccount.com"
   role               = "roles/iam.workloadIdentityUser"
-  member = "principalSet://iam.googleapis.com/projects/144449440045/locations/global/workloadIdentityPools/github-actions-pool/attribute.repository/MayurCodes2508/market-analytics-platform"
+  member = "principalSet://iam.googleapis.com/projects/144449440045/locations/global/workloadIdentityPools/github-actions-pool/attribute.repository/MayurCodes2508/Configuration-Driven-ELT-Orchestration-Framework"
   
   depends_on = [ 
     google_iam_workload_identity_pool.github_pool,

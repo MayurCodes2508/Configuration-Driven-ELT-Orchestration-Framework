@@ -2,16 +2,16 @@
 #DEV
 ################################################################################
 
-resource "google_secret_manager_secret" "dev_market_analytics_platform_coingecko_api_key_secrets" {
-  secret_id = "dev-market-analytics-platform-coingecko-api-key-secret"
+resource "google_secret_manager_secret" "dev_configuration_driven_elt_orchestration_framework_coingecko_api_key_secrets" {
+  secret_id = "dev-configuration-driven-elt-orchestration-framework-coingecko-api-key-secret"
 
   replication {
     auto {}
   }
 }
 
-resource "google_secret_manager_secret" "dev_market_analytics_platform_neon_db_url_secrets" {
-  secret_id = "dev-market-analytics-platform-neon-db-url-secret"
+resource "google_secret_manager_secret" "dev_configuration_driven_elt_orchestration_framework_neon_db_url_secrets" {
+  secret_id = "dev-configuration-driven-elt-orchestration-framework-neon-db-url-secret"
 
   replication {
     auto {}

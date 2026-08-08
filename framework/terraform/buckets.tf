@@ -2,8 +2,8 @@
 #DEV
 ################################################################################
 
-resource "google_storage_bucket" "dev_market_analytics_platform_bucket" {
-  name                     = "dev-market-analytics-platform-bucket"
+resource "google_storage_bucket" "dev_configuration_driven_elt_orchestration_framework_bucket" {
+  name                     = "dev-configuration-driven-elt-orchestration-framework-bucket"
   location                 = "asia-south1"
   storage_class            = "STANDARD"
   public_access_prevention = "enforced"

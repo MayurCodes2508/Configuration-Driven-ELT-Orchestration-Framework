@@ -1,4 +1,4 @@
-from el_system.job_executors.auth.registries.strategies import AuthRegistry
+from elt_system.job_executors.auth.registries.strategies import AuthRegistry
 
 
 class Auth:

@@ -1,9 +1,8 @@
 import requests
 from loguru import logger as log
 
-from el_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
-
-from el_system.job_executors.auth.auth import Auth
+from elt_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
+from elt_system.job_executors.auth.auth import Auth
 
 
 class ApiExecCommand:

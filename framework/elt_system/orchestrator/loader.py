@@ -5,7 +5,7 @@ from pathlib import Path
 import json
 import os
 
-from el_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
+from elt_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
 
 
 class JobCatalog:

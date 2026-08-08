@@ -40,7 +40,7 @@ sources:
               - not_null
               - accepted_values:
                   arguments:
-                    values: ['prod-market-analytics-pipeline', 'prod-platform-observability-pipeline']
+                    values: ['prod-configuration-driven-elt-orchestration-framework-pipeline', 'prod-framework-observability-pipeline']
 
           - name: status
             description: "{{ doc('pipeline_runs_status') }}"

@@ -1,6 +1,6 @@
 from loguru import logger as log
 
-from el_system.job_executors.exec_cmds.api_exec import ApiExecCommand
+from elt_system.job_executors.exec_cmds.api_exec import ApiExecCommand
 
 
 class APIExec:

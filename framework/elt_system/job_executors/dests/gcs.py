@@ -5,7 +5,7 @@ import pandas as pd
 from google.cloud import storage
 from loguru import logger as log
 
-from el_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
+from elt_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
 
 
 class GCS:

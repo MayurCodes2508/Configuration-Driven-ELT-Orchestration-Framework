@@ -10,8 +10,8 @@ from google.cloud.run_v2 import ExecutionsClient, JobsClient, RunJobRequest
 from loguru import logger as log
 from uuid6 import uuid7 as uid
 
-from el_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
-from el_system.orchestrator.loader import JobCatalog
+from elt_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
+from elt_system.orchestrator.loader import JobCatalog
 
 log.remove()
 

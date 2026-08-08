@@ -1,9 +1,8 @@
 from loguru import logger as log
 
-from el_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
-
-from el_system.job_executors.dests.registries.dest_targets import DestType
-from el_system.job_executors.exec_cmds.registries.exec_cmds import ExecCmdType
+from elt_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
+from elt_system.job_executors.dests.registries.dest_targets import DestType
+from elt_system.job_executors.exec_cmds.registries.exec_cmds import ExecCmdType
 
 
 class Runner:

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import jsonschema_rs
 
-from el_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
+from elt_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
 
 
 class Validator:
