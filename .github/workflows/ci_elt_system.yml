@@ -1,4 +1,4 @@
-name: CI - EL CONFIG SYSTEM
+name: CI - ELT CONFIG SYSTEM
 
 defaults:
   run:
@@ -16,7 +16,7 @@ on:
       - feature/**
 
     paths:
-      - framework/el_system/**
+      - framework/elt_system/**
 
   workflow_dispatch:
 
@@ -59,7 +59,7 @@ jobs:
           echo "ENV: $ENV"
           echo "DBT_TARGET: $DBT_TARGET"
           echo "=== Code Run Start ==="
-          python -u -m el_system.orchestrator.main
+          python -u -m elt_system.orchestrator.main
           echo "=== Code Run End ==="
           echo "=== Step End ==="
         env:

@@ -17,7 +17,7 @@ on:
       - dev
 
     paths:
-      - framework/el_system
+      - framework/elt_system
       - framework/metadata_system
       - framework/orchestrator
 
@@ -27,7 +27,7 @@ on:
       - dev
 
     paths:
-      - framework/el_system
+      - framework/elt_system
       - framework/metadata_system
       - framework/orchestrator
 
@@ -116,11 +116,11 @@ jobs:
         run: |
           echo "=== Step Start ==="
           echo "=== ruff check ==="
-          ruff check el_system/
+          ruff check elt_system/
           ruff check metadata_system/
           ruff check orchestrator/
           echo "=== ruff format ==="
-          ruff format --check el_system/
+          ruff format --check elt_system/
           ruff format --check metadata_system/
           ruff format --check orchestrator/
           echo "=== Step End ==="
