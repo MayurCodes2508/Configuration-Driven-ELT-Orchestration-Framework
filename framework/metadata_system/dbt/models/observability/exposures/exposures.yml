@@ -1,0 +1,20 @@
+version: 2
+
+exposures:
+  - name: slo_report
+  
+    description: "SLO Report for monitoring SLO's"
+
+    config:
+      tags: ['observability']
+
+    type: dashboard
+
+    depends_on:
+      - ref("slo_successful_runs_success_rate_for_the_day_and_over_30_days")
+      - ref("slo_successful_runs_success_rate_of_runtime_in_seconds_for_the_day_and_over_30_days")
+      - source("metadata", "raw_pipeline_runs")
+
+    owner:
+      name: Mayur Reddy
+      email: allamayurreddy@gmail.com

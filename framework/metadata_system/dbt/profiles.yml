@@ -1,0 +1,21 @@
+market-analytics-platform:
+  target: "{{ env_var('DBT_TARGET') }}"
+  outputs: 
+    dev:
+      type: bigquery
+      method: oauth
+      project: instant-medium-491107-t6
+      dataset: dev_metadata
+      threads: 4
+      location: asia-south1
+      timeout_seconds: 300   
+
+    prod:
+      type: bigquery
+      method: oauth
+      project: instant-medium-491107-t6
+      dataset: prod_metadata
+      threads: 4
+      location: asia-south1
+      timeout_seconds: 300
+      

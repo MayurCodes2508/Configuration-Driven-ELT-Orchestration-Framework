@@ -1,0 +1,28 @@
+{
+    "pipelines": [
+
+        {
+
+            "name": "prod-market-analytics-pipeline",
+            "jobs": [
+
+                {
+
+                    "name": "prod-el-system-run"
+                }
+            ]
+        },
+
+        {
+
+            "name": "prod-platform-observability-pipeline",
+            "jobs": [
+
+                {
+
+                    "name": "prod-metadata-system-run"
+                }
+            ]
+        }
+    ]
+}

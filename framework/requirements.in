@@ -1,0 +1,13 @@
+uuid6
+loguru
+pandas
+pyarrow
+jsonschema_rs
+jsonschema
+psycopg2-binary
+dbt-core
+dbt-bigquery
+google-cloud-run
+google-cloud-logging
+google-cloud-storage
+google-cloud-bigquery

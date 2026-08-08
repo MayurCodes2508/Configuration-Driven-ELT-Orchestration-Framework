@@ -1,0 +1,120 @@
+{
+
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+
+    "type": "object",
+
+    "required": ["exec_type", "path", "pagination", "page_size", "query_params"],
+
+    "properties": {
+
+        "exec_type": {
+
+          "const": "ApiExecCmd" 
+        },
+
+        "path": {
+
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 50
+        },
+
+        "pagination": {
+
+          "type": "object",
+          "required": ["strategy"],
+          "properties": {
+
+            "strategy": {
+
+              "type": "string",
+              "const": "page"
+            },
+
+            "page_param": {
+
+              "type": "string",
+              "default": "page",
+              "minLength": 2,
+              "maxLength": 50
+            }   
+          },
+
+          "additionalProperties": false
+        },
+
+        "page_size": {
+
+            "type": "object",
+            "required": ["param", "value"],
+            "properties": {
+
+                "param": {
+
+                    "type": "string",
+                    "const": "per_page"
+                },
+
+                "value": {
+
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 250
+            }
+          },
+
+          "additionalProperties": false
+        },
+
+        "query_params": {
+
+          "type": "object",
+          "required": ["vs_currency"],
+          "properties": {
+
+            "vs_currency": {
+
+              "type": "string",
+              "const": "inr"
+            }
+          },
+
+          "additionalProperties": { "type": "string" }
+        },
+
+        "auth": {
+
+          "type": "object",
+          "required": ["auth_type", "key_env", "location", "name"],
+          "properties": {
+
+            "auth_type": {
+
+              "type": "string"
+            },
+
+            "key_env": {
+
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 30
+            },
+
+            "location": {
+
+              "type": "string"
+          },
+
+            "name": {
+
+              "type": "string"
+            }
+          },
+
+          "additionalProperties": false
+        }           
+      },
+      
+      "additionalProperties": false
+    }

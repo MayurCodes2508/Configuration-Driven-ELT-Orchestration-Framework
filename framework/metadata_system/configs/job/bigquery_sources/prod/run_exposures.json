@@ -1,0 +1,16 @@
+{
+
+    "metadata": {
+
+        "source": "bigquery",
+        "dataset": "metadata",
+        "entity": "slo_report"
+    },
+
+    "exec": {
+
+        "exec_type": "dbtExecCmd",
+
+        "command": "run -s +exposure:slo_report"
+    }
+}

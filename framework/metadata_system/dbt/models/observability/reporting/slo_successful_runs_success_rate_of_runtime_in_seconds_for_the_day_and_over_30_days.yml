@@ -1,0 +1,45 @@
+version: 2
+
+models:
+
+  - name: slo_successful_runs_success_rate_of_runtime_in_seconds_for_the_day_and_over_30_days
+
+    description: |
+      Tracks whether data pipelines meet runtime success SLOs for the current day and
+      a rolling 30-day window. It supports pipeline health monitoring, operational efficiency reporting,
+      and detection of SLO breaches for runtime-based success rates.
+
+    config:
+      tags: ['prod']
+          
+    columns:
+      - name: pipeline_name
+        description: "Name of the monitored automated pipeline or process."
+        data_tests:
+          - not_null
+
+      - name: created_at
+        description: "Date on which the performance metric row was recorded."
+        data_tests:
+          - not_null
+
+      - name: success_rate_for_the_day
+        description: "Daily ratio of pipeline runs that completed successfully within the runtime SLO."
+        data_tests:
+          - not_null
+
+      - name: is_slo_threshold_for_the_day_breached
+        description: "{{ doc('pipeline_runs_runtime_success_rate_in_seconds_slo_breached_for_the_day') }}"
+        data_tests:
+          - not_null
+
+      - name: success_rate_over_30_days
+        description: "Rolling 30-day success rate ratio for pipeline runs that met the runtime SLO."
+        data_tests:
+          - not_null
+
+      - name: is_slo_threshold_over_30_days_breached
+        description: "{{ doc('pipeline_runs_runtime_success_rate_in_seconds_slo_breached_over_30_days') }}"
+        data_tests:
+          - not_null
+
