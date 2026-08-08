@@ -251,7 +251,7 @@ class Orchestrator:
                     "--rm",
                     "-e",
                     "COINGECKO_API_KEY",
-                    "platform-job:latest",
+                    "framework:latest",
                     "elt_system.orchestrator.executor",
                     "--job_name",
                     str(object=job_name),
