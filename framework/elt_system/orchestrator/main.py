@@ -150,10 +150,10 @@ class Orchestrator:
 
         def get_run_job_name_and_base_path(env):
 
-            run_job_name = "dev-el-system-run"
+            run_job_name = "dev-elt-system-run"
 
             if env == "PROD":
-                run_job_name = "prod-el-system-run"
+                run_job_name = "prod-elt-system-run"
 
             base_path = "projects/instant-medium-491107-t6/locations/asia-south1/jobs"
 
@@ -174,7 +174,7 @@ class Orchestrator:
                     container_overrides=[
                         RunJobRequest.Overrides.ContainerOverride(
                             args=[
-                                "el_system.orchestrator.executor",
+                                "elt_system.orchestrator.executor",
                                 "--job_name",
                                 str(object=job_name),
                                 "--file_path",
@@ -252,7 +252,7 @@ class Orchestrator:
                     "-e",
                     "COINGECKO_API_KEY",
                     "platform-job:latest",
-                    "el_system.orchestrator.executor",
+                    "elt_system.orchestrator.executor",
                     "--job_name",
                     str(object=job_name),
                     "--file_path",
