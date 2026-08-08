@@ -44,29 +44,33 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: '3.12.3'
-          cache: 'pip'
-          cache-dependency-path: './platform/requirements.txt'
 
       - name: Setup Dependencies & Validate
-        working-directory: './platform/'
         run: |
           echo "=== Step Start ==="
           python -m ensurepip --default-pip
-          pip install -r requirements.txt
+          pip install -r dbt-requirements.txt
           echo "=== Broken Requirements Check ==="
           pip check
           echo "=== Step End ==="
 
       - name: Setup dbt Dependencies
         run: |
-          dbt deps
+          echo "=== Step Start ==="
+          echo "=== DBT_TARGET: $DBT_TARGET ==="
+          dbt deps \
+          --project-dir .
+          echo "=== Step End ==="
         env:
           DBT_TARGET: ${{ vars.DBT_TARGET }}
 
       - name: dbt Build
         run: |
+          echo "=== Step Start ==="
+          echo "=== DBT_TARGET: $DBT_TARGET ==="
           dbt build -s "tag:observability,tag:prod" \
           --profiles-dir .
+          echo "=== Step End ==="
         env:
           DBT_TARGET: ${{ vars.DBT_TARGET }}
           GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
