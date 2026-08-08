@@ -2,7 +2,7 @@ name: CI - EL CONFIG SYSTEM
 
 defaults:
   run:
-    working-directory: ./platform/
+    working-directory: ./framework/
 
 permissions:
   id-token: write
@@ -16,7 +16,7 @@ on:
       - feature/**
 
     paths:
-      - platform/el_system/**
+      - framework/el_system/**
 
   workflow_dispatch:
 

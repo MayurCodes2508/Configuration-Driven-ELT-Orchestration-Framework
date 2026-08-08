@@ -2,7 +2,7 @@ name: CI - dbt Transformations
 
 defaults:
   run:
-    working-directory: ./platform/metadata_system/dbt/
+    working-directory: ./framework/metadata_system/dbt/
 
 permissions:
   id-token: write
@@ -17,7 +17,7 @@ on:
       - feature/**
 
     paths:
-      - platform/metadata_system/dbt/**
+      - framework/metadata_system/dbt/**
 
   workflow_dispatch:
     

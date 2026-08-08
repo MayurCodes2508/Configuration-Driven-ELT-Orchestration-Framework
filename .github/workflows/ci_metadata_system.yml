@@ -2,7 +2,7 @@ name: CI - METADATA CONFIG SYSTEM
 
 defaults:
   run:
-    working-directory: ./platform/
+    working-directory: ./framework/
 
 permissions:
   id-token: write
@@ -16,7 +16,7 @@ on:
       - feature/**
 
     paths:
-      - platform/metadata_system/**
+      - framework/metadata_system/**
 
   workflow_dispatch:
 
