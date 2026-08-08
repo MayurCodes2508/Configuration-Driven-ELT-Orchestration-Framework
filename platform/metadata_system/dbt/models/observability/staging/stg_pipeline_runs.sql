@@ -7,7 +7,7 @@
 
 
 SELECT run_id,
-       lower(trim(pipeline_name)) AS pipeline_name,
+       lower(trim(pipeline_name)) AS pipeline_name, 
        trim(status) AS status,
        start_time,
        end_time,

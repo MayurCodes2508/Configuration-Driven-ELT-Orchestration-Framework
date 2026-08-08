@@ -7,7 +7,7 @@
 
 SELECT run_id,
        pipeline_run_id,
-       lower(trim(job_name)) AS job_name,
+       lower(trim(job_name)) AS job_name, 
        lower(trim(system)) AS system,
        lower(trim(job_type)) AS job_type,
        lower(trim(sub_jobtype)) AS sub_jobtype,
