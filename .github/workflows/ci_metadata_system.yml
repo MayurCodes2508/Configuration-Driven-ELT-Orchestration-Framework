@@ -2,7 +2,7 @@ name: CI - METADATA CONFIG SYSTEM
 
 defaults:
   run:
-    working-directory: ./platform/
+    working-directory: ./framework/
 
 permissions:
   id-token: write
@@ -16,7 +16,7 @@ on:
       - feature/**
 
     paths:
-      - platform/metadata_system/**
+      - framework/metadata_system/**
 
   workflow_dispatch:
 
@@ -43,8 +43,6 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: '3.12.3'
-          cache: 'pip'
-          cache-dependency-path: './platform/requirements.txt'
 
       - name: Setup Dependencies & Validate
         run: |
