@@ -8,12 +8,12 @@
 
 SELECT run_id,
        lower(trim(pipeline_name)) AS pipeline_name,
-       lower(trim(status)) AS status,
+       trim(status) AS status,
        start_time,
        end_time,
        created_at,
        lower(trim(triggered_by)) AS triggered_by,
-       lower(trim(error_message)) AS error_message,
+       trim(error_message) AS error_message,
        job_counts,
        ingestion_ts
 
