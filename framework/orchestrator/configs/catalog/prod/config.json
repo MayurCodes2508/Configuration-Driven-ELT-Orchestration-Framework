@@ -3,19 +3,19 @@
 
         {
 
-            "name": "prod-market-analytics-pipeline",
+            "name": "prod-configuration-driven-elt-orchestration-framework-pipeline",
             "jobs": [
 
                 {
 
-                    "name": "prod-el-system-run"
+                    "name": "prod-elt-system-run"
                 }
             ]
         },
 
         {
 
-            "name": "prod-platform-observability-pipeline",
+            "name": "prod-framework-observability-pipeline",
             "jobs": [
 
                 {

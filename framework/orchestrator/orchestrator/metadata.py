@@ -4,7 +4,7 @@ import time
 from ast import literal_eval as le
 from datetime import datetime as dt
 
-from google.api_core.exceptions import GoogleAPIError, InvalidArgument, NotFound
+from google.api_core.exceptions import GoogleAPIError
 from google.cloud import logging_v2 as lv2
 from google.cloud.run_v2 import ExecutionsClient
 from loguru import logger as log
@@ -193,12 +193,6 @@ class Job_Metadata:
 
         except GoogleAPIError:
             log.exception("API Error Occured, Affecting Job Metadata")
-
-        except NotFound:
-            log.exception("Execution Not Found Error Occured, Affecting Job Metadata")
-
-        except InvalidArgument:
-            log.exception("Invalid Argument Error Occured, Affecting Job Metadata")
 
         except Exception:
             log.exception("Unexpected Error Occured, Affecting Job Metadata")

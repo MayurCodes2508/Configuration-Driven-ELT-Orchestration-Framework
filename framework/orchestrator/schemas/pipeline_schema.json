@@ -21,7 +21,7 @@
                         "type": "string",
                         "pattern": "^(dev-|prod-)[a-z0-9-]+$",
                         "minLength": 5,
-                        "maxLength": 50
+                        "maxLength": 100
                     },
 
                     "jobs": {

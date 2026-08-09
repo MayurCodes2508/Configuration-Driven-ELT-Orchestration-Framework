@@ -3,19 +3,19 @@
 
         {
 
-            "name": "dev-market-analytics-pipeline",
+            "name": "dev-configuration-driven-elt-orchestration-framework-pipeline",
             "jobs": [
 
                 {
 
-                    "name": "dev-el-system-run"
+                    "name": "dev-elt-system-run"
                 }
             ]
         },
 
         {
 
-            "name": "dev-platform-observability-pipeline",
+            "name": "dev-framework-observability-pipeline",
             "jobs": [
 
                 {

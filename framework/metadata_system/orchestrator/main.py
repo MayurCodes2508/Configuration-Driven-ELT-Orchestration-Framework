@@ -255,7 +255,7 @@ class Orchestrator:
                     "NEON_DB_URL",
                     "-e",
                     "DBT_TARGET",
-                    "platform-job:latest",
+                    "framework:latest",
                     "metadata_system.orchestrator.executor",
                     "--job_name",
                     str(object=job_name),
