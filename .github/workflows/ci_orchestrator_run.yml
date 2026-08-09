@@ -2,7 +2,7 @@ name: CI ORCHESTRATOR RUN
 
 defaults:
   run:
-    working-directory: ./platform/
+    working-directory: ./framework/
 
 permissions:
   id-token: write
@@ -16,10 +16,20 @@ on:
       - main
       - dev
 
+    paths:
+      - framework/elt_system/**
+      - framework/metadata_system/**
+      - framework/orchestrator/**
+
   pull_request:
     branches:
       - main
       - dev
+
+    paths:
+      - framework/elt_system/**
+      - framework/metadata_system/**
+      - framework/orchestrator/**
 
   workflow_dispatch:
 
@@ -60,7 +70,7 @@ jobs:
         run: |
           echo "=== Step Start ==="
           echo "=== Image Build ==="
-          docker build -t platform-job:latest .
+          docker build -t framework:latest .
           echo "=== Image List ==="
           docker image ls
           echo "=== Step End ==="
@@ -81,6 +91,7 @@ jobs:
 ######################## Test #######################################
 
   test:
+    needs: build
     runs-on:
       ubuntu-latest
     steps:
@@ -105,11 +116,11 @@ jobs:
         run: |
           echo "=== Step Start ==="
           echo "=== ruff check ==="
-          ruff check el_system/
+          ruff check elt_system/
           ruff check metadata_system/
           ruff check orchestrator/
           echo "=== ruff format ==="
-          ruff format --check el_system/
+          ruff format --check elt_system/
           ruff format --check metadata_system/
           ruff format --check orchestrator/
           echo "=== Step End ==="

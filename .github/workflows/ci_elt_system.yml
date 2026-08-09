@@ -1,8 +1,8 @@
-name: CI - dbt Transformations
+name: CI - ELT CONFIG SYSTEM
 
 defaults:
   run:
-    working-directory: ./framework/metadata_system/dbt/
+    working-directory: ./framework/
 
 permissions:
   id-token: write
@@ -13,14 +13,13 @@ permissions:
 on:
   push:
     branches:
-      - dev
       - feature/**
 
     paths:
-      - framework/metadata_system/dbt/**
+      - framework/elt_system/**
 
   workflow_dispatch:
-    
+
 ######################## Jobs #######################################
 
 jobs:
@@ -49,28 +48,22 @@ jobs:
         run: |
           echo "=== Step Start ==="
           python -m ensurepip --default-pip
-          pip install -r dbt-requirements.txt
+          pip install -r requirements.txt
           echo "=== Broken Requirements Check ==="
           pip check
           echo "=== Step End ==="
 
-      - name: Setup dbt Dependencies
+      - name: Run Code
         run: |
           echo "=== Step Start ==="
-          echo "=== DBT_TARGET: $DBT_TARGET ==="
-          dbt deps \
-          --project-dir .
+          echo "ENV: $ENV"
+          echo "DBT_TARGET: $DBT_TARGET"
+          echo "=== Code Run Start ==="
+          python -u -m elt_system.orchestrator.main
+          echo "=== Code Run End ==="
           echo "=== Step End ==="
         env:
-          DBT_TARGET: ${{ vars.DBT_TARGET }}
-
-      - name: dbt Build
-        run: |
-          echo "=== Step Start ==="
-          echo "=== DBT_TARGET: $DBT_TARGET ==="
-          dbt build -s "tag:observability,tag:prod" \
-          --profiles-dir .
-          echo "=== Step End ==="
-        env:
+          COINGECKO_API_KEY: ${{ secrets.COINGECKO_API_KEY }}
+          ENV: ${{ vars.ENV }}
           DBT_TARGET: ${{ vars.DBT_TARGET }}
           GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}

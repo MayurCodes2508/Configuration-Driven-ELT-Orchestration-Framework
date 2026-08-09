@@ -1,0 +1,10 @@
+{
+    "jobs": [
+
+        {
+
+            "job_name": "prod_coingecko_market_price",
+            "path": "elt_system/configs/job/coingecko_sources/prod/market_price.json"
+        }
+    ]
+}

@@ -1,0 +1,39 @@
+name: configuration_driven_elt_orchestration_framework
+version: '1.0'
+config-version: 2
+
+profile: configuration-driven-elt-orchestration-framework
+
+model-paths: ["models"]
+snapshot-paths: ["snapshots"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+
+models:
+  configuration_driven_elt_orchestration_framework:
+    +on_configuration_change: apply
+    +persist_docs:  
+      relation: true
+      columns: true
+
+    observability:
+      +tags: ['observability']
+
+      staging:
+        +schema: staging
+        +materialized: view
+
+      reporting:
+        +schema: reporting
+        +materialized: table
+
+      alerts:
+        +schema: alerts
+        +materialized: table
+
+
+data_tests:
+  configuration_driven_elt_orchestration_framework:
+
+    observability:
+      +tags: ['observability']
