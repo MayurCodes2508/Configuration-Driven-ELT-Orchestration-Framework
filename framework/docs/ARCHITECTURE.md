@@ -1,10 +1,10 @@
-# 🏛️ Market Analytics Platform Architecture
+# 🏛️ Configuration-Driven ELT Orchestration Framework Architecture
 
 ## 🧠 Overview
 
-The Market Analytics Platform is a modular, config-driven data engineering system designed to extract, process, and analyze cryptocurrency market data.
+The Configuration-Driven ELT Orchestration Framework is a modular, config-driven data engineering system designed to extract, process, and analyze data.
 
-The platform follows a declarative architecture where pipeline behavior is defined through structured JSON configurations, validated against strict JSON schemas, and executed through a custom-built orchestration engine.
+The framework follows a declarative architecture where pipeline behavior is defined through structured JSON configurations, validated against strict JSON schemas, and executed through a custom-built orchestration engine.
 
 The system is designed with clear separation of concerns between execution, data extraction, and data loading, enabling extensibility, maintainability, and scalability.
 
@@ -14,7 +14,7 @@ The system is designed with clear separation of concerns between execution, data
 
 ## 🎯 Observability and Reporting
 
-The platform generates pipeline observability and reporting assets from execution metadata.
+The framework generates pipeline observability and reporting assets from execution metadata.
 
 - Run execution history for the ingestion pipeline
 - Pipeline performance and runtime SLO reporting
@@ -131,7 +131,7 @@ The system supports environment-based configuration for development and producti
 
 ## 💰 FinOps & Cost Strategy
 
-The platform is designed to optimize cost through serverless infrastructure and efficient data storage techniques.
+The framework is designed to optimize cost through serverless infrastructure and efficient data storage techniques.
 
 👉 [Cost model](finops/COST_MODEL.md)  
 👉 [Optimization strategies](finops/OPTIMIZATION.md)
@@ -156,6 +156,6 @@ Key architectural decisions balance flexibility, performance, and cost.
 
 ## 🚀 Future Improvements
 
-The platform is designed to evolve with additional features such as streaming ingestion and advanced analytics.
+The framework is designed to evolve with additional features such as streaming ingestion and advanced analytics.
 
 👉 [See roadmap](future/IMPROVEMENTS.md)
