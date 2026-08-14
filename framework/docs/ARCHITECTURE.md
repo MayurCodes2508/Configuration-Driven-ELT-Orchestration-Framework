@@ -1,5 +1,16 @@
 # 🏛️ Configuration-Driven ELT Orchestration Framework Architecture
 
+## Team Members
+
+- A. Mayur Reddy
+- CH. Aravind Sai
+- CH. Krishna
+- B. Hari Bhargav
+
+## Team Mentor
+
+- PC. Srinivasa Rao
+
 ## 🧠 Overview
 
 The Configuration-Driven ELT Orchestration Framework is a modular, config-driven data engineering system designed to extract, process, and analyze data.
