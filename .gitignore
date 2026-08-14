@@ -14,7 +14,6 @@ LICENSE.txt
 *.tfstate*
 *.tfvars*
 logs/
-tests/
 target/
 state/
 macros/
