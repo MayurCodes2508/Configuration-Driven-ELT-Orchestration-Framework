@@ -38,6 +38,12 @@ sources:
             description: The name of the pipeline that was executed.
             data_tests:
               - not_null
+<<<<<<< HEAD
+=======
+              - accepted_values:
+                  arguments:
+                    values: ['prod-configuration-driven-elt-orchestration-framework-pipeline', 'prod-framework-observability-pipeline']
+>>>>>>> 6b19c5310d2bf8d81aeacb21189f34cf3b73bd21
 
           - name: status
             description: "{{ doc('pipeline_runs_status') }}"
