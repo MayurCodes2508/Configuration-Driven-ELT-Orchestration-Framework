@@ -1,4 +1,4 @@
-# Configuration-Driven ELT Orchestration Framework
+# Configuration-Driven ELT(Extract, Load, Transform) Orchestration Framework
 
 ## Team Members
 
@@ -9,7 +9,7 @@
 
 ## Team Mentor
 
-- PC. Srinivasa Rao
+- Dr. Shanker Nayak
 
 ## Overview
 

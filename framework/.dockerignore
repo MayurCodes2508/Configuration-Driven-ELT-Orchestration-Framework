@@ -1,5 +1,4 @@
 .venv/
-.gcloudignore
 terraform/
 docs/
 .vscode/
@@ -14,4 +13,3 @@ state/
 target/
 *user*
 *lock*
-elt_system/tests/
