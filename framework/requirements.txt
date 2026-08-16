@@ -34,10 +34,7 @@ charset-normalizer==3.4.9
 click==8.4.2
     # via dbt-core
 colorama==0.4.6
-    # via
-    #   click
-    #   dbt-common
-    #   loguru
+    # via dbt-common
 cryptography==49.0.0
     # via google-auth
 daff==1.4.2
@@ -404,18 +401,12 @@ typing-extensions==4.16.0
     #   typing-inspection
 typing-inspection==0.4.2
     # via pydantic
-tzdata==2026.3
-    # via
-    #   agate
-    #   pandas
 urllib3==2.7.0
     # via requests
 uuid6==2025.0.1
     # via -r requirements.in
 websockets==16.1.1
     # via google-genai
-win32-setctime==1.2.0
-    # via loguru
 zipp==4.1.0
     # via importlib-metadata
 
