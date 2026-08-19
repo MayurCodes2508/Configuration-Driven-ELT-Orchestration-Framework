@@ -193,7 +193,7 @@ class Main:
 
         except Exception:
             log.opt(exception=True).critical(
-                "System: el | Failed to Load Job Catalog, Aborting Job Executions"
+                "System: elt | Failed to Load Job Catalog, Aborting Job Executions"
             )
 
             raise
@@ -234,7 +234,7 @@ class Main:
                 dump = {
                     "job_run_id": str(object=uid()),
                     "job_name": job.get("job_name"),
-                    "system": "el",
+                    "system": "elt",
                     "job_type": None,
                     "sub_jobtype": None,
                     "status": "FAILED",
@@ -245,7 +245,7 @@ class Main:
                 results.append(json.dumps(obj=dump))
 
             log.opt(exception=True).critical(
-                "System: el | Failed to Start the Thread Pool Executor, Aborting Job Executions"
+                "System: elt | Failed to Start the Thread Pool Executor, Aborting Job Executions"
             )
 
             log.info(f"ALL_METADATA_DUMPS: {results}")
@@ -265,7 +265,7 @@ class Main:
                 dump = {
                     "job_run_id": str(object=uid()),
                     "job_name": job.get("job_name"),
-                    "system": "el",
+                    "system": "elt",
                     "job_type": None,
                     "sub_jobtype": None,
                     "status": "FAILED",
@@ -275,7 +275,7 @@ class Main:
 
                 results.append(json.dumps(obj=dump))
 
-            log.opt(exception=True).critical("System: el | One or More Jobs Failed")
+            log.opt(exception=True).critical("System: elt | One or More Jobs Failed")
 
             log.info(f"ALL_METADATA_DUMPS: {results}")
 

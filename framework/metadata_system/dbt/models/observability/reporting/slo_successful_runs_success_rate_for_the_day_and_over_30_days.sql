@@ -18,6 +18,7 @@ FROM {{ ref('stg_pipeline_runs') }}
 GROUP BY 1, 2
 ),
 
+
 metrics_calculations AS (
 SELECT pipeline_name,
        created_date,
@@ -31,6 +32,7 @@ SELECT pipeline_name,
 
 FROM base
 )
+
 
 SELECT pipeline_name,
        created_date,

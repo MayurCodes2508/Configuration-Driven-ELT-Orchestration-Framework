@@ -1,6 +1,17 @@
-# 🏛️ Configuration-Driven ELT Orchestration Framework Architecture
+# Configuration-Driven ELT(Extract, Load, Transform) Orchestration Framework
 
-## 🧠 Overview
+## Team Members
+
+- A. Mayur Reddy
+- CH. Aravind Sai
+- CH. Krishna
+- B. Hari Bhargav
+
+## Team Mentor
+
+- Dr. Shanker Nayak
+
+## Overview
 
 The Configuration-Driven ELT Orchestration Framework is a modular, config-driven data engineering system designed to extract, process, and analyze data.
 
@@ -8,11 +19,11 @@ The framework follows a declarative architecture where pipeline behavior is defi
 
 The system is designed with clear separation of concerns between execution, data extraction, and data loading, enabling extensibility, maintainability, and scalability.
 
-👉 [Read detailed overview](overview/PROJECT_OVERVIEW.md)
+[Read detailed overview](overview/PROJECT_OVERVIEW.md)
 
 ---
 
-## 🎯 Observability and Reporting
+## Observability and Reporting
 
 The framework generates pipeline observability and reporting assets from execution metadata.
 
@@ -23,7 +34,7 @@ These assets are surfaced through a dbt project that consumes BigQuery-loaded pi
 
 ---
 
-## 🗺️ Architectural Topology
+## Architectural Topology
 
 The system follows a modular execution pipeline:
 
@@ -57,17 +68,17 @@ dbt observability and reporting models
 
 Analytics and reliability insights
 
-👉 [View full topology breakdown](architecture/TOPOLOGY.md)
+[View full topology breakdown](architecture/TOPOLOGY.md)
 
 ---
 
-## ⚙️ Core System Components
+## Core System Components
 
 ### 1. Execution Engine
 
 The execution engine is responsible for orchestrating pipeline runs. It loads job configurations, validates them against schemas, triggers execution commands, and manages run lifecycle tracking.
 
-👉 [Deep dive](core/EXECUTION_ENGINE.md)
+[Deep dive](core/EXECUTION_ENGINE.md)
 
 ---
 
@@ -75,7 +86,7 @@ The execution engine is responsible for orchestrating pipeline runs. It loads jo
 
 The system uses declarative JSON-based job configurations to define pipeline behavior, enabling flexible and reusable pipeline definitions.
 
-👉 [Deep dive](core/CONFIG_SYSTEM.md)
+[Deep dive](core/CONFIG_SYSTEM.md)
 
 ---
 
@@ -83,7 +94,7 @@ The system uses declarative JSON-based job configurations to define pipeline beh
 
 All job configurations are validated against a predefined JSON schema to enforce structural consistency and prevent runtime errors.
 
-👉 [Deep dive](core/SCHEMA_VALIDATION.md)
+[Deep dive](core/SCHEMA_VALIDATION.md)
 
 ---
 
@@ -91,7 +102,7 @@ All job configurations are validated against a predefined JSON schema to enforce
 
 The destination engine processes extracted data and writes it to Google Cloud Storage in optimized Parquet format.
 
-👉 [Deep dive](core/DESTINATION_ENGINE.md)
+[Deep dive](core/DESTINATION_ENGINE.md)
 
 ---
 
@@ -99,17 +110,17 @@ The destination engine processes extracted data and writes it to Google Cloud St
 
 Pipeline executions are tracked in a metadata database, capturing execution status, timestamps, and error information for monitoring and debugging.
 
-👉 [Deep dive](core/RUN_TRACKING.md)
+[Deep dive](core/RUN_TRACKING.md)
 
 ---
 
-## 🛠️ Data Pipeline Layers
+## Data Pipeline Layers
 
 ### 1. Data Lake Layer
 
 Raw data is stored in a partitioned and optimized format for efficient storage and retrieval.
 
-👉 [Deep dive](layers/DATA_LAKE.md)
+[Deep dive](layers/DATA_LAKE.md)
 
 ---
 
@@ -117,45 +128,45 @@ Raw data is stored in a partitioned and optimized format for efficient storage a
 
 The architecture is designed to support future warehouse layering, while current dbt work is focused on pipeline metadata observability, SLO reporting and monitoring.
 
-👉 [Deep dive](layers/WAREHOUSE.md)
+[Deep dive](layers/WAREHOUSE.md)
 
 ---
 
-## 🔄 Environment Strategy
+## Environment Strategy
 
 The system supports environment-based configuration for development and production isolation.
 
-👉 [Full environment setup](environments/ENVIRONMENTS.md)
+[Full environment setup](environments/ENVIRONMENTS.md)
 
 ---
 
-## 💰 FinOps & Cost Strategy
+## FinOps & Cost Strategy
 
 The framework is designed to optimize cost through serverless infrastructure and efficient data storage techniques.
 
-👉 [Cost model](finops/COST_MODEL.md)  
-👉 [Optimization strategies](finops/OPTIMIZATION.md)
+[Cost model](finops/COST_MODEL.md)  
+[Optimization strategies](finops/OPTIMIZATION.md)
 
 ---
 
-## 📈 Reliability & Observability
+## Reliability & Observability
 
 The system ensures reliability through structured logging, validation, and execution tracking.
 
-👉 [SLO definitions](reliability/SLOS.md)
+[SLO definitions](reliability/SLOS.md)
 
 ---
 
-## 🧠 Design Decisions & Tradeoffs
+## Design Decisions & Tradeoffs
 
 Key architectural decisions balance flexibility, performance, and cost.
 
-👉 [Detailed tradeoffs](design/TRADEOFFS.md)
+[Detailed tradeoffs](design/TRADEOFFS.md)
 
 ---
 
-## 🚀 Future Improvements
+## Future Improvements
 
 The framework is designed to evolve with additional features such as streaming ingestion and advanced analytics.
 
-👉 [See roadmap](future/IMPROVEMENTS.md)
+[See roadmap](future/IMPROVEMENTS.md)

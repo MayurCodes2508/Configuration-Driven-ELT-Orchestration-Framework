@@ -154,6 +154,45 @@ resource "google_cloud_run_v2_job" "prod_el_system_run" {
   }
 }
 
+resource "google_cloud_run_v2_job" "prod_elt_system_run" {
+  name     = "prod-elt-system-run"
+  location = "asia-south1"
+  deletion_protection = true
+  lifecycle {
+    prevent_destroy = true
+  }
+  template {
+    template {
+      max_retries = 2
+      timeout = "600s"
+      containers {
+        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/configuration-driven-elt-orchestration-framework-repository/framework:latest"
+        args = [
+          "elt_system.orchestrator.main"
+        ]
+        env {
+          name = "ENV"
+          value = "PROD"
+        }
+         env {
+          name = "DBT_TARGET"
+          value = "prod"
+         }
+        env {
+          name = "COINGECKO_API_KEY"
+          value_source {
+            secret_key_ref {
+              secret  = "prod-configuration-driven-elt-orchestration-framework-coingecko-api-key-secret"
+              version = "1"
+            }
+          }
+        }
+      }
+      service_account = "production-cloud-resources-job@instant-medium-491107-t6.iam.gserviceaccount.com"
+    }
+  }
+}
+
 resource "google_cloud_run_v2_job" "prod_pipeline_run" {
   name = "prod-pipeline-run"
   location = "asia-south1"
@@ -166,7 +205,7 @@ resource "google_cloud_run_v2_job" "prod_pipeline_run" {
       max_retries = 2
       timeout = "600s"
       containers {
-        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/platform-job:latest"
+        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/configuration-driven-elt-orchestration-framework-repository/framework:latest"
         args = [
           "orchestrator.orchestrator.main"
         ]
@@ -182,7 +221,7 @@ resource "google_cloud_run_v2_job" "prod_pipeline_run" {
         name = "DB_URL"
         value_source {
           secret_key_ref {
-            secret  = "prod-market-analytics-platform-neon-db-url-secret"
+            secret  = "prod-configuration-driven-elt-orchestration-framework-neon-db-url-secret"
             version = "1"
             }
           }
@@ -205,7 +244,7 @@ resource "google_cloud_run_v2_job" "prod_metadata_system_run" {
       max_retries = 2
       timeout = "600s"
       containers {
-        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/market-analytics-platform-repository/platform-job:latest"
+        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/configuration-driven-elt-orchestration-framework-repository/framework:latest"
         args = [
           "metadata_system.orchestrator.main"
         ]
@@ -222,7 +261,7 @@ resource "google_cloud_run_v2_job" "prod_metadata_system_run" {
           name = "NEON_DB_URL"
           value_source {
             secret_key_ref {
-              secret  = "prod-market-analytics-platform-neon-db-url-secret"
+              secret  = "prod-configuration-driven-elt-orchestration-framework-neon-db-url-secret"
               version = "1"
             }
           }
