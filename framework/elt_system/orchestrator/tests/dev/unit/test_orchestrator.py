@@ -58,10 +58,6 @@ def test_run_concurrent_jobs_success(mock_time, mock_log, mock_RunJobRequest, mo
         mock_execution_completed
     ]
 
-    mock_empty_dump = MagicMock()
-
-    mock_entries_empty = 
-
     mock_logging_client.return_value.list_entries.side_effect = [
 
     ]
