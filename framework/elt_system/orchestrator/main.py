@@ -67,7 +67,7 @@ class Orchestrator:
                             ]
                         )
                     ]
-                )
+                ),
             )
 
             operation = jobs_client.run_job(request=request)
