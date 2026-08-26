@@ -38,8 +38,8 @@ resource "google_cloud_run_v2_job" "dev_elt_system_run" {
   }
 }
 
-resource "google_cloud_run_v2_job" "dev_pipeline_run" {
-  name = "dev-pipeline-run"
+resource "google_cloud_run_v2_job" "dev_framework_run" {
+  name = "dev-framework-run"
   location = "asia-south1"
   deletion_protection = false
   template {
