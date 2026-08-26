@@ -1,0 +1,21 @@
+main:
+  steps:
+    - run_systems_in_parallel:
+        parallel:
+          branches:
+            - executing_elt_system:
+                steps:
+                  - calling_elt_run_job:
+                      call: googleapis.run.v2.projects.locations.jobs.run
+                      args:
+                        name: projects/instant-medium-491107-t6/locations/asia-south1/jobs/dev-elt-system-run
+                        body:
+                      result: elt_job_result
+            - executing_metadata_system:
+                steps:
+                  - calling_metadata_run_job:
+                      call: googleapis.run.v2.projects.locations.jobs.run
+                      args:
+                        name: projects/instant-medium-491107-t6/locations/asia-south1/jobs/dev-metadata-system-run
+                        body:
+                      result: metadata_job_result
