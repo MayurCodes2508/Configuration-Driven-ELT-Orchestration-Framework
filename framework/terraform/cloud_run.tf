@@ -4,7 +4,7 @@
 
 resource "google_cloud_run_v2_job" "dev_elt_system_run" {
   name     = "dev-elt-system-run"
-  location = "asia-south1"
+  location = var.gcp_region
   deletion_protection = false
   template {
     template {
@@ -37,46 +37,9 @@ resource "google_cloud_run_v2_job" "dev_elt_system_run" {
     }
   }
 }
-
-resource "google_cloud_run_v2_job" "dev_framework_run" {
-  name = "dev-framework-run"
-  location = "asia-south1"
-  deletion_protection = false
-  template {
-    template {
-      max_retries = 2
-      timeout = "600s"
-      containers {
-        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/configuration-driven-elt-orchestration-framework-repository/framework:testing"
-        args = [
-          "orchestrator.orchestrator.main"
-        ]
-         env {
-          name = "TRIGGERED_BY"
-          value = "scheduler"
-         }
-         env {
-           name = "ENV"
-           value = "DEV"
-         }
-         env {
-          name = "DB_URL"
-          value_source {
-            secret_key_ref {
-              secret  = "dev-configuration-driven-elt-orchestration-framework-neon-db-url-secret"
-              version = "1"
-            }
-          }
-         }
-      }
-      service_account = "development-cloud-resource-860@instant-medium-491107-t6.iam.gserviceaccount.com"
-    }
-  }
-}
-
 resource "google_cloud_run_v2_job" "dev_metadata_system_run" {
   name = "dev-metadata-system-run"
-  location = "asia-south1"
+  location = var.gcp_region
   deletion_protection = false
   template {
     template {
