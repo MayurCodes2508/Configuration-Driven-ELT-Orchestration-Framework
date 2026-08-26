@@ -16,15 +16,18 @@
             "strategy": "page",
             "page_param": "page"
         },
+        
         "page_size": {
 
             "param": "per_page",
             "value": 250
         },
+
         "query_params": {
 
             "vs_currency": "inr"
         },
+
         "auth": {
 
             "auth_type": "api_key",

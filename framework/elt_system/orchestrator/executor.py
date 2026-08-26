@@ -55,7 +55,7 @@ class Executor:
             dump = {
                 "job_run_id": self.job_run_id,
                 "job_name": job_name,
-                "system": "el",
+                "system": "elt",
                 "job_type": None,
                 "sub_jobtype": None,
                 "status": "FAILED",
@@ -66,12 +66,12 @@ class Executor:
             log.info(f"METADATA_DUMP: {json.dumps(obj=dump)}")
 
             log.opt(exception=True).error(
-                f"Job: {job_name} | ID: {self.job_run_id} | System: el | Job Cfg Loading Failed"
+                f"Job: {job_name} | ID: {self.job_run_id} | System: elt | Job Cfg Loading Failed"
             )
 
             raise
 
-        log.info(f"Job: {job_name} | ID: {self.job_run_id} | System: el | CREATED...")
+        log.info(f"Job: {job_name} | ID: {self.job_run_id} | System: elt | CREATED...")
 
         try:
             validator = Validator(loader=job_cfg_loader)
@@ -82,7 +82,7 @@ class Executor:
             dump = {
                 "job_run_id": self.job_run_id,
                 "job_name": job_name,
-                "system": "el",
+                "system": "elt",
                 "job_type": None,
                 "sub_jobtype": None,
                 "status": "FAILED",
@@ -93,13 +93,13 @@ class Executor:
             log.info(f"METADATA_DUMP: {json.dumps(obj=dump)}")
 
             log.opt(exception=True).error(
-                f"Job Execution: {job_name} | ID: {self.job_run_id} | System: el | Job Cfg Validation Failed"
+                f"Job Execution: {job_name} | ID: {self.job_run_id} | System: elt | Job Cfg Validation Failed"
             )
 
             raise
 
         log.info(
-            f"Job Execution: {job_name} | ID: {self.job_run_id} | System: el | RUNNING..."
+            f"Job Execution: {job_name} | ID: {self.job_run_id} | System: elt | RUNNING..."
         )
 
         try:
@@ -121,7 +121,7 @@ class Executor:
             log.info(f"METADATA_DUMP: {json.dumps(obj=job_metadata_dump)}")
 
             log.opt(exception=True).error(
-                f"Job Execution: {job_name} | ID: {self.job_run_id} | System: el | Job Type: {job_metadata_dump['job_type']} | Sub JobType: {job_metadata_dump['sub_jobtype']} | Status: FAILED"
+                f"Job Execution: {job_name} | ID: {self.job_run_id} | System: elt | Job Type: {job_metadata_dump['job_type']} | Sub JobType: {job_metadata_dump['sub_jobtype']} | Status: FAILED"
             )
 
             raise
@@ -142,7 +142,7 @@ class Executor:
             log.info(f"METADATA_DUMP: {json.dumps(obj=job_metadata_dump)}")
 
             log.success(
-                f"Job Execution: {job_name} | ID: {self.job_run_id} | System: el | Job Type: {job_metadata_dump['job_type']} | Sub JobType: {job_metadata_dump['sub_jobtype']} | Status: SUCCESS"
+                f"Job Execution: {job_name} | ID: {self.job_run_id} | System: elt | Job Type: {job_metadata_dump['job_type']} | Sub JobType: {job_metadata_dump['sub_jobtype']} | Status: SUCCESS"
             )
 
 

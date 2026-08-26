@@ -43,7 +43,7 @@ class Metadata:
             metadata_dump = {
                 "job_run_id": job_run_id,
                 "job_name": job_name,
-                "system": "el",
+                "system": "elt",
                 "job_type": self.job_type,
                 "sub_jobtype": self.sub_jobtype,
                 "status": status,

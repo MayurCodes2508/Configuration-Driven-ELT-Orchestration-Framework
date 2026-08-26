@@ -23,6 +23,33 @@ resource "google_storage_bucket" "prod_market_analytics_platform_bucket" {
   location                 = "asia-south1"
   storage_class            = "STANDARD"
   public_access_prevention = "enforced"
+  force_destroy = false
+
+  lifecycle {
+    prevent_destroy = true
+  }
+
+  soft_delete_policy {
+    retention_duration_seconds = 604800
+  }
+
+  lifecycle_rule {
+    action {
+      type          = "SetStorageClass"
+      storage_class = "COLDLINE"
+    }
+    condition {
+      age = 90
+    }
+  }
+}
+
+resource "google_storage_bucket" "prod_configuration_driven_elt_orchestration_framework_bucket" {
+  name                     = "prod-configuration-driven-elt-orchestration-framework-bucket"
+  location                 = "asia-south1"
+  storage_class            = "STANDARD"
+  public_access_prevention = "enforced"
+  force_destroy = false
 
   lifecycle {
     prevent_destroy = true
