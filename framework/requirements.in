@@ -2,6 +2,8 @@ uuid6
 loguru
 pandas
 pyarrow
+uvicorn
+fastapi
 jsonschema_rs
 jsonschema
 psycopg2-binary

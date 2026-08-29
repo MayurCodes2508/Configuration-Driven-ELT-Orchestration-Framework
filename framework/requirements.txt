@@ -9,12 +9,15 @@ agate==1.9.1
     #   dbt-adapters
     #   dbt-common
     #   dbt-core
+annotated-doc==0.0.5
+    # via fastapi
 annotated-types==0.8.0
     # via pydantic
 anyio==4.14.2
     # via
     #   google-genai
     #   httpx
+    #   starlette
 attrs==26.1.0
     # via
     #   jsonschema
@@ -32,7 +35,9 @@ cffi==2.1.0
 charset-normalizer==3.4.9
     # via requests
 click==8.4.2
-    # via dbt-core
+    # via
+    #   dbt-core
+    #   uvicorn
 colorama==0.4.6
     # via dbt-common
 cryptography==49.0.0
@@ -54,11 +59,11 @@ dbt-common==1.39.0
     #   dbt-adapters
     #   dbt-bigquery
     #   dbt-core
-dbt-core==1.12.2
+dbt-core==1.12.3
     # via
     #   -r requirements.in
     #   dbt-bigquery
-dbt-core-experimental-parser==2.0.0b1
+dbt-core-experimental-parser==2.0.0b2
     # via dbt-core
 dbt-extractor==0.6.0
     # via dbt-core
@@ -73,6 +78,8 @@ distro==1.9.0
     # via google-genai
 docstring-parser==0.18.0
     # via google-cloud-aiplatform
+fastapi==0.141.1
+    # via -r requirements.in
 fastjsonschema==2.22.2
     # via nbformat
 google-api-core[grpc]==2.32.0
@@ -105,11 +112,11 @@ google-auth[pyopenssl,requests]==2.56.0
     #   google-genai
     #   pandas-gbq
     #   pydata-google-auth
-google-auth-oauthlib==1.4.0
+google-auth-oauthlib==1.4.1
     # via
     #   pandas-gbq
     #   pydata-google-auth
-google-cloud-aiplatform==1.164.0
+google-cloud-aiplatform==2.0.1
     # via dbt-bigquery
 google-cloud-appengine-logging==1.10.0
     # via google-cloud-logging
@@ -143,7 +150,7 @@ google-crc32c==1.8.0
     # via
     #   google-cloud-storage
     #   google-resumable-media
-google-genai==2.18.1
+google-genai==2.20.0
     # via google-cloud-aiplatform
 google-resumable-media==2.10.0
     # via
@@ -176,7 +183,9 @@ grpcio==1.82.1
 grpcio-status==1.81.1
     # via google-api-core
 h11==0.16.0
-    # via httpcore
+    # via
+    #   httpcore
+    #   uvicorn
 httpcore==1.0.9
     # via httpx
 httpx==0.28.1
@@ -186,7 +195,7 @@ idna==3.18
     #   anyio
     #   httpx
     #   requests
-importlib-metadata==9.0.0
+importlib-metadata==9.0.1
     # via metricflow
 isodate==0.7.2
     # via
@@ -225,9 +234,9 @@ metricflow==0.212.0
     # via dbt-core
 more-itertools==10.8.0
     # via metricflow
-msgpack==1.2.1
+msgpack==1.2.2
     # via mashumaro
-nbformat==5.11.0
+nbformat==5.11.1
     # via dbt-bigquery
 networkx==3.6.1
     # via dbt-core
@@ -258,7 +267,7 @@ pandas==3.0.3
     #   db-dtypes
     #   google-cloud-bigquery
     #   pandas-gbq
-pandas-gbq==0.35.1
+pandas-gbq==0.35.2
     # via google-cloud-bigquery
 parsedatetime==2.6
     # via agate
@@ -266,7 +275,7 @@ pathspec==1.0.4
     # via
     #   dbt-common
     #   dbt-core
-platformdirs==4.11.3
+platformdirs==4.11.5
     # via jupyter-core
 proto-plus==1.28.1
     # via
@@ -311,13 +320,14 @@ pyasn1-modules==0.4.2
     # via google-auth
 pycparser==3.0
     # via cffi
-pydantic==2.13.4
+pydantic==2.13.5
     # via
     #   dbt-core
+    #   fastapi
     #   google-cloud-aiplatform
     #   google-genai
     #   metricflow
-pydantic-core==2.46.4
+pydantic-core==2.46.5
     # via pydantic
 pydata-google-auth==1.9.1
     # via pandas-gbq
@@ -327,7 +337,7 @@ python-dateutil==2.9.0.post0
     #   google-cloud-bigquery
     #   metricflow
     #   pandas
-python-dotenv==1.2.2
+python-dotenv==1.2.3
     # via dbt-core
 python-slugify==8.0.4
     # via agate
@@ -373,8 +383,10 @@ snowplow-tracker==1.1.0
     # via dbt-core
 sqlglot==30.17.0
     # via metricflow
-sqlparse==0.5.5
+sqlparse==0.6.0
     # via dbt-core
+starlette==1.6.0
+    # via fastapi
 tabulate==0.10.0
     # via metricflow
 tenacity==9.1.4
@@ -391,6 +403,7 @@ typing-extensions==4.16.0
     #   dbt-adapters
     #   dbt-common
     #   dbt-core
+    #   fastapi
     #   google-cloud-aiplatform
     #   google-genai
     #   grpcio
@@ -401,12 +414,17 @@ typing-extensions==4.16.0
     #   pydantic-core
     #   referencing
     #   snowplow-tracker
+    #   starlette
     #   typing-inspection
 typing-inspection==0.4.4
-    # via pydantic
+    # via
+    #   fastapi
+    #   pydantic
 urllib3==2.7.0
     # via requests
 uuid6==2025.0.1
+    # via -r requirements.in
+uvicorn==0.52.4
     # via -r requirements.in
 websockets==16.1.1
     # via google-genai

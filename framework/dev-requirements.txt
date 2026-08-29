@@ -10,6 +10,10 @@ agate==1.9.1
     #   dbt-adapters
     #   dbt-common
     #   dbt-core
+annotated-doc==0.0.5
+    # via
+    #   -r requirements.txt
+    #   fastapi
 annotated-types==0.8.0
     # via
     #   -r requirements.txt
@@ -19,6 +23,7 @@ anyio==4.14.2
     #   -r requirements.txt
     #   google-genai
     #   httpx
+    #   starlette
 attrs==26.1.0
     # via
     #   -r requirements.txt
@@ -47,6 +52,7 @@ click==8.4.2
     # via
     #   -r requirements.txt
     #   dbt-core
+    #   uvicorn
 colorama==0.4.6
     # via
     #   -r requirements.txt
@@ -79,11 +85,11 @@ dbt-common==1.39.0
     #   dbt-adapters
     #   dbt-bigquery
     #   dbt-core
-dbt-core==1.12.2
+dbt-core==1.12.3
     # via
     #   -r requirements.txt
     #   dbt-bigquery
-dbt-core-experimental-parser==2.0.0b1
+dbt-core-experimental-parser==2.0.0b2
     # via
     #   -r requirements.txt
     #   dbt-core
@@ -109,6 +115,8 @@ docstring-parser==0.18.0
     # via
     #   -r requirements.txt
     #   google-cloud-aiplatform
+fastapi==0.141.1
+    # via -r requirements.txt
 fastjsonschema==2.22.2
     # via
     #   -r requirements.txt
@@ -145,12 +153,12 @@ google-auth[pyopenssl,requests]==2.56.0
     #   google-genai
     #   pandas-gbq
     #   pydata-google-auth
-google-auth-oauthlib==1.4.0
+google-auth-oauthlib==1.4.1
     # via
     #   -r requirements.txt
     #   pandas-gbq
     #   pydata-google-auth
-google-cloud-aiplatform==1.164.0
+google-cloud-aiplatform==2.0.1
     # via
     #   -r requirements.txt
     #   dbt-bigquery
@@ -196,7 +204,7 @@ google-crc32c==1.8.0
     #   -r requirements.txt
     #   google-cloud-storage
     #   google-resumable-media
-google-genai==2.18.1
+google-genai==2.20.0
     # via
     #   -r requirements.txt
     #   google-cloud-aiplatform
@@ -240,6 +248,7 @@ h11==0.16.0
     # via
     #   -r requirements.txt
     #   httpcore
+    #   uvicorn
 httpcore==1.0.9
     # via
     #   -r requirements.txt
@@ -254,7 +263,7 @@ idna==3.18
     #   anyio
     #   httpx
     #   requests
-importlib-metadata==9.0.0
+importlib-metadata==9.0.1
     # via
     #   -r requirements.txt
     #   metricflow
@@ -312,11 +321,11 @@ more-itertools==10.8.0
     # via
     #   -r requirements.txt
     #   metricflow
-msgpack==1.2.1
+msgpack==1.2.2
     # via
     #   -r requirements.txt
     #   mashumaro
-nbformat==5.11.0
+nbformat==5.11.1
     # via
     #   -r requirements.txt
     #   dbt-bigquery
@@ -359,7 +368,7 @@ pandas==3.0.3
     #   db-dtypes
     #   google-cloud-bigquery
     #   pandas-gbq
-pandas-gbq==0.35.1
+pandas-gbq==0.35.2
     # via
     #   -r requirements.txt
     #   google-cloud-bigquery
@@ -372,7 +381,7 @@ pathspec==1.0.4
     #   -r requirements.txt
     #   dbt-common
     #   dbt-core
-platformdirs==4.11.3
+platformdirs==4.11.5
     # via
     #   -r requirements.txt
     #   jupyter-core
@@ -433,14 +442,15 @@ pycparser==3.0
     # via
     #   -r requirements.txt
     #   cffi
-pydantic==2.13.4
+pydantic==2.13.5
     # via
     #   -r requirements.txt
     #   dbt-core
+    #   fastapi
     #   google-cloud-aiplatform
     #   google-genai
     #   metricflow
-pydantic-core==2.46.4
+pydantic-core==2.46.5
     # via
     #   -r requirements.txt
     #   pydantic
@@ -463,7 +473,7 @@ python-dateutil==2.9.0.post0
     #   google-cloud-bigquery
     #   metricflow
     #   pandas
-python-dotenv==1.2.2
+python-dotenv==1.2.3
     # via
     #   -r requirements.txt
     #   dbt-core
@@ -534,10 +544,14 @@ sqlglot==30.17.0
     # via
     #   -r requirements.txt
     #   metricflow
-sqlparse==0.5.5
+sqlparse==0.6.0
     # via
     #   -r requirements.txt
     #   dbt-core
+starlette==1.6.0
+    # via
+    #   -r requirements.txt
+    #   fastapi
 tabulate==0.10.0
     # via
     #   -r requirements.txt
@@ -562,6 +576,7 @@ typing-extensions==4.16.0
     #   dbt-adapters
     #   dbt-common
     #   dbt-core
+    #   fastapi
     #   google-cloud-aiplatform
     #   google-genai
     #   grpcio
@@ -572,16 +587,20 @@ typing-extensions==4.16.0
     #   pydantic-core
     #   referencing
     #   snowplow-tracker
+    #   starlette
     #   typing-inspection
 typing-inspection==0.4.4
     # via
     #   -r requirements.txt
+    #   fastapi
     #   pydantic
 urllib3==2.7.0
     # via
     #   -r requirements.txt
     #   requests
 uuid6==2025.0.1
+    # via -r requirements.txt
+uvicorn==0.52.4
     # via -r requirements.txt
 websockets==16.1.1
     # via
