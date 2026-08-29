@@ -2,6 +2,11 @@
 #DEV
 ################################################################################
 
+################################################################################
+#JOBS
+################################################################################
+
+
 resource "google_cloud_run_v2_job" "dev_elt_system_run" {
   name     = "dev-elt-system-run"
   location = var.gcp_region
@@ -12,31 +17,12 @@ resource "google_cloud_run_v2_job" "dev_elt_system_run" {
       timeout = "600s"
       containers {
         image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/configuration-driven-elt-orchestration-framework-repository/framework:testing"
-        args = [
-          "elt_system.orchestrator.main"
-        ]
-        env {
-          name = "ENV"
-          value = "DEV"
-        }
-        env {
-          name = "DBT_TARGET"
-          value = "dev"
-        }
-        env {
-          name = "COINGECKO_API_KEY"
-          value_source {
-            secret_key_ref {
-              secret  = "dev-configuration-driven-elt-orchestration-framework-coingecko-api-key-secret"
-              version = "1"
-            }
-          }
-        }
       }
       service_account = "development-cloud-resources-jo@instant-medium-491107-t6.iam.gserviceaccount.com"
     }
   }
 }
+
 resource "google_cloud_run_v2_job" "dev_metadata_system_run" {
   name = "dev-metadata-system-run"
   location = var.gcp_region
@@ -47,27 +33,6 @@ resource "google_cloud_run_v2_job" "dev_metadata_system_run" {
       timeout = "600s"
       containers {
         image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/configuration-driven-elt-orchestration-framework-repository/framework:testing"
-        args = [
-          "metadata_system.orchestrator.main"
-        ]
-         env {
-          name = "ENV"
-          value = "DEV"
-          
-         }
-         env {
-          name = "DBT_TARGET"
-          value = "dev"
-         }
-         env {
-          name = "NEON_DB_URL"
-          value_source {
-            secret_key_ref {
-              secret  = "dev-configuration-driven-elt-orchestration-framework-neon-db-url-secret"
-              version = "1"
-            }
-          }
-         }
       }
       service_account = "development-cloud-resource-757@instant-medium-491107-t6.iam.gserviceaccount.com"
     }
@@ -75,15 +40,49 @@ resource "google_cloud_run_v2_job" "dev_metadata_system_run" {
 }
 
 ################################################################################
+#SERVICES
+################################################################################
+
+resource "google_cloud_run_v2_service" "dev_logging_service" {
+  name = "dev-logging-service"
+  project = var.gcp_project_id
+  location = var.gcp_region
+  description = "Development Logging Run Service for Framework Metadata Logging"
+  client = "terraform"
+
+  deletion_protection = false
+
+  scaling {
+    min_instance_count = 0
+  }
+
+  template {
+    timeout = "60s"
+
+    service_account = "development-logger-run-job@instant-medium-491107-t6.iam.gserviceaccount.com"
+    
+    containers {
+      image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/configuration-driven-elt-orchestration-framework-repository/framework:testing"
+    }
+    
+  }
+}
+
+
+################################################################################
 #PROD
+################################################################################
+
+################################################################################
+#JOBS
 ################################################################################
 
 resource "google_cloud_run_v2_job" "prod_el_system_run" {
   name     = "prod-el-system-run"
-  location = "asia-south1"
-  deletion_protection = true
+  location = var.gcp_region
+  deletion_protection = false
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
   template {
     template {
@@ -119,7 +118,7 @@ resource "google_cloud_run_v2_job" "prod_el_system_run" {
 
 resource "google_cloud_run_v2_job" "prod_elt_system_run" {
   name     = "prod-elt-system-run"
-  location = "asia-south1"
+  location = var.gcp_region
   deletion_protection = true
   lifecycle {
     prevent_destroy = true
@@ -158,10 +157,10 @@ resource "google_cloud_run_v2_job" "prod_elt_system_run" {
 
 resource "google_cloud_run_v2_job" "prod_pipeline_run" {
   name = "prod-pipeline-run"
-  location = "asia-south1"
-  deletion_protection = true
+  location = var.gcp_region
+  deletion_protection = false
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
   template {
     template {
@@ -197,7 +196,7 @@ resource "google_cloud_run_v2_job" "prod_pipeline_run" {
 
 resource "google_cloud_run_v2_job" "prod_metadata_system_run" {
   name = "prod-metadata-system-run"
-  location = "asia-south1"
+  location = var.gcp_region
   deletion_protection = true
   lifecycle {
     prevent_destroy = true
@@ -234,3 +233,7 @@ resource "google_cloud_run_v2_job" "prod_metadata_system_run" {
     }
   }
 }
+
+################################################################################
+#SERVICES
+################################################################################
