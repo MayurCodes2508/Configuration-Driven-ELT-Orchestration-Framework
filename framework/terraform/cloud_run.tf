@@ -43,11 +43,11 @@ resource "google_cloud_run_v2_job" "dev_metadata_system_run" {
 #SERVICES
 ################################################################################
 
-resource "google_cloud_run_v2_service" "dev_logging_service" {
-  name = "dev-logging-service"
+resource "google_cloud_run_v2_service" "dev_execution_service" {
+  name = "dev-execution-service"
   project = var.gcp_project_id
   location = var.gcp_region
-  description = "Development Logging Run Service for Framework Metadata Logging"
+  description = "Development Execution Run Service"
   client = "terraform"
 
   deletion_protection = false
