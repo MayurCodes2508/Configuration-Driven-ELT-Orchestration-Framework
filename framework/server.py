@@ -1,23 +1,24 @@
 import os
 
-import uvicorn
-from fastapi import FastAPI
+import uvicorn as uv
+from fastapi import FastAPI as fapi
+
+from main.main import router as main_router
 
 
-app = FastAPI()
+app = fapi()
 
-@app.post("/execute")
-async def execute():
+app.include_router(router=main_router)
 
-    return {
-        "msg": "Test_1",
-        "status": "SUCCESS"
-    }
+@app.post("/status")
+async def status():
+
+    pass
 
 
 if __name__ == "__main__":
 
-    uvicorn.run(
+    uv.run(
         app=app,
         host="0.0.0.0",
         port=int(os.getenv(key="PORT", default="8080"))
