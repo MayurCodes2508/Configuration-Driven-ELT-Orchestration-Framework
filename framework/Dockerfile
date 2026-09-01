@@ -12,4 +12,4 @@ COPY . .
 
 RUN dbt deps --project-dir ./metadata_system/dbt/
 
-ENTRYPOINT [ "python", "-u", "-m", "server" ]
+CMD [ "python", "-u", "-m", "server" ]
