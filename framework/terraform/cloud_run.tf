@@ -6,39 +6,6 @@
 #JOBS
 ################################################################################
 
-
-resource "google_cloud_run_v2_job" "dev_elt_system_run" {
-  name     = "dev-elt-system-run"
-  location = var.gcp_region
-  deletion_protection = false
-  template {
-    template {
-      max_retries = 2
-      timeout = "600s"
-      containers {
-        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/configuration-driven-elt-orchestration-framework-repository/framework:testing"
-      }
-      service_account = "development-cloud-resources-jo@instant-medium-491107-t6.iam.gserviceaccount.com"
-    }
-  }
-}
-
-resource "google_cloud_run_v2_job" "dev_metadata_system_run" {
-  name = "dev-metadata-system-run"
-  location = var.gcp_region
-  deletion_protection = false
-  template {
-    template {
-      max_retries = 2
-      timeout = "600s"
-      containers {
-        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/configuration-driven-elt-orchestration-framework-repository/framework:testing"
-      }
-      service_account = "development-cloud-resource-757@instant-medium-491107-t6.iam.gserviceaccount.com"
-    }
-  }
-}
-
 ################################################################################
 #SERVICES
 ################################################################################
