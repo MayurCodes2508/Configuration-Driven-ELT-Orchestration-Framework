@@ -1,8 +1,8 @@
 import psycopg2
 from loguru import logger as log
 
-from metadata_system.job_executors.auth.auth import Auth
 from metadata_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
+from metadata_system.job_executors.auth.auth import Auth
 
 
 class DBExecCommand:
@@ -53,7 +53,7 @@ class DBExecCommand:
 
         except Exception as excp:
             log.error(
-                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
+                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}",
             )
 
             raise
