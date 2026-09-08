@@ -7,42 +7,45 @@
         "entity": "cryptocurrency"
     },
 
-    "exec": {
+    "layer": {
 
-        "exec_type": "ApiExecCmd",
-        "path": "/coins/markets",
-        "pagination": {
+        "ingestion": {
 
-            "strategy": "page",
-            "page_param": "page"
+            "ingestion_type": "API",
+            "path": "/coins/markets",
+            "pagination": {
+
+                "strategy": "page",
+                "page_param": "page"
+            },
+
+            "page_size": {
+
+                "param": "per_page",
+                "value": 50
+            },
+
+            "query_params": {
+
+                "vs_currency": "inr"
+            },
+
+            "auth": {
+
+                "auth_type": "api_key",
+                "key_env": "COINGECKO_API_KEY",
+                "location": "header",
+                "name": "x-cg-demo-api-key"
+            }
         },
 
-        "page_size": {
+        "storage": {
 
-            "param": "per_page",
-            "value": 50
-        },
-
-        "query_params": {
-
-            "vs_currency": "inr"
-        },
-
-        "auth": {
-
-            "auth_type": "api_key",
-            "key_env": "COINGECKO_API_KEY",
-            "location": "header",
-            "name": "x-cg-demo-api-key"
+            "storage_type": "GCS",
+            "bucket": "dev-configuration-driven-elt-orchestration-framework-bucket",
+            "layer": "dev",
+            "format": "parquet",
+            "path_template": "{layer}/{source}/{dataset}/{entity}/ingestionDT={ingestionDT}/ingestionTS={ingestionTS}/jobRunID={jobRunID}.{format}"
         }
-    },
-
-    "dest": {
-
-        "dest_type": "GCS",
-        "bucket": "dev-configuration-driven-elt-orchestration-framework-bucket",
-        "layer": "dev",
-        "format": "parquet",
-        "path_template": "{layer}/{source}/{dataset}/{entity}/ingestion_dt={ingestion_dt}/ingestion_ts={ingestion_ts}/job_run_id={job_run_id}.{format}"
     }
 }
