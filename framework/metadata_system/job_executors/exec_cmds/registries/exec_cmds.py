@@ -27,7 +27,7 @@ class ExecCmdType:
         class_template = cls.registry[exec_type]
 
         log.info(
-            f"Successfully Mapped the Exec Type: {exec_type} with Exec Registry..."
+            f"Successfully Mapped the Exec Type: {exec_type} with Exec Registry...",
         )
 
         exec_cmd = class_template.run(*args, **kwargs)
