@@ -1,10 +1,10 @@
 import argparse as arg
 import json
 import sys
+from uuid import UUID
 
 from loguru import logger as log
 from uuid6 import uuid7 as uid
-from uuid import UUID
 
 from metadata_system.orchestrator.loader import JobConfigLoader
 from metadata_system.orchestrator.metadata import Metadata
@@ -66,7 +66,7 @@ class Executor:
             log.info(f"METADATA_DUMP: {json.dumps(obj=dump)}")
 
             log.opt(exception=True).error(
-                f"Job: {job_name} | ID: {self.job_run_id} | System: metadata | Job Cfg Loading Failed"
+                f"Job: {job_name} | ID: {self.job_run_id} | System: metadata | Job Cfg Loading Failed",
             )
 
             raise
@@ -91,13 +91,13 @@ class Executor:
             log.info(f"METADATA_DUMP: {json.dumps(obj=dump)}")
 
             log.opt(exception=True).error(
-                f"Job Execution: {job_name} | ID: {self.job_run_id} | System: metadata | Job Cfg Validation Failed"
+                f"Job Execution: {job_name} | ID: {self.job_run_id} | System: metadata | Job Cfg Validation Failed",
             )
 
             raise
 
         log.info(
-            f"Job Execution: {job_name} | ID: {self.job_run_id} | System: metadata | RUNNING..."
+            f"Job Execution: {job_name} | ID: {self.job_run_id} | System: metadata | RUNNING...",
         )
 
         try:
@@ -119,7 +119,7 @@ class Executor:
             log.info(f"METADATA_DUMP: {json.dumps(obj=job_metadata_dump)}")
 
             log.opt(exception=True).error(
-                f"Job Execution: {job_name} | ID: {self.job_run_id} | System: metadata | Job Type: {job_metadata_dump['job_type']} | Sub JobType: {job_metadata_dump['sub_jobtype']} | Status: FAILED"
+                f"Job Execution: {job_name} | ID: {self.job_run_id} | System: metadata | Job Type: {job_metadata_dump['job_type']} | Sub JobType: {job_metadata_dump['sub_jobtype']} | Status: FAILED",
             )
 
             raise
@@ -140,7 +140,7 @@ class Executor:
             log.info(f"METADATA_DUMP: {json.dumps(obj=job_metadata_dump)}")
 
             log.success(
-                f"Job Execution: {job_name} | ID: {self.job_run_id} | System: metadata | Job Type: {job_metadata_dump['job_type']} | Sub JobType: {job_metadata_dump['sub_jobtype']} | Status: SUCCESS"
+                f"Job Execution: {job_name} | ID: {self.job_run_id} | System: metadata | Job Type: {job_metadata_dump['job_type']} | Sub JobType: {job_metadata_dump['sub_jobtype']} | Status: SUCCESS",
             )
 
 
@@ -150,7 +150,7 @@ if __name__ == "__main__":
     parser.add_argument("--job_name", type=str, help="Name of the Job", required=True)
 
     parser.add_argument(
-        "--file_path", type=str, help="Path to the JSON Job Cfg File", required=True
+        "--file_path", type=str, help="Path to the JSON Job Cfg File", required=True,
     )
 
     args = parser.parse_args()
