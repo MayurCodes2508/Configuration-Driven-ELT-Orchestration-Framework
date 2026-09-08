@@ -29,7 +29,7 @@ class BQ:
             self.data = [row + (ingestion_ts,) for row in self.data]
 
             bq_client = bqcl.Client(
-                location="asia-south1", project="instant-medium-491107-t6"
+                location="asia-south1", project="instant-medium-491107-t6",
             )
 
             self.table = bq_client.get_table(table=self.table_id)
