@@ -64,9 +64,9 @@ class Orchestrator:
                                 str(object=job_name),
                                 "--file_path",
                                 str(object=path),
-                            ]
-                        )
-                    ]
+                            ],
+                        ),
+                    ],
                 ),
             )
 
@@ -88,14 +88,14 @@ class Orchestrator:
 
             exec_name = execution_name.rsplit("/", 1)[-1]
 
-            job_filter = f'''
+            job_filter = f"""
 
                 resource.labels.job_name="{run_job_name}"
                 resource.labels.location="asia-south1"
                 labels."run.googleapis.com/execution_name"="{exec_name}"
                 textPayload:"METADATA_DUMP"
 
-            '''
+            """
 
             dump = None
 
@@ -121,7 +121,7 @@ class Orchestrator:
 
         except Exception as excp:
             log.error(
-                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
+                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}",
             )
 
             raise
@@ -195,7 +195,7 @@ class Main:
 
         except Exception:
             log.opt(exception=True).critical(
-                "System: metadata | Failed to Load Job Catalog, Aborting Job Executions"
+                "System: metadata | Failed to Load Job Catalog, Aborting Job Executions",
             )
 
             raise
@@ -215,7 +215,7 @@ class Main:
                                 orchestrator.run_concurrent_jobs_local,
                                 job["path"],
                                 job["job_name"],
-                            )
+                            ),
                         )
 
                     elif env in {"DEV", "PROD"}:
@@ -224,7 +224,7 @@ class Main:
                                 orchestrator.run_concurrent_jobs,
                                 job["path"],
                                 job["job_name"],
-                            )
+                            ),
                         )
 
             log.info("All Job Executions Completed...")
@@ -247,7 +247,7 @@ class Main:
                 results.append(json.dumps(obj=dump))
 
             log.opt(exception=True).critical(
-                "System: metadata | Failed to Start the Thread Pool Executor, Aborting Job Executions"
+                "System: metadata | Failed to Start the Thread Pool Executor, Aborting Job Executions",
             )
 
             log.info(f"ALL_METADATA_DUMPS: {results}")
@@ -278,7 +278,7 @@ class Main:
                 results.append(json.dumps(obj=dump))
 
             log.opt(exception=True).critical(
-                "System: metadata | One or More Jobs Failed"
+                "System: metadata | One or More Jobs Failed",
             )
 
             log.info(f"ALL_METADATA_DUMPS: {results}")
