@@ -1,17 +1,15 @@
-import json
+import os
 import sys
-import time
-from concurrent.futures import ThreadPoolExecutor as tpe
-from subprocess import CalledProcessError as sperr
-from subprocess import run as sp
+from uuid import UUID
 
-from google.cloud import logging_v2 as lv2
-from google.cloud.run_v2 import ExecutionsClient, JobsClient, RunJobRequest
+from fastapi import APIRouter as apir
 from loguru import logger as log
 from uuid6 import uuid7 as uid
 
-from elt_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
-from elt_system.orchestrator.loader import JobCatalog
+from elt_system.orchestrator.loader import JobConfigLoader
+from elt_system.orchestrator.metadata import Metadata
+from elt_system.orchestrator.runner import Runner
+from elt_system.orchestrator.validator import Validator
 
 log.remove()
 
@@ -26,264 +24,111 @@ log.add(
 log.add(sink=sys.stderr, filter=lambda record: record["level"].name == "CRITICAL")
 
 
-class Orchestrator:
-    def __init__(self, env):
-
-        self.env = env
-
-    def get_run_job_name_and_base_path(self, env):
-
-        run_job_name = "dev-elt-system-run"
-
-        if env == "PROD":
-            run_job_name = "prod-elt-system-run"
-
-        base_path = "projects/instant-medium-491107-t6/locations/asia-south1/jobs"
-
-        return run_job_name, base_path
-
-    def run_concurrent_jobs(self, path, job_name):
-
-        try:
-            jobs_client = JobsClient()
-
-            executions_client = ExecutionsClient()
-
-            logging_client = lv2.Client(project="instant-medium-491107-t6")
-
-            run_job_name, base_path = self.get_run_job_name_and_base_path(env=self.env)
-
-            request = RunJobRequest(
-                name=(f"{base_path}/{run_job_name}"),
-                overrides=RunJobRequest.Overrides(
-                    container_overrides=[
-                        RunJobRequest.Overrides.ContainerOverride(
-                            args=[
-                                "elt_system.orchestrator.executor",
-                                "--job_name",
-                                str(object=job_name),
-                                "--file_path",
-                                str(object=path),
-                            ]
-                        )
-                    ]
-                ),
-            )
-
-            operation = jobs_client.run_job(request=request)
-
-            execution_name = operation.metadata.name
-
-            log.info(f"Job Execution Name: {execution_name}...")
-
-            while True:
-                execution = executions_client.get_execution(name=execution_name)
-
-                if execution.completion_time:
-                    log.info("Successfully Got Final Job Execution...")
-
-                    break
-
-                time.sleep(3)
-
-            exec_name = execution_name.rsplit("/", 1)[-1]
-
-            job_filter = f'''
-
-                resource.labels.job_name="{run_job_name}"
-                resource.labels.location="asia-south1"
-                labels."run.googleapis.com/execution_name"="{exec_name}"
-                textPayload:"METADATA_DUMP"
-
-            '''
-
-            dump = None
-
-            for sec in range(100):
-                entries = logging_client.list_entries(filter_=job_filter)
-
-                for entry in entries:
-                    txt_log = entry.payload
-
-                    dump = txt_log.rsplit("METADATA_DUMP: ", 1)[-1]
-
-                    break
-
-                if dump is not None:
-                    break
-
-                time.sleep(3)
-
-            else:
-                raise TimeoutError("TImeout Hit | Couldnt Fetch Metadata Dump")
-
-            return dump
-
-        except Exception as excp:
-            log.error(
-                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
-            )
-
-            raise
-
-    def run_concurrent_jobs_local(self, path, job_name):
-
-        try:
-            process = sp(
-                [
-                    "docker",
-                    "run",
-                    "--rm",
-                    "-e",
-                    "COINGECKO_API_KEY",
-                    "framework:latest",
-                    "elt_system.orchestrator.executor",
-                    "--job_name",
-                    str(object=job_name),
-                    "--file_path",
-                    str(object=path),
-                ],
-                capture_output=True,
-                check=True,
-                text=True,
-            )
-
-            output = process.stdout
-
-            log.info(output)
-
-            dump = output.rsplit("METADATA_DUMP: ", 1)[-1]
-
-            decoder = json.JSONDecoder()
-
-            obj, _end = decoder.raw_decode(dump)
-
-            return json.dumps(obj=obj)
-
-        except sperr as err:
-            log.exception("Error Occured: While Executing Job")
-
-            log.error(f"{err.stderr}")
-
-            raise
-
-
 class Main:
     def __init__(self):
 
         pass
 
-    def main(self):
+    ##### Helper Functions :3 #####
 
-        def getenv(job_catalog_loader):
+    def build_run_id(self):
 
-            env = job_catalog_loader.job_catalog_run()
+        runID = str(uid())
 
-            if not env:
-                raise ValueError(f"Invalid or Missing Env: {env}")
+        log.info("Job Run ID Created...")
 
-            return env
+        return runID
 
-        try:
-            job_catalog_loader = JobCatalog()
+    ##### End #####
 
-            env = getenv(job_catalog_loader=job_catalog_loader)
+    def execute_job(self, fp, job_name):
 
-            log.info(f"Successfully Loaded the Env: {env}...")
+        log.info("Creating Job Run ID...")
 
-        except Exception:
-            log.opt(exception=True).critical(
-                "System: elt | Failed to Load Job Catalog, Aborting Job Executions"
-            )
+        self.jobRunID = self.build_run_id()
 
-            raise
+        if not UUID(self.jobRunID):
+            raise ValueError("Invalid UUID")
 
-        try:
-            orchestrator = Orchestrator(env=env)
+        job_cfg_loader = JobConfigLoader(fp=fp)
 
-            log.info("All Job Executions Started...")
+        job_cfg_loader.job_cfg_loader_run()
 
-            futures = []
+        log.info(f"Job: {job_name} | ID: {self.jobRunID} | System: ELT | CREATED...")
 
-            with tpe(max_workers=5) as executor:
-                for job in job_catalog_loader.jobs:
-                    if env == "LOCAL":
-                        futures.append(
-                            executor.submit(
-                                orchestrator.run_concurrent_jobs_local,
-                                job["path"],
-                                job["job_name"],
-                            )
-                        )
+        validator = Validator(loader=job_cfg_loader)
 
-                    elif env in {"DEV", "PROD"}:
-                        futures.append(
-                            executor.submit(
-                                orchestrator.run_concurrent_jobs,
-                                job["path"],
-                                job["job_name"],
-                            )
-                        )
+        validator.validator_run()
 
-            log.info("All Job Executions Completed...")
+        log.info(
+            f"Job Execution: {job_name} | ID: {self.jobRunID} | System: ELT | RUNNING...",
+        )
 
-        except Exception as strt_err:
-            results = []
+        runner = Runner(loader=job_cfg_loader, jobRunID=self.jobRunID)
 
-            for job in job_catalog_loader.jobs:
-                dump = {
-                    "job_run_id": str(object=uid()),
-                    "job_name": job.get("job_name"),
-                    "system": "elt",
-                    "job_type": None,
-                    "sub_jobtype": None,
-                    "status": "FAILED",
-                    "error_message": str(object=strt_err),
-                    "job_metrics": None,
-                }
+        runner.run()
 
-                results.append(json.dumps(obj=dump))
+        for key in job_cfg_loader.job_cfg["layer"]:
+            try:
+                runner.run_layers(key=key)
 
-            log.opt(exception=True).critical(
-                "System: elt | Failed to Start the Thread Pool Executor, Aborting Job Executions"
-            )
+            except Exception as job_err:
+                metadata = Metadata(loader=job_cfg_loader)
 
-            log.info(f"ALL_METADATA_DUMPS: {results}")
+                metadata.get_metadata(key=key)
 
-            raise
+                metadata.build_job_metadata(
+                    jobRunID=self.jobRunID,
+                    jobName=job_name,
+                    status="FAILED",
+                    errMsg=job_err,
+                    jobMetrics=None,
+                )
 
-        results = []
+                log.error(
+                    f"Job Execution: {job_name} | ID: {self.jobRunID} | System: ELT | FAILED...",
+                )
 
-        try:
-            for future in futures:
-                results.append(future.result())
+                log.error(f"Error = {job_err}")
 
-            log.info(f"ALL_METADATA_DUMPS: {results}")
-
-        except Exception as job_err:
-            for job in job_catalog_loader.jobs:
-                dump = {
-                    "job_run_id": str(object=uid()),
-                    "job_name": job.get("job_name"),
-                    "system": "elt",
-                    "job_type": None,
-                    "sub_jobtype": None,
-                    "status": "FAILED",
-                    "error_message": str(object=job_err),
-                    "job_metrics": None,
-                }
-
-                results.append(json.dumps(obj=dump))
-
-            log.opt(exception=True).critical("System: elt | One or More Jobs Failed")
-
-            log.info(f"ALL_METADATA_DUMPS: {results}")
-
-            if job_err:
                 raise
+
+            else:
+                metadata = Metadata(loader=job_cfg_loader)
+
+                metadata.get_metadata(key=key)
+
+                metadata.build_job_metadata(
+                    jobRunID=self.jobRunID,
+                    jobName=job_name,
+                    status="SUCCESS",
+                    errMsg=None,
+                    jobMetrics=runner.job_metrics,
+                )
+
+                log.success(
+                    f"Job Execution: {job_name} | ID: {self.jobRunID} | System: ELT | jobType: {metadata.jobType} | jobMetrics: {runner.job_metrics} | SUCCESS...",
+                )
 
 
 if __name__ == "__main__":
-    main = Main()
+    router = apir()
 
-    main.main()
+    @router.post("/elt_execute")
+    async def execute(payload: dict):
+
+        job_name = payload["job_name"]
+
+        file_path = payload["path"]
+
+        main = Main()
+
+        main.execute_job(fp=file_path, job_name=job_name)
+
+    if str(os.getenv(key="ENV")) == "DEV":
+        main = Main()
+
+        main.execute_job(
+            fp="elt_system/configs/job/coingecko_sources/dev/market_price.json",
+            job_name="dev_coingecko_market_price",
+        )
