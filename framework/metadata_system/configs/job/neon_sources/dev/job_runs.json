@@ -7,23 +7,26 @@
         "entity": "job_execution"
     },
 
-    "exec": {
+    "layer": {
 
-        "exec_type": "DBExecCmd",
-        "table": "{dataset}",
-        "query": "SELECT * FROM {table} WHERE status != 'RUNNING'",
+        "ingestion": {
 
-        "auth": {
-            
-            "auth_type": "db_url",
-            "key_env": "NEON_DB_URL"
+            "exec_type": "DBExecCmd",
+            "table": "{dataset}",
+            "query": "SELECT * FROM {table} WHERE status != 'RUNNING'",
+
+            "auth": {
+                
+                "auth_type": "db_url",
+                "key_env": "NEON_DB_URL"
+            }
+        },
+
+        "storage": {
+
+            "dest_type": "BQ",
+            "schema": "dev_metadata",
+            "table": "raw_job_runs"
         }
-    },
-
-    "dest": {
-
-        "dest_type": "BQ",
-        "schema": "dev_metadata",
-        "table": "raw_job_runs"
     }
 }
