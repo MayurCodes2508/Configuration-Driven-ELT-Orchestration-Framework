@@ -4,7 +4,7 @@
 
     "type": "object",
 
-    "required": ["metadata", "exec"],
+    "required": ["metadata", "layer"],
 
     "properties": {
 
@@ -19,42 +19,52 @@
                 "source": {
 
                     "type": "string",
-                    "minLength": 1,
-                    "maxLength": 30
+                    "minLength": 2,
+                    "maxLength": 75
                 },
 
                 "dataset": {
 
                     "type": "string",
-                    "minLength": 1,
-                    "maxLength": 50
+                    "minLength": 2,
+                    "maxLength": 75
                 },
 
                 "entity": {
 
                     "type": "string",
-                    "minLength": 1,
-                    "maxLength": 30
+                    "minLength": 2,
+                    "maxLength": 75
                 }
             },
 
             "additionalProperties": false
         },
 
-        "exec": {
+        "layer": {
 
-            "anyOf": [
+            "type": "object",
 
-                {"$ref": "exec_cmd_schemas/db_exec_cmd_schema.json"},
-                {"$ref": "exec_cmd_schemas/dbt_exec_cmd_schema.json"}
-            ]
+            "properties": {
 
-            
-        },
+                "ingestion": {
 
-        "dest": {
+                    "$ref": "ingestion_schemas/db_ingestion_schema.json"
+                },
 
-            "$ref": "dest_schemas/bq_dest_schema.json"
+                "storage": {
+
+                    "$ref": "storage_schemas/bq_storage_schema.json"
+                },
+
+                "processing": {
+
+                    "$ref": "processing_schemas/dbt_processing_schema.json"
+
+                }
+            },
+
+            "additionalProperties": false
         }
     },
 
