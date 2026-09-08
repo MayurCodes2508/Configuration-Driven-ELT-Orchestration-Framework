@@ -12,43 +12,23 @@ class Metadata:
 
         log.info("Metadata Loading Completed...")
 
-    def get_metadata(self):
+    def get_metadata(self, key):
 
-        try:
-            exec_cfg = self.job_cfg["exec"]
-
-            dest_cfg = self.job_cfg.get("dest", {})
-
-            self.job_type = "extraction"
-
-            if dest_cfg:
-                self.job_type = "ingestion"
-
-            exec_type = exec_cfg["exec_type"]
-
-            self.sub_jobtype = exec_type.split("ExecCmd", 1)[0]
-
-        except Exception as excp:
-            log.error(
-                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
-            )
-
-            raise
+        self.jobType = key
 
     def build_job_metadata(
-        self, job_run_id, job_name, status, error_message, job_metrics
+        self, jobRunID, jobName, status, errMsg, jobMetrics,
     ):
 
         try:
             metadata_dump = {
-                "job_run_id": job_run_id,
-                "job_name": job_name,
+                "job_run_id": jobRunID,
+                "job_name": jobName,
                 "system": "elt",
-                "job_type": self.job_type,
-                "sub_jobtype": self.sub_jobtype,
+                "job_type": self.jobType,
                 "status": status,
-                "error_message": error_message,
-                "job_metrics": job_metrics,
+                "error_message": errMsg,
+                "job_metrics": jobMetrics,
             }
 
             log.info("Metadata Building Completed...")
@@ -57,7 +37,7 @@ class Metadata:
 
         except Exception as excp:
             log.error(
-                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
+                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}",
             )
 
             raise
