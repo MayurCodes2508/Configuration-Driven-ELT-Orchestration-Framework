@@ -1,9 +1,8 @@
 from loguru import logger as log
 
+from metadata_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
 from metadata_system.job_executors.dests.registries.dest_targets import DestType
 from metadata_system.job_executors.exec_cmds.registries.exec_cmds import ExecCmdType
-
-from metadata_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
 
 
 class Runner:
@@ -34,7 +33,7 @@ class Runner:
 
         except Exception as excp:
             log.error(
-                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
+                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}",
             )
 
             raise
@@ -62,7 +61,7 @@ class Runner:
 
         except Exception as excp:
             log.error(
-                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
+                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}",
             )
 
             raise
