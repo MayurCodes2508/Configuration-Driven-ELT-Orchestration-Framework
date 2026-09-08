@@ -1,9 +1,8 @@
-from loguru import logger as log
-
-from pathlib import Path
-
 import json
 import os
+from pathlib import Path
+
+from loguru import logger as log
 
 from elt_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
 
@@ -41,7 +40,7 @@ class JobCatalog:
     def load_job_catalog(self):
 
         try:
-            with open(file=self.file_path, mode="r") as f:
+            with open(file=self.file_path) as f:
                 self.job_catalog = json.load(fp=f)
 
                 self.jobs = self.job_catalog["jobs"]
@@ -50,7 +49,7 @@ class JobCatalog:
 
         except Exception as excp:
             log.error(
-                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
+                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}",
             )
 
             raise
@@ -76,14 +75,14 @@ class JobConfigLoader:
     def load_job_cfg(self):
 
         try:
-            with open(file=self.file_path, mode="r") as f:
+            with open(file=self.file_path) as f:
                 self.job_cfg = json.load(fp=f)
 
                 log.info("Job Cfg Loading Completed...")
 
         except Exception as excp:
             log.error(
-                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
+                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}",
             )
 
             raise
@@ -91,14 +90,14 @@ class JobConfigLoader:
     def load_schema_cfg(self):
 
         try:
-            with open(file=self.schema_path, mode="r") as f:
+            with open(file=self.schema_path) as f:
                 self.schema_cfg = json.load(fp=f)
 
                 log.info("Schema Cfg Loading Completed...")
 
         except Exception as excp:
             log.error(
-                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
+                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}",
             )
 
             raise
