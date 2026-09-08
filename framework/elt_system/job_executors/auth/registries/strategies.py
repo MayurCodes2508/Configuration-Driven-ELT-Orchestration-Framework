@@ -39,7 +39,7 @@ class AuthRegistry:
         class_template = cls.registry[auth_type]
 
         log.info(
-            f"Successfully Mapped the Auth Type: {auth_type} with Auth Registry..."
+            f"Successfully Mapped the Auth Type: {auth_type} with Auth Registry...",
         )
 
         obj = class_template(auth_cfg=auth_cfg)
