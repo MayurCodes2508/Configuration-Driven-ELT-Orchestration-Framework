@@ -19,7 +19,7 @@ class DestType:
         class_template = cls.registry[dest_type]
 
         log.info(
-            f"Successfully Mapped the Dest Type: {dest_type} with Dest Registry..."
+            f"Successfully Mapped the Dest Type: {dest_type} with Dest Registry...",
         )
 
         dest = class_template.run(*args, **kwargs)
