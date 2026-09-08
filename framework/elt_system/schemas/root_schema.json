@@ -4,7 +4,7 @@
 
     "type": "object",
 
-    "required": ["metadata" ,"exec"],
+    "required": ["metadata" ,"layer"],
 
     "properties": {
 
@@ -20,55 +20,47 @@
 
                     "type": "string",
                     "minLength": 2,
-                    "maxLength": 50
+                    "maxLength": 75
                 },
 
                 "dataset": {
 
                     "type": "string",
                     "minLength": 2,
-                    "maxLength": 50
+                    "maxLength": 75
                 },
 
                 "entity": {
 
                     "type": "string",
                     "minLength": 2,
-                    "maxLength": 50
+                    "maxLength": 75
                 }
             },
 
             "additionalProperties": false
         },
 
-        "exec": {
+        "layer": {
 
-            "$ref": "exec_schemas/api_exec_schema.json"
-        },
+            "type": "object",
 
-        "dest": {
+            "properties": {
 
-            "$ref": "dest_schemas/gcs_dest_schema.json"
-        }
-    },
+                "ingestion": {
 
-    "allOf": [
-        {
+                    "$ref": "ingestion_schemas/api_ingestion_schema.json"
+                },
 
-            "if": {
+                "storage": {
 
-                "properties": {
-
-                    "job_type": {"const": "ingestion"}
+                    "$ref": "storage_schemas/gcs_storage_schema.json"
                 }
             },
 
-            "then": {
-
-                "required": ["dest"]
-            }
+            "additionalProperties": false
         }
-    ],
-    
+    },
+
     "additionalProperties": false
 }
