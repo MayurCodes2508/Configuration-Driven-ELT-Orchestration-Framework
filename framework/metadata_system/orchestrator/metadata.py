@@ -15,28 +15,27 @@ class Metadata:
     def get_metadata(self):
 
         try:
-            exec_cfg = self.job_cfg["exec"]
+            ingestion_cfg = self.job_cfg.get("ingestion", {})
 
-            dest_cfg = self.job_cfg.get("dest", {})
+            storage_cfg = self.job_cfg.get("storage", {})
 
-            self.job_type = "transformation"
+            processing_cfg = self.job_cfg.get("processing", {})
 
-            if dest_cfg:
-                self.job_type = "ingestion"
+            serving_cfg = self.job_cfg.get("serving", {})
 
-            exec_type = exec_cfg["exec_type"]
+            exec_type = ["exec_type"]
 
             self.sub_jobtype = exec_type.split("ExecCmd", 1)[0]
 
         except Exception as excp:
             log.error(
-                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
+                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}",
             )
 
             raise
 
     def build_job_metadata(
-        self, job_run_id, job_name, status, error_message, job_metrics
+        self, job_run_id, job_name, status, error_message, job_metrics,
     ):
 
         try:
@@ -57,7 +56,7 @@ class Metadata:
 
         except Exception as excp:
             log.error(
-                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
+                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}",
             )
 
             raise
