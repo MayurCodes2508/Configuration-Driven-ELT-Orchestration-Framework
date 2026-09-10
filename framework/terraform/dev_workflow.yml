@@ -12,13 +12,17 @@ main:
                 - workflowExecutionID: $${sys.get_env("GOOGLE_CLOUD_WORKFLOW_EXECUTION_ID")}
                 - DBT_TARGET: "dev"
 
+          - assign_strings_A:
+              assign:
+                - app_url: "https://dev-execution-service-144449440045.asia-south1.run.app"
+
           - checking_for_server_activity_status:
               try:
                 steps:
                   - calling_run_service_for_status:
                       call: http.post
                       args:
-                        url: https://dev-execution-service-144449440045.asia-south1.run.app/status
+                        url: $${app_url + "/status"}
                         auth:
                           type: OIDC
                         body: {}
@@ -104,42 +108,66 @@ main:
 
                 - call_run_service:
                     steps:
-                      - init_B:
+                      - assign_list_A:
                           assign:
-                            - result: []
+                            - catalog:
+                              "dev-framework-execution-pipeline":
+                                - job_name: "dev_coingecko_market_price"
+                                  path: "elt_system/configs/job/coingecko_sources/dev/market_price.json"
+                              "dev-framework-observability-pipeline":
+                                - job_name: "dev_neon_pipeline_runs"
+                                  path: "metadata_system/configs/job/neon_sources/dev/pipeline_runs.json"
+                                - job_name: "dev_neon_job_runs"
+                                  path: "metadata_system/configs/job/neon_sources/dev/job_runs.json"
+                                - job_name: "dev_bigquery_test_exposures"
+                                  path: "metadata_system/configs/job/bigquery_sources/dev/test_exposures.json"
+                                - job_name: "dev_bigquery_run_exposures"
+                                  path: "metadata_system/configs/job/bigquery_sources/dev/run_exposures.json"
 
-                      - assign_list:
+                      - assign_strings_B:
                           assign:
-                            - pipelines_list: [
-                              "dev-framework-execution-pipeline"
-                              "dev-framework-observability-pipeline"
-                            ]
-
-                      - assign_strings:
-                          assign:
-                            - method: "pipeline_start_logger"
-
+                            - method_A: "pipeline_start_metadata"
+                            - method_B: "pipeline_start_logger"
+                            - method_C: "job_logger"
+                            - method_D: "pipeline_end_metadata"
+                            - method_E: "pipeline_end_logger"
                           
-                      - parallel_and_branches_B:
+                      - parallel_execution_A:
                           parallel:
-                            shared:
-                              - result
                             for:
-                              value: pipeline
-                              in: $${pipelines_list}
+                              value: "pipeline"
+                              in: $${keys(catalog)}
                               steps:
-                                - execute_service:
-                                    call: http.post
-                                    args:
-                                      url: https://dev-execution-service-144449440045.asia-south1.run.app/execute
-                                      auth:
-                                        type: OIDC
-                                      body: {}
-                                    result: call_result
+                                - execute_service_for_pipeline_start_metadata_and_logging:
+                                    steps:
+                                      - calling_service_A:
+                                          call: http.post
+                                          args:
+                                            url: $${app_url + "/execute"}
+                                            auth:
+                                              type: OIDC
+                                            body:
+                                              pipeline_name: $${pipeline}
+                                              method: $${method_A}
+                                          result: call_result_A
 
-                                - append_call_result:
-                                    assign:
-                                      - result: $${list.concat(result, call_result.body)}
-                                    
-                - return_result:
-                    return: $${result}
+                                      - calling_service_B:
+                                          call: http.post
+                                          args:
+                                            url: $${app_url + "/execute"}
+                                            auth:
+                                              type: OIDC
+                                            body:
+                                              NeonDBURLSecret: $${NeonDBURLSecret}
+                                              pipeline_start_metadata_result: $${call_result_A.body}
+                                              method: $${method_B}
+
+                                      - assign_list_B:
+                                          assign:
+                                            - jobs: $${catalog[pipeline]}
+
+                                      - test_log:
+                                          call: sys.log
+                                          args:
+                                            data: $${jobs}
+                                            severity: INFO
