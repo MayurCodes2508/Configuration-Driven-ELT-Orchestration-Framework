@@ -1,5 +1,6 @@
 import io
-from datetime import datetime, timezone
+from datetime import datetime as dt
+from datetime import timezone as tz
 
 import pandas as pd
 from google.cloud import storage
@@ -32,8 +33,6 @@ class Gcs:
 
     def build_path(self):
 
-        now = datetime.now(tz=timezone.utc)
-
         try:
             path_context = {
                 "layer": self.layer,
@@ -41,8 +40,8 @@ class Gcs:
                 "dataset": self.dataset,
                 "entity": self.entity,
                 "jobRunID": self.jobRunID,
-                "ingestionDT": now.strftime("%Y-%m-%d"),
-                "ingestionTS": now.strftime("%Y%m%dT%H%M%SZ"),
+                "ingestionDT": dt.now(tz=tz.utc).date(),
+                "ingestionTS": dt.now(tz=tz.utc).isoformat(sep="|"),
                 "format": self.format,
             }
 
@@ -50,7 +49,7 @@ class Gcs:
 
             log.info(f"Successfully created and formatted path: {self.formatted_path}")
 
-            return self.formatted_path, now
+            return self.formatted_path, path_context["ingestionTS"]
 
         except Exception as excp:
             log.error(
