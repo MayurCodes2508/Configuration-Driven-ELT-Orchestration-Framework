@@ -68,6 +68,8 @@ class Main:
 
         runner.run()
 
+        all_metadata_dump = []
+
         for key in job_cfg_loader.job_cfg["layer"]:
             try:
                 runner.run_layers(key=key)
@@ -77,13 +79,15 @@ class Main:
 
                 metadata.get_metadata(key=key)
 
-                metadata.build_job_metadata(
+                self.metadata_dump = metadata.build_job_metadata(
                     jobRunID=self.jobRunID,
                     jobName=job_name,
                     status="FAILED",
                     errMsg=job_err,
                     jobMetrics=None,
                 )
+
+                all_metadata_dump.append(self.metadata_dump)
 
                 log.error(
                     f"Job Execution: {job_name} | ID: {self.jobRunID} | System: ELT | FAILED...",
@@ -93,12 +97,13 @@ class Main:
 
                 raise
 
+
             else:
                 metadata = Metadata(loader=job_cfg_loader)
 
                 metadata.get_metadata(key=key)
 
-                metadata.build_job_metadata(
+                self.metadata_dump = metadata.build_job_metadata(
                     jobRunID=self.jobRunID,
                     jobName=job_name,
                     status="SUCCESS",
@@ -106,9 +111,13 @@ class Main:
                     jobMetrics=runner.job_metrics,
                 )
 
+                all_metadata_dump.append(self.metadata_dump)
+
                 log.success(
-                    f"Job Execution: {job_name} | ID: {self.jobRunID} | System: ELT | jobType: {metadata.jobType} | jobMetrics: {runner.job_metrics} | SUCCESS...",
+                    f"Job Execution: {job_name} | ID: {self.jobRunID} | System: ELT | jobType: {self.metadata_dump["job_type"]} | jobMetrics: {runner.job_metrics} | SUCCESS...",
                 )
+
+        return all_metadata_dump
 
 
 if __name__ == "__main__":
@@ -123,12 +132,15 @@ if __name__ == "__main__":
 
         main = Main()
 
-        main.execute_job(fp=file_path, job_name=job_name)
+        dump = main.execute_job(fp=file_path, job_name=job_name)
 
-    if str(os.getenv(key="ENV")) == "DEV":
+        return dump
+        
+
+    if str(os.getenv(key="ENV")) == "LOCAL":
         main = Main()
 
-        main.execute_job(
+        dump = main.execute_job(
             fp="elt_system/configs/job/coingecko_sources/dev/market_price.json",
             job_name="dev_coingecko_market_price",
         )
