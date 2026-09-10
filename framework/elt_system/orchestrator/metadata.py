@@ -29,6 +29,7 @@ class Metadata:
                 "status": status,
                 "error_message": errMsg,
                 "job_metrics": jobMetrics,
+                "extra_metadata": None
             }
 
             log.info("Metadata Building Completed...")
