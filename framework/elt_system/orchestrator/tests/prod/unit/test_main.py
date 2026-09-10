@@ -1,7 +1,6 @@
 from unittest.mock import Mock, patch
 
 import pytest
-
 from el_system.orchestrator.main import Main
 
 
@@ -16,7 +15,7 @@ def test_main_local_success(mock_JobCatalog, mock_Orchestrator, mock_tpe):
         {
             "path": "el_system/configs/job/coingecko_sources/prod/market_price.json",
             "job_name": "prod_coingecko_market_price",
-        }
+        },
     ]
 
     mock_executor = mock_tpe.return_value.__enter__.return_value
@@ -51,7 +50,7 @@ def test_main_local_success(mock_JobCatalog, mock_Orchestrator, mock_tpe):
 def test_main_local_load_job_catalog_failed(mock_JobCatalog, mock_log):
 
     mock_JobCatalog.return_value.job_catalog_run.side_effect = Exception(
-        "System: el | Failed to Load Job Catalog, Aborting Job Executions"
+        "System: el | Failed to Load Job Catalog, Aborting Job Executions",
     )
 
     main = Main()
@@ -67,7 +66,7 @@ def test_main_local_load_job_catalog_failed(mock_JobCatalog, mock_log):
     mock_JobCatalog.return_value.job_catalog_run.assert_called_once()
 
     mock_log.opt.return_value.critical.assert_called_once_with(
-        "System: el | Failed to Load Job Catalog, Aborting Job Executions"
+        "System: el | Failed to Load Job Catalog, Aborting Job Executions",
     )
 
 
@@ -76,7 +75,7 @@ def test_main_local_load_job_catalog_failed(mock_JobCatalog, mock_log):
 @patch(target="el_system.orchestrator.main.Orchestrator")
 @patch(target="el_system.orchestrator.main.JobCatalog")
 def test_main_local_start_tpe_failed(
-    mock_JobCatalog, mock_Orchestrator, mock_tpe, mock_log
+    mock_JobCatalog, mock_Orchestrator, mock_tpe, mock_log,
 ):
 
     mock_JobCatalog.return_value.job_catalog_run.return_value = "PROD"
@@ -85,13 +84,13 @@ def test_main_local_start_tpe_failed(
         {
             "path": "el_system/configs/job/coingecko_sources/prod/market_price.json",
             "job_name": "prod_coingecko_market_price",
-        }
+        },
     ]
 
     mock_executor = mock_tpe.return_value.__enter__.return_value
 
     mock_executor.submit.side_effect = Exception(
-        "System: el | Failed to Start the Thread Pool Executor, Aborting Job Executions"
+        "System: el | Failed to Start the Thread Pool Executor, Aborting Job Executions",
     )
 
     main = Main()
@@ -117,7 +116,7 @@ def test_main_local_start_tpe_failed(
     assert mock_executor.submit.call_count == 1
 
     mock_log.opt.return_value.critical.assert_called_once_with(
-        "System: el | Failed to Start the Thread Pool Executor, Aborting Job Executions"
+        "System: el | Failed to Start the Thread Pool Executor, Aborting Job Executions",
     )
 
 
@@ -133,7 +132,7 @@ def test_main_local_job_failed(mock_log, mock_tpe, mock_Orchestrator, mock_JobCa
         {
             "path": "el_system/configs/job/coingecko_sources/prod/market_price.json",
             "job_name": "prod_coingecko_market_price",
-        }
+        },
     ]
 
     mock_executor = mock_tpe.return_value.__enter__.return_value
@@ -164,7 +163,7 @@ def test_main_local_job_failed(mock_log, mock_tpe, mock_Orchestrator, mock_JobCa
     assert mock_executor.submit.call_count == 1
 
     mock_log.opt.return_value.critical.assert_called_once_with(
-        "System: el | One or More Jobs Failed"
+        "System: el | One or More Jobs Failed",
     )
 
 
@@ -179,7 +178,7 @@ def test_main_success(mock_JobCatalog, mock_Orchestrator, mock_tpe):
         {
             "path": "el_system/configs/job/coingecko_sources/prod/market_price.json",
             "job_name": "prod_coingecko_market_price",
-        }
+        },
     ]
 
     mock_executor = mock_tpe.return_value.__enter__.return_value
@@ -214,7 +213,7 @@ def test_main_success(mock_JobCatalog, mock_Orchestrator, mock_tpe):
 def test_main_load_job_catalog_failed(mock_JobCatalog, mock_log):
 
     mock_JobCatalog.return_value.job_catalog_run.side_effect = Exception(
-        "System: el | Failed to Load Job Catalog, Aborting Job Executions"
+        "System: el | Failed to Load Job Catalog, Aborting Job Executions",
     )
 
     main = Main()
@@ -230,7 +229,7 @@ def test_main_load_job_catalog_failed(mock_JobCatalog, mock_log):
     mock_JobCatalog.return_value.job_catalog_run.assert_called_once()
 
     mock_log.opt.return_value.critical.assert_called_once_with(
-        "System: el | Failed to Load Job Catalog, Aborting Job Executions"
+        "System: el | Failed to Load Job Catalog, Aborting Job Executions",
     )
 
 
@@ -246,13 +245,13 @@ def test_main_start_tpe_failed(mock_JobCatalog, mock_Orchestrator, mock_tpe, moc
         {
             "path": "el_system/configs/job/coingecko_sources/prod/market_price.json",
             "job_name": "prod_coingecko_market_price",
-        }
+        },
     ]
 
     mock_executor = mock_tpe.return_value.__enter__.return_value
 
     mock_executor.submit.side_effect = Exception(
-        "System: el | Failed to Start the Thread Pool Executor, Aborting Job Executions"
+        "System: el | Failed to Start the Thread Pool Executor, Aborting Job Executions",
     )
 
     main = Main()
@@ -278,7 +277,7 @@ def test_main_start_tpe_failed(mock_JobCatalog, mock_Orchestrator, mock_tpe, moc
     assert mock_executor.submit.call_count == 1
 
     mock_log.opt.return_value.critical.assert_called_once_with(
-        "System: el | Failed to Start the Thread Pool Executor, Aborting Job Executions"
+        "System: el | Failed to Start the Thread Pool Executor, Aborting Job Executions",
     )
 
 
@@ -294,7 +293,7 @@ def test_main_job_failed(mock_log, mock_tpe, mock_Orchestrator, mock_JobCatalog)
         {
             "path": "el_system/configs/job/coingecko_sources/prod/market_price.json",
             "job_name": "prod_coingecko_market_price",
-        }
+        },
     ]
 
     mock_executor = mock_tpe.return_value.__enter__.return_value
@@ -325,5 +324,5 @@ def test_main_job_failed(mock_log, mock_tpe, mock_Orchestrator, mock_JobCatalog)
     assert mock_executor.submit.call_count == 1
 
     mock_log.opt.return_value.critical.assert_called_once_with(
-        "System: el | One or More Jobs Failed"
+        "System: el | One or More Jobs Failed",
     )
