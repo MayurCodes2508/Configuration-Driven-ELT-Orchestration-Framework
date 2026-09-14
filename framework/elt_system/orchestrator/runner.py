@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from loguru import logger as log
 
 from elt_system.job_executors.ingestions.registries.ingestion_sources import (
@@ -9,62 +11,49 @@ from elt_system.job_executors.storages.registries.storage_destinations import (
 
 
 class Runner:
-    def __init__(self, loader, jobRunID):
+    def __init__(self, metadata_cfg: dict, jobRunID: UUID) -> None:
 
-        self.job_cfg = loader.job_cfg
-
-        self.metadata_cfg = self.job_cfg["metadata"]
-
-        self.layer_cfg = self.job_cfg["layer"]
-
-        self.jobRunID = jobRunID
+        self.metadata_cfg: dict = metadata_cfg
+        self.jobRunID: UUID = jobRunID
 
         log.info("Obj: runner | Instance Initialized Successfully...")
 
         log.info("Runner Loading Completed...")
 
-    def run(self):
+    def run(self, layer: str, job_cfg: dict):
 
-        self.ingestion_cfg = None
-        self.storage_cfg = None
+        if layer == "ingestion":
+            self.data, self.job_metrics = self.run_ingestion_job(ingestion_cfg=job_cfg)
 
-        for key, val in self.layer_cfg.items():
-            if not self.ingestion_cfg and key == "ingestion":
-                self.ingestion_cfg = val
+        elif layer == "storage":
+            self.job_metrics = self.run_storage_job(storage_cfg=job_cfg, data=self.data)
 
-            if not self.storage_cfg and key == "storage":
-                self.storage_cfg = val
+    def run_ingestion_job(self, ingestion_cfg: dict):
 
-    def run_layers(self, key):
-
-        if key == "ingestion":
-            self.run_ingestion_job()
-
-        elif key == "storage":
-            self.run_storage_job()
-
-    def run_ingestion_job(self):
-
-        ingestion_type = ingestionType()
+        ingestion_type: ingestionType = ingestionType()
 
         ingestion = ingestion_type.get_ingestion_type(
-            ingestion_type=self.ingestion_cfg["ingestion_type"],
-            ingestion_cfg=self.ingestion_cfg,
+            ingestion_type=ingestion_cfg["ingestion_type"],
+            ingestion_cfg=ingestion_cfg,
             metadata_cfg=self.metadata_cfg,
         )
 
-        self.data, self.job_metrics = ingestion.run()
+        data, job_metrics = ingestion.run()
 
-    def run_storage_job(self):
+        return data, job_metrics
+
+    def run_storage_job(self, storage_cfg: dict, data):
 
         storage_type = storageType()
 
         storage = storage_type.get_storage_type(
-            storage_type=self.storage_cfg["storage_type"],
-            storage_cfg=self.storage_cfg,
+            storage_type=storage_cfg["storage_type"],
+            storage_cfg=storage_cfg,
             metadata_cfg=self.metadata_cfg,
-            data=self.data,
+            data=data,
             jobRunID=self.jobRunID,
         )
 
-        self.job_metrics = storage.run()
+        job_metrics: dict = storage.run()
+
+        return job_metrics
