@@ -75,7 +75,10 @@ def test_main_local_load_job_catalog_failed(mock_JobCatalog, mock_log):
 @patch(target="el_system.orchestrator.main.Orchestrator")
 @patch(target="el_system.orchestrator.main.JobCatalog")
 def test_main_local_start_tpe_failed(
-    mock_JobCatalog, mock_Orchestrator, mock_tpe, mock_log,
+    mock_JobCatalog,
+    mock_Orchestrator,
+    mock_tpe,
+    mock_log,
 ):
 
     mock_JobCatalog.return_value.job_catalog_run.return_value = "PROD"
