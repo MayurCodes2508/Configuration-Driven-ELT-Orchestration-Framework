@@ -69,14 +69,14 @@ main:
                           steps:
                             - init_A:
                                 assign:
-                                  - CoingeckoAPIKeySecret: null
-                                  - NeonDBURLSecret: null
+                                  - coingeckoAPIKeySecret: null
+                                  - neonDBURLSecret: null
                             
                             - parallel_and_branches_A:
                                 parallel:
                                   shared:
-                                    - CoingeckoAPIKeySecret
-                                    - NeonDBURLSecret
+                                    - coingeckoAPIKeySecret
+                                    - neonDBURLSecret
                                   branches:
                                     - get_and_assign_coingecko_api_key:
                                         steps:
@@ -86,11 +86,11 @@ main:
                                                 secret_id: "coingecko-api-key-secret"
                                                 version: "1"
                                                 project_id: $${projectID}
-                                              result: CoingeckoAPIKeyStringResult
+                                              result: coingeckoAPIKeyStringResult
 
                                           - assign_coingecko_api_key:
                                               assign:
-                                                - CoingeckoAPIKeySecret: $${CoingeckoAPIKeyStringResult}
+                                                - coingeckoAPIKeySecret: $${coingeckoAPIKeyStringResult}
 
                                     - get_and_assign_neon_db_url:
                                         steps:
@@ -100,74 +100,78 @@ main:
                                                 secret_id: "neon-db-url-secret"
                                                 version: "1"
                                                 project_id: $${projectID}
-                                              result: NeonDBURLStringResult
+                                              result: neonDBURLStringResult
 
                                           - assign_neon_db_url:
                                               assign:
-                                                - NeonDBURLSecret: $${NeonDBURLStringResult}
+                                                - neonDBURLSecret: $${neonDBURLStringResult}
 
-                - call_run_service:
+                - calling_run_service:
                     steps:
+                      - initB:
+                          assign:
+                            - runResultA: {}
+                            - runResultB: {}
+          
                       - assign_list_A:
                           assign:
                             - catalog:
-                              "dev-framework-execution-pipeline":
+                              "dev-coingecko-pipeline":
                                 - job_name: "dev_coingecko_market_price"
-                                  path: "elt_system/configs/job/coingecko_sources/dev/market_price.json"
-                              "dev-framework-observability-pipeline":
-                                - job_name: "dev_neon_pipeline_runs"
-                                  path: "metadata_system/configs/job/neon_sources/dev/pipeline_runs.json"
-                                - job_name: "dev_neon_job_runs"
-                                  path: "metadata_system/configs/job/neon_sources/dev/job_runs.json"
-                                - job_name: "dev_bigquery_test_exposures"
-                                  path: "metadata_system/configs/job/bigquery_sources/dev/test_exposures.json"
-                                - job_name: "dev_bigquery_run_exposures"
-                                  path: "metadata_system/configs/job/bigquery_sources/dev/run_exposures.json"
+                                  file_path: "elt_system/configs/job/coingecko_sources/dev/market_price.json"    
 
-                      - assign_strings_B:
-                          assign:
-                            - method_A: "pipeline_start_metadata"
-                            - method_B: "pipeline_start_logger"
-                            - method_C: "job_logger"
-                            - method_D: "pipeline_end_metadata"
-                            - method_E: "pipeline_end_logger"
-                          
-                      - parallel_execution_A:
-                          parallel:
-                            for:
-                              value: "pipeline"
-                              in: $${keys(catalog)}
-                              steps:
-                                - execute_service_for_pipeline_start_metadata_and_logging:
+                      - executing_pipelines:
+                          for:
+                            value: "pipeline"
+                            in: $${keys(catalog)}
+                            steps:
+                              - execute_service_for_pipeline_start_metadata_and_logging:
+                                  steps:
+                                    - calling_service_A:
+                                        call: http.post
+                                        args:
+                                          url: $${app_url + "/pipeline_start_metadata"}
+                                          auth:
+                                            type: OIDC
+                                          body:
+                                            pipeline_name: $${pipeline}
+                                            neonDBURLSecret: $${neonDBURLSecret}
+                                        result: runResultA
+
+                                    - assign_runResultA:
+                                        assign:
+                                          - runResultA: $${runResultA.body}
+
+                              - execute_jobs:
+                                  for:
+                                    value: job
+                                    in: $${catalog[pipeline]}
                                     steps:
-                                      - calling_service_A:
-                                          call: http.post
+                                      - calling_job_A:
+                                          call: googleapis.run.v2.projects.locations.jobs.run
                                           args:
-                                            url: $${app_url + "/execute"}
-                                            auth:
-                                              type: OIDC
+                                            name: $${"projects/" + projectID + "/locations/" + location + "/jobs/dev-execution-job"}
                                             body:
-                                              pipeline_name: $${pipeline}
-                                              method: $${method_A}
-                                          result: call_result_A
+                                              overrides:
+                                                containerOverrides:
+                                                  args: 
+                                                    - --job_name
+                                                    - $${job.job_name}
+                                                    - --file_path
+                                                    - $${job.file_path}
+                                                  env:
+                                                    - name: coingeckoAPIKey
+                                                      value: $${coingeckoAPIKeySecret}
 
-                                      - calling_service_B:
-                                          call: http.post
-                                          args:
-                                            url: $${app_url + "/execute"}
-                                            auth:
-                                              type: OIDC
-                                            body:
-                                              NeonDBURLSecret: $${NeonDBURLSecret}
-                                              pipeline_start_metadata_result: $${call_result_A.body}
-                                              method: $${method_B}
+                                                    - name: neonDBURL
+                                                      value: $${neonDBURLSecret}
+                                                  
+                                                    - name: pipelineRunID
+                                                      value: $${runResultA.pipeline_run_id}
+                                          result: runResultB
 
-                                      - assign_list_B:
-                                          assign:
-                                            - jobs: $${catalog[pipeline]}
-
-                                      - test_log:
+                                      - debug:
                                           call: sys.log
                                           args:
-                                            data: $${jobs}
+                                            data: $${runResultB}
                                             severity: INFO
