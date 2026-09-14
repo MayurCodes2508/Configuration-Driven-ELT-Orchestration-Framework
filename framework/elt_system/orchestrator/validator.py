@@ -25,7 +25,8 @@ class Validator:
             base_uri = Path(self.schema_path).resolve().as_uri()
 
             validate_cfg = jsonschema_rs.validator_for(
-                schema=self.schema_cfg, base_uri=base_uri,
+                schema=self.schema_cfg,
+                base_uri=base_uri,
             )
 
             validate_cfg.validate(instance=self.job_cfg)
