@@ -129,5 +129,3 @@ async def pipeline_end_metadata(payload: dict) -> None:
     )
 
     write_to_db(query=update_query, values=update_query_values, auth=payload["neonDBURL"])
-
-    log.info("Successfully logged pipeline start metadata into DB")
