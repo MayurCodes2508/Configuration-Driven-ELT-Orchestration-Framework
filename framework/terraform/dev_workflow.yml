@@ -10,7 +10,6 @@ main:
                 - workflowID: $${sys.get_env("GOOGLE_CLOUD_WORKFLOW_ID")}
                 - workflowRevisionID: $${sys.get_env("GOOGLE_CLOUD_WORKFLOW_REVISION_ID")}
                 - workflowExecutionID: $${sys.get_env("GOOGLE_CLOUD_WORKFLOW_EXECUTION_ID")}
-                - DBT_TARGET: "dev"
 
           - assign_strings_A:
               assign:
@@ -142,37 +141,59 @@ main:
                                         assign:
                                           - runResultA: $${runResultA.body}
 
-                              - execute_jobs:
-                                  for:
-                                    value: job
-                                    in: $${catalog[pipeline]}
+                              - try_except_job_executions:
+                                  try:
                                     steps:
-                                      - calling_job_A:
-                                          call: googleapis.run.v2.projects.locations.jobs.run
-                                          args:
-                                            name: $${"projects/" + projectID + "/locations/" + location + "/jobs/dev-execution-job"}
-                                            body:
-                                              overrides:
-                                                containerOverrides:
-                                                  args: 
-                                                    - --job_name
-                                                    - $${job.job_name}
-                                                    - --file_path
-                                                    - $${job.file_path}
-                                                  env:
-                                                    - name: coingeckoAPIKey
-                                                      value: $${coingeckoAPIKeySecret}
+                                      - execute_jobs:
+                                          for:
+                                            value: job
+                                            in: $${catalog[pipeline]}
+                                            steps:
+                                              - calling_job_A:
+                                                  call: googleapis.run.v2.projects.locations.jobs.run
+                                                  args:
+                                                    name: $${"projects/" + projectID + "/locations/" + location + "/jobs/dev-execution-job"}
+                                                    body:
+                                                      overrides:
+                                                        containerOverrides:
+                                                          args: 
+                                                            - --job_name
+                                                            - $${job.job_name}
+                                                            - --file_path
+                                                            - $${job.file_path}
+                                                          env:
+                                                            - name: coingeckoAPIKey
+                                                              value: $${coingeckoAPIKeySecret}
+                                                            - name: neonDBURL
+                                                              value: $${neonDBURLSecret}
+                                                            - name: pipelineRunID
+                                                              value: $${runResultA.run_id}
+                                                  result: runResultB
 
-                                                    - name: neonDBURL
-                                                      value: $${neonDBURLSecret}
-                                                  
-                                                    - name: pipelineRunID
-                                                      value: $${runResultA.run_id}
-                                          result: runResultB
+                                  except:
+                                    as: job_err
+                                    steps:
+                                      - failed_execute_service_for_pipeline_end_metadata_and_logging:
+                                          steps:
+                                            - calling_service_B:
+                                                call: http.post
+                                                args:
+                                                  url: $${app_url + "/pipeline_end_metadata"}
+                                                  auth:
+                                                    type: OIDC
+                                                  body:
+                                                    pipeline_start_metadata_payload: $${runResultA}
+                                                    status: "FAILED"
+                                                    error_message: $${job_err}
+                                                    neonDBURL: $${neonDBURLSecret}
 
-                              - execute_service_for_pipeline_end_metadata_and_logging:
+                                            - raise_err:
+                                                raise:
+                                                  message: "One of the job executions failed!!"
+
+                              - success_execute_service_for_pipeline_end_metadata_and_logging:
                                   steps:
-                                    - calling_service_B:
+                                    - calling_service_C:
                                         call: http.post
                                         args:
                                           url: $${app_url + "/pipeline_end_metadata"}
@@ -180,5 +201,6 @@ main:
                                             type: OIDC
                                           body:
                                             pipeline_start_metadata_payload: $${runResultA}
+                                            status: "SUCCESS"
                                             neonDBURL: $${neonDBURLSecret}
                               
