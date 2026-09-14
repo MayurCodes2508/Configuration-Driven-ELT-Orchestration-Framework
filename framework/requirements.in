@@ -7,6 +7,7 @@ fastapi
 jsonschema_rs
 jsonschema
 psycopg2-binary
+types-psycopg2
 dbt-core
 dbt-bigquery
 google-cloud-run
