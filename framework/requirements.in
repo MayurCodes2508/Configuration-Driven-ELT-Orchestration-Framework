@@ -8,9 +8,4 @@ jsonschema_rs
 jsonschema
 psycopg2-binary
 types-psycopg2
-dbt-core
-dbt-bigquery
-google-cloud-run
-google-cloud-logging
 google-cloud-storage
-google-cloud-bigquery
