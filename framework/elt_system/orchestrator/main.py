@@ -1,9 +1,13 @@
+import argparse as arg
 import os
 import sys
+from datetime import datetime as dt
+from datetime import timezone as tz
 from uuid import UUID
 
-from fastapi import APIRouter as apir
+import psycopg2 as pg2
 from loguru import logger as log
+from psycopg2.extras import Json, register_uuid
 from uuid6 import uuid7 as uid
 
 from elt_system.orchestrator.loader import JobConfigLoader
@@ -25,122 +29,216 @@ log.add(sink=sys.stderr, filter=lambda record: record["level"].name == "CRITICAL
 
 
 class Main:
-    def __init__(self):
+    def __init__(self) -> None:
 
         pass
 
     ##### Helper Functions :3 #####
 
-    def build_run_id(self):
+    def build_run_id(self) -> UUID:
 
-        runID = str(uid())
+        runID: UUID = UUID(str(uid()))
 
         log.info("Job Run ID Created...")
 
         return runID
 
+    def write_to_db(self, query: str, values: tuple) -> None:
+
+        register_uuid()
+
+        with pg2.connect(str(os.getenv(key="neonDBURL"))) as conn, conn.cursor() as csr:
+            csr.execute(query, values)
+
+        log.info("Successfully logged job metadata into DB")
+
     ##### End #####
 
-    def execute_job(self, fp, job_name):
+    def execute_job(self, fp: str, job_name: str) -> None:
+
+        pipelineRunID: UUID = UUID(os.environ["pipelineRunID"])
 
         log.info("Creating Job Run ID...")
 
-        self.jobRunID = self.build_run_id()
+        jobRunID: UUID = self.build_run_id()
 
-        if not UUID(self.jobRunID):
-            raise ValueError("Invalid UUID")
+        log.info(
+            f"Job Execution: {job_name} | runID: {jobRunID} | PipelineRunID: {pipelineRunID} | RUNNING...",
+        )
 
-        job_cfg_loader = JobConfigLoader(fp=fp)
+        metadata: Metadata = Metadata(
+            jobRunID=jobRunID,
+            pipelineRunID=pipelineRunID,
+            jobName=job_name,
+        )
+
+        job_cfg_loader: JobConfigLoader = JobConfigLoader(fp=fp)
 
         job_cfg_loader.job_cfg_loader_run()
 
-        log.info(f"Job: {job_name} | ID: {self.jobRunID} | System: ELT | CREATED...")
-
-        validator = Validator(loader=job_cfg_loader)
+        validator: Validator = Validator(loader=job_cfg_loader)
 
         validator.validator_run()
 
-        log.info(
-            f"Job Execution: {job_name} | ID: {self.jobRunID} | System: ELT | RUNNING...",
+        runner: Runner = Runner(
+            metadata_cfg=job_cfg_loader.job_cfg["metadata"], jobRunID=jobRunID
         )
 
-        runner = Runner(loader=job_cfg_loader, jobRunID=self.jobRunID)
+        for key, val in job_cfg_loader.job_cfg["layer"].items():
+            running_metadata_dump = metadata.build_job_metadata(
+                jobType=key,
+                status="RUNNING",
+                created_at=dt.now(tz=tz.utc),
+                start_time=dt.now(tz=tz.utc),
+            )
 
-        runner.run()
-
-        all_metadata_dump = []
-
-        for key in job_cfg_loader.job_cfg["layer"]:
-            try:
-                runner.run_layers(key=key)
-
-            except Exception as job_err:
-                metadata = Metadata(loader=job_cfg_loader)
-
-                metadata.get_metadata(key=key)
-
-                self.metadata_dump = metadata.build_job_metadata(
-                    jobRunID=self.jobRunID,
-                    jobName=job_name,
-                    status="FAILED",
-                    errMsg=job_err,
-                    jobMetrics=None,
+            insert_running_query: str = """
+                INSERT INTO public.job_runs(
+                    run_id,
+                    pipeline_run_id,
+                    job_name,
+                    job_type,
+                    status,
+                    created_at,
+                    start_time,
+                    end_time,
+                    error_message,
+                    job_metrics
                 )
 
-                all_metadata_dump.append(self.metadata_dump)
+                VALUES(
+                    %s, 
+                    %s, 
+                    %s, 
+                    %s, 
+                    %s, 
+                    %s, 
+                    %s, 
+                    %s, 
+                    %s, 
+                    %s
+                )
+            """
+
+            running_query_values: tuple = (
+                running_metadata_dump["run_id"],
+                running_metadata_dump["pipeline_run_id"],
+                running_metadata_dump["job_name"],
+                running_metadata_dump["job_type"],
+                running_metadata_dump["status"],
+                running_metadata_dump["created_at"],
+                running_metadata_dump["start_time"],
+                running_metadata_dump["end_time"],
+                running_metadata_dump["error_message"],
+                running_metadata_dump["job_metrics"],
+            )
+
+            self.write_to_db(query=insert_running_query, values=running_query_values)
+
+            try:
+                runner.run(layer=key, job_cfg=val)
+
+            except Exception as job_err:
+                failed_metadata_dump: dict = metadata.build_job_metadata(
+                    jobType=key,
+                    status="FAILED",
+                    end_time=dt.now(tz=tz.utc),
+                    errMsg=job_err,
+                )
+
+                update_failed_query: str = """
+                    UPDATE public.job_runs
+                    SET status=%s,
+                        end_time=%s,
+                        error_message=%s
+                    WHERE run_id=%s
+                        AND pipeline_run_id=%s
+                        AND job_name=%s
+                        AND job_type=%s
+                """
+
+                failed_query_values: tuple = (
+                    failed_metadata_dump["status"],
+                    failed_metadata_dump["end_time"],
+                    failed_metadata_dump["error_message"],
+                    failed_metadata_dump["run_id"],
+                    failed_metadata_dump["pipeline_run_id"],
+                    failed_metadata_dump["job_name"],
+                    failed_metadata_dump["job_type"],
+                )
+
+                self.write_to_db(query=update_failed_query, values=failed_query_values)
 
                 log.error(
-                    f"Job Execution: {job_name} | ID: {self.jobRunID} | System: ELT | FAILED...",
+                    f"Job Execution: {job_name} | runID: {jobRunID} | PipelineRunID: {pipelineRunID} | FAILED...",
                 )
 
                 log.error(f"Error = {job_err}")
 
                 raise
 
-
             else:
-                metadata = Metadata(loader=job_cfg_loader)
-
-                metadata.get_metadata(key=key)
-
-                self.metadata_dump = metadata.build_job_metadata(
-                    jobRunID=self.jobRunID,
-                    jobName=job_name,
+                successful_metadata_dump: dict = metadata.build_job_metadata(
+                    jobType=key,
                     status="SUCCESS",
-                    errMsg=None,
+                    end_time=dt.now(tz=tz.utc),
                     jobMetrics=runner.job_metrics,
                 )
 
-                all_metadata_dump.append(self.metadata_dump)
+                update_successful_query: str = """
+                    UPDATE public.job_runs
+                    SET job_type=%s,
+                        status=%s,
+                        end_time=%s,
+                        job_metrics=%s
+                    WHERE run_id=%s
+                        AND pipeline_run_id=%s
+                        AND job_name=%s
+                        AND job_type=%s
+                """
 
-                log.success(
-                    f"Job Execution: {job_name} | ID: {self.jobRunID} | System: ELT | jobType: {self.metadata_dump["job_type"]} | jobMetrics: {runner.job_metrics} | SUCCESS...",
+                successful_query_values: tuple = (
+                    successful_metadata_dump["job_type"],
+                    successful_metadata_dump["status"],
+                    successful_metadata_dump["end_time"],
+                    Json(successful_metadata_dump["job_metrics"]),
+                    successful_metadata_dump["run_id"],
+                    successful_metadata_dump["pipeline_run_id"],
+                    successful_metadata_dump["job_name"],
+                    successful_metadata_dump["job_type"],
                 )
 
-        return all_metadata_dump
+                self.write_to_db(
+                    query=update_successful_query, values=successful_query_values
+                )
+
+                log.success(
+                    f"Job Execution: {job_name} | runID: {jobRunID} | PipelineRunID: {pipelineRunID} | jobType: {key} | jobMetrics: {runner.job_metrics} | SUCCESS...",
+                )
 
 
 if __name__ == "__main__":
-    router = apir()
+    parser = arg.ArgumentParser(
+        description="Job Name and Job Config File Path for Job Executions",
+    )
 
-    @router.post("/elt_execute")
-    async def execute(payload: dict):
+    parser.add_argument(
+        "--job_name",
+        help="--job_name jobName",
+        required=True,
+    )
 
-        job_name = payload["job_name"]
+    parser.add_argument(
+        "--file_path",
+        help="--file_path filePath",
+        required=True,
+    )
 
-        file_path = payload["path"]
+    args = parser.parse_args()
 
-        main = Main()
+    main: Main = Main()
 
-        dump = main.execute_job(fp=file_path, job_name=job_name)
-
-        return dump
-        
-
-    if str(os.getenv(key="ENV")) == "LOCAL":
-        main = Main()
-
-        dump = main.execute_job(
-            fp="elt_system/configs/job/coingecko_sources/dev/market_price.json",
-            job_name="dev_coingecko_market_price",
-        )
+    main.execute_job(
+        fp=args.file_path,
+        job_name=args.job_name,
+    )
