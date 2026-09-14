@@ -1,44 +1,48 @@
-from loguru import logger as log
+from uuid import UUID
 
-from elt_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
+from loguru import logger as log
 
 
 class Metadata:
-    def __init__(self, loader):
+    def __init__(
+        self,
+        jobRunID: UUID,
+        pipelineRunID: UUID,
+        jobName: str,
+    ) -> None:
 
-        self.job_cfg = loader.job_cfg
+        self.jobRunID: UUID = jobRunID
+        self.pipelineRunID: UUID = pipelineRunID
+        self.jobName: str = jobName
 
         log.info("Obj: metadata | Instance Initialized Successfully...")
 
         log.info("Metadata Loading Completed...")
 
-    def get_metadata(self, key):
-
-        self.jobType = key
-
     def build_job_metadata(
-        self, jobRunID, jobName, status, errMsg, jobMetrics,
-    ):
+        self,
+        jobType: str,
+        status: str,
+        created_at=None,
+        start_time=None,
+        end_time=None,
+        errMsg=None,
+        jobMetrics=None,
+    ) -> dict:
 
-        try:
-            metadata_dump = {
-                "job_run_id": jobRunID,
-                "job_name": jobName,
-                "system": "elt",
-                "job_type": self.jobType,
-                "status": status,
-                "error_message": errMsg,
-                "job_metrics": jobMetrics,
-                "extra_metadata": None
-            }
+        metadata_dump: dict = {
+            "run_id": self.jobRunID,
+            "pipeline_run_id": self.pipelineRunID,
+            "job_name": self.jobName,
+            "job_type": jobType,
+            "status": status,
+            "created_at": created_at,
+            "start_time": start_time,
+            "end_time": end_time,
+            "error_message": errMsg,
+            "job_metrics": jobMetrics,
+        }
 
-            log.info("Metadata Building Completed...")
+        log.info("Metadata Building Completed...")
 
-            return metadata_dump
-
-        except Exception as excp:
-            log.error(
-                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}",
-            )
-
-            raise
+        return metadata_dump
