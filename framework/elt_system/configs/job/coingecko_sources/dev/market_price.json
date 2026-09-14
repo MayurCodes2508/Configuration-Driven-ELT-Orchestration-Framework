@@ -33,7 +33,7 @@
             "auth": {
 
                 "auth_type": "api_key",
-                "key_env": "COINGECKO_API_KEY",
+                "key_env": "coingeckoAPIKey",
                 "location": "header",
                 "name": "x-cg-demo-api-key"
             }
