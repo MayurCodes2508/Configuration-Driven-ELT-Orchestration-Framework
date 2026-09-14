@@ -73,7 +73,10 @@ def test_main_local_load_job_catalog_failed(mock_JobCatalog, mock_log):
 @patch(target="elt_system.orchestrator.main.Orchestrator")
 @patch(target="elt_system.orchestrator.main.JobCatalog")
 def test_main_local_start_tpe_failed(
-    mock_JobCatalog, mock_Orchestrator, mock_tpe, mock_log,
+    mock_JobCatalog,
+    mock_Orchestrator,
+    mock_tpe,
+    mock_log,
 ):
 
     mock_JobCatalog.return_value.job_catalog_run.return_value = "LOCAL"
@@ -189,7 +192,9 @@ def test_main_success(mock_JobCatalog, mock_Orchestrator, mock_tpe):
     mock_Orchestrator.assert_called_once_with(env="DEV")
 
     mock_executor.submit.assert_called_once_with(
-        mock_Orchestrator.return_value.run_concurrent_jobs, "mock_path", "mock_job_name",
+        mock_Orchestrator.return_value.run_concurrent_jobs,
+        "mock_path",
+        "mock_job_name",
     )
 
     assert mock_executor.submit.call_count == 1
@@ -253,7 +258,9 @@ def test_main_start_tpe_failed(mock_JobCatalog, mock_Orchestrator, mock_tpe, moc
     mock_Orchestrator.assert_called_once_with(env="DEV")
 
     mock_executor.submit.assert_called_once_with(
-        mock_Orchestrator.return_value.run_concurrent_jobs, "mock_path", "mock_job_name",
+        mock_Orchestrator.return_value.run_concurrent_jobs,
+        "mock_path",
+        "mock_job_name",
     )
 
     assert mock_executor.submit.call_count == 1
@@ -295,7 +302,9 @@ def test_main_job_failed(mock_log, mock_tpe, mock_Orchestrator, mock_JobCatalog)
     mock_Orchestrator.assert_called_once_with(env="DEV")
 
     mock_executor.submit.assert_called_once_with(
-        mock_Orchestrator.return_value.run_concurrent_jobs, "mock_path", "mock_job_name",
+        mock_Orchestrator.return_value.run_concurrent_jobs,
+        "mock_path",
+        "mock_job_name",
     )
 
     assert mock_executor.submit.call_count == 1
