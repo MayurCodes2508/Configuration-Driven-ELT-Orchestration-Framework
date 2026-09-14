@@ -569,6 +569,8 @@ traitlets==5.16.1
     #   -r requirements.txt
     #   jupyter-core
     #   nbformat
+types-psycopg2==2.9.21.20260911
+    # via -r requirements.txt
 typing-extensions==4.16.0
     # via
     #   -r requirements.txt
