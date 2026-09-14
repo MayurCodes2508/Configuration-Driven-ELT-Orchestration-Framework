@@ -19,7 +19,6 @@ class Gcs:
 
         self.destination_cfg = storage_cfg
         self.bucket = storage_cfg["bucket"]
-        self.layer = storage_cfg["layer"]
         self.format = storage_cfg["format"]
         self.path_template = storage_cfg["path_template"]
 
@@ -35,7 +34,6 @@ class Gcs:
 
         try:
             path_context = {
-                "layer": self.layer,
                 "source": self.source,
                 "dataset": self.dataset,
                 "entity": self.entity,
