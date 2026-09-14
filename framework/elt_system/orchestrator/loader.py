@@ -1,64 +1,9 @@
 import json
-import os
 from pathlib import Path
 
 from loguru import logger as log
 
 from elt_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
-
-
-class JobCatalog:
-    def __init__(self):
-
-        self.env = os.getenv(key="ENV", default="LOCAL")
-
-        if self.env == "PROD":
-            self.file_path = (
-                Path(__file__).parent.parent
-                / "configs"
-                / "catalog"
-                / "prod"
-                / "config.json"
-            )
-
-        elif self.env in {"LOCAL", "DEV"}:
-            self.file_path = (
-                Path(__file__).parent.parent
-                / "configs"
-                / "catalog"
-                / "dev"
-                / "config.json"
-            )
-
-        else:
-            raise ValueError(f"Unknown Env: {self.env} | Provide a Valid Env")
-
-        log.info("Obj: job_catalog | Instance Initialized Successfully...")
-
-        log.info("JSON Job Catalog Path Loading Completed...")
-
-    def load_job_catalog(self):
-
-        try:
-            with open(file=self.file_path) as f:
-                self.job_catalog = json.load(fp=f)
-
-                self.jobs = self.job_catalog["jobs"]
-
-                log.info("Job Catalog Loading Completed...")
-
-        except Exception as excp:
-            log.error(
-                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}",
-            )
-
-            raise
-
-    def job_catalog_run(self):
-
-        self.load_job_catalog()
-
-        return self.env
 
 
 class JobConfigLoader:
