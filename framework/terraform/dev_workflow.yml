@@ -83,7 +83,7 @@ main:
                                           - get_coingecko_api_key:
                                               call: googleapis.secretmanager.v1.projects.secrets.versions.accessString
                                               args:
-                                                secret_id: "coingecko-api-key-secret"
+                                                secret_id: "dev-coingecko-api-key-secret"
                                                 version: "1"
                                                 project_id: $${projectID}
                                               result: coingeckoAPIKeyStringResult
@@ -97,7 +97,7 @@ main:
                                           - get_neon_db_url:
                                               call: googleapis.secretmanager.v1.projects.secrets.versions.accessString
                                               args:
-                                                secret_id: "neon-db-url-secret"
+                                                secret_id: "dev-neon-db-url-secret"
                                                 version: "1"
                                                 project_id: $${projectID}
                                               result: neonDBURLStringResult
@@ -116,8 +116,8 @@ main:
                       - assign_list_A:
                           assign:
                             - catalog:
-                              "dev-coingecko-pipeline":
-                                - job_name: "dev_coingecko_market_price"
+                              "coingecko-pipeline":
+                                - job_name: "coingecko_market_price"
                                   file_path: "elt_system/configs/job/coingecko_sources/dev/market_price.json"    
 
                       - executing_pipelines:
@@ -135,7 +135,7 @@ main:
                                             type: OIDC
                                           body:
                                             pipeline_name: $${pipeline}
-                                            neonDBURLSecret: $${neonDBURLSecret}
+                                            neonDBURL: $${neonDBURLSecret}
                                         result: runResultA
 
                                     - assign_runResultA:
@@ -167,11 +167,18 @@ main:
                                                       value: $${neonDBURLSecret}
                                                   
                                                     - name: pipelineRunID
-                                                      value: $${runResultA.pipeline_run_id}
+                                                      value: $${runResultA.run_id}
                                           result: runResultB
 
-                                      - debug:
-                                          call: sys.log
-                                          args:
-                                            data: $${runResultB}
-                                            severity: INFO
+                              - execute_service_for_pipeline_end_metadata_and_logging:
+                                  steps:
+                                    - calling_service_B:
+                                        call: http.post
+                                        args:
+                                          url: $${app_url + "/pipeline_end_metadata"}
+                                          auth:
+                                            type: OIDC
+                                          body:
+                                            pipeline_start_metadata_payload: $${runResultA}
+                                            neonDBURL: $${neonDBURLSecret}
+                              
