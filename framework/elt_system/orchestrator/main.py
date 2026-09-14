@@ -47,7 +47,7 @@ class Main:
 
         register_uuid()
 
-        with pg2.connect(str(os.getenv(key="neonDBURL"))) as conn, conn.cursor() as csr:
+        with pg2.connect(str(os.environ["neonDBURL"])) as conn, conn.cursor() as csr:
             csr.execute(query, values)
 
         log.info("Successfully logged job metadata into DB")
