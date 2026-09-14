@@ -11,7 +11,7 @@ resource "google_cloud_scheduler_job" "prod_pipeline_run_scheduler" {
     prevent_destroy = true
   }
   depends_on = [ 
-    google_cloud_run_v2_job.prod_pipeline_run
+    google_workflows_workflow.prod_orchestrator_workflow
    ]
 
   retry_config {
@@ -23,7 +23,7 @@ resource "google_cloud_scheduler_job" "prod_pipeline_run_scheduler" {
   }
 
   http_target {
-    uri         = "https://asia-south1-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/instant-medium-491107-t6/jobs/prod-pipeline-run:run"
+    uri         = "https://workflowexecutions.googleapis.com/v1/projects/instant-medium-491107-t6/locations/asia-south1/workflows/prod-orchestrator-workflow/executions"
     http_method = "POST"
 
     oauth_token {
