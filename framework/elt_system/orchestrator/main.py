@@ -188,8 +188,7 @@ class Main:
 
                 update_successful_query: str = """
                     UPDATE public.job_runs
-                    SET job_type=%s,
-                        status=%s,
+                    SET status=%s,
                         end_time=%s,
                         job_metrics=%s
                     WHERE run_id=%s
@@ -199,7 +198,6 @@ class Main:
                 """
 
                 successful_query_values: tuple = (
-                    successful_metadata_dump["job_type"],
                     successful_metadata_dump["status"],
                     successful_metadata_dump["end_time"],
                     Json(successful_metadata_dump["job_metrics"]),
