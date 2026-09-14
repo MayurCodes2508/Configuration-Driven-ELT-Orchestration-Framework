@@ -150,7 +150,10 @@ if __name__ == "__main__":
     parser.add_argument("--job_name", type=str, help="Name of the Job", required=True)
 
     parser.add_argument(
-        "--file_path", type=str, help="Path to the JSON Job Cfg File", required=True,
+        "--file_path",
+        type=str,
+        help="Path to the JSON Job Cfg File",
+        required=True,
     )
 
     args = parser.parse_args()
