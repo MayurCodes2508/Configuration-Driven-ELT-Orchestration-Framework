@@ -25,7 +25,7 @@ class ingestionType:
         class_template = cls.registry[ingestion_type]
 
         log.info(
-            f"Successfully Mapped the Ingestion Type: {ingestion_type} with Ingestion Registry..."
+            f"Successfully Mapped the Ingestion Type: {ingestion_type} with Ingestion Registry...",
         )
 
         ingestion_type = class_template.run(*args, **kwargs)
