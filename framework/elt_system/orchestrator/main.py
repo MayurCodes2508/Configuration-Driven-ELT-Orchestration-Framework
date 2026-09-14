@@ -81,7 +81,8 @@ class Main:
         validator.validator_run()
 
         runner: Runner = Runner(
-            metadata_cfg=job_cfg_loader.job_cfg["metadata"], jobRunID=jobRunID
+            metadata_cfg=job_cfg_loader.job_cfg["metadata"],
+            jobRunID=jobRunID,
         )
 
         for key, val in job_cfg_loader.job_cfg["layer"].items():
@@ -209,7 +210,8 @@ class Main:
                 )
 
                 self.write_to_db(
-                    query=update_successful_query, values=successful_query_values
+                    query=update_successful_query,
+                    values=successful_query_values,
                 )
 
                 log.success(
