@@ -397,6 +397,8 @@ traitlets==5.16.1
     # via
     #   jupyter-core
     #   nbformat
+types-psycopg2==2.9.21.20260911
+    # via -r requirements.in
 typing-extensions==4.16.0
     # via
     #   anyio
