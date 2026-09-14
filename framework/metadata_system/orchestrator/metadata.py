@@ -35,7 +35,12 @@ class Metadata:
             raise
 
     def build_job_metadata(
-        self, job_run_id, job_name, status, error_message, job_metrics,
+        self,
+        job_run_id,
+        job_name,
+        status,
+        error_message,
+        job_metrics,
     ):
 
         try:
