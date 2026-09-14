@@ -44,8 +44,8 @@ resource "google_storage_bucket" "prod_market_analytics_platform_bucket" {
   }
 }
 
-resource "google_storage_bucket" "prod_configuration_driven_elt_orchestration_framework_bucket" {
-  name                     = "prod-configuration-driven-elt-orchestration-framework-bucket"
+resource "google_storage_bucket" "raw_configuration_driven_elt_orchestration_framework_bucket" {
+  name                     = "raw-configuration-driven-elt-orchestration-framework-bucket"
   location                 = "asia-south1"
   storage_class            = "STANDARD"
   public_access_prevention = "enforced"

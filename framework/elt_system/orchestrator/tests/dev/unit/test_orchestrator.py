@@ -1,5 +1,6 @@
+from unittest.mock import MagicMock, call, patch
+
 import pytest
-from unittest.mock import patch, MagicMock, call
 
 from elt_system.orchestrator.main import Orchestrator
 
@@ -10,14 +11,14 @@ from elt_system.orchestrator.main import Orchestrator
         (
             "elt_system.configs.job.coingecko_sources.dev.market_price.json",
             "dev_coingecko_market_price",
-        )
+        ),
     ],
 )
 @patch(target="elt_system.orchestrator.main.JobsClient")
 @patch(target="elt_system.orchestrator.main.ExecutionsClient")
 @patch(target="elt_system.orchestrator.main.lv2")
 @patch(
-    target="elt_system.orchestrator.main.Orchestrator.get_run_job_name_and_base_path"
+    target="elt_system.orchestrator.main.Orchestrator.get_run_job_name_and_base_path",
 )
 @patch(target="elt_system.orchestrator.main.RunJobRequest")
 @patch(target="elt_system.orchestrator.main.log")
@@ -95,9 +96,9 @@ def test_run_concurrent_jobs_success(
                         str(object=mock_job_name),
                         "--file_path",
                         str(object=mock_path),
-                    ]
-                )
-            ]
+                    ],
+                ),
+            ],
         ),
     )
 
@@ -106,7 +107,7 @@ def test_run_concurrent_jobs_success(
     mock_log.info.assert_any_call(f"Job Execution Name: {mock_execution_name}...")
 
     mock_ExecutionsClient.return_value.get_execution.assert_has_calls(
-        [call(name=mock_execution_name), call(name=mock_execution_name)]
+        [call(name=mock_execution_name), call(name=mock_execution_name)],
     )
 
     assert mock_ExecutionsClient.return_value.get_execution.call_count == 2
@@ -125,5 +126,5 @@ def test_run_concurrent_jobs_success(
     """
 
     mock_logging_client.return_value.list_entries.assert_called_once_with(
-        filter_=mock_job_filter
+        filter_=mock_job_filter,
     )

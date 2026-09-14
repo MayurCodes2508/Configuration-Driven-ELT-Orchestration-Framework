@@ -1,76 +1,59 @@
+from uuid import UUID
+
 from loguru import logger as log
 
-from elt_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
-from elt_system.job_executors.dests.registries.dest_targets import DestType
-from elt_system.job_executors.exec_cmds.registries.exec_cmds import ExecCmdType
+from elt_system.job_executors.ingestions.registries.ingestion_sources import (
+    ingestionType,
+)
+from elt_system.job_executors.storages.registries.storage_destinations import (
+    storageType,
+)
 
 
 class Runner:
-    def __init__(self, loader, job_run_id):
+    def __init__(self, metadata_cfg: dict, jobRunID: UUID) -> None:
 
-        self.job_cfg = loader.job_cfg
-
-        self.metadata_cfg = self.job_cfg["metadata"]
-
-        self.job_run_id = job_run_id
+        self.metadata_cfg: dict = metadata_cfg
+        self.jobRunID: UUID = jobRunID
 
         log.info("Obj: runner | Instance Initialized Successfully...")
 
         log.info("Runner Loading Completed...")
 
-    def run_exec_cmd(self):
+    def run(self, layer: str, job_cfg: dict):
 
-        try:
-            self.exec_cfg = self.job_cfg["exec"]
+        if layer == "ingestion":
+            self.data, self.job_metrics = self.run_ingestion_job(ingestion_cfg=job_cfg)
 
-            self.exec_type = self.exec_cfg["exec_type"]
+        elif layer == "storage":
+            self.job_metrics = self.run_storage_job(storage_cfg=job_cfg, data=self.data)
 
-            exec_cmd = ExecCmdType.get_exec_type(
-                exec_type=self.exec_type,
-                exec_cfg=self.exec_cfg,
-                metadata_cfg=self.metadata_cfg,
-            )
+    def run_ingestion_job(self, ingestion_cfg: dict):
 
-            self.data, self.job_metrics = exec_cmd.run()
+        ingestion_type: ingestionType = ingestionType()
 
-        except Exception as excp:
-            log.error(
-                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
-            )
+        ingestion = ingestion_type.get_ingestion_type(
+            ingestion_type=ingestion_cfg["ingestion_type"],
+            ingestion_cfg=ingestion_cfg,
+            metadata_cfg=self.metadata_cfg,
+        )
 
-            raise
+        data, job_metrics = ingestion.run()
 
-    def run_dest_target(self):
+        return data, job_metrics
 
-        try:
-            self.dest_cfg = self.job_cfg.get("dest", {})
+    def run_storage_job(self, storage_cfg: dict, data):
 
-            self.dest_type = self.dest_cfg.get("dest_type", None)
+        storage_type = storageType()
 
-            if not self.dest_type:
-                log.info("Dest Not Provided, Skipping...")
+        storage = storage_type.get_storage_type(
+            storage_type=storage_cfg["storage_type"],
+            storage_cfg=storage_cfg,
+            metadata_cfg=self.metadata_cfg,
+            data=data,
+            jobRunID=self.jobRunID,
+        )
 
-                return
+        job_metrics: dict = storage.run()
 
-            dest = DestType.get_dest_type(
-                dest_type=self.dest_type,
-                dest_cfg=self.dest_cfg,
-                metadata_cfg=self.metadata_cfg,
-                data=self.data,
-                job_run_id=self.job_run_id,
-            )
-
-            dest.run()
-
-        except Exception as excp:
-            log.error(
-                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
-            )
-
-            raise
-
-    def runner_run(self):
-
-        self.run_exec_cmd()
-
-        self.run_dest_target()
+        return job_metrics

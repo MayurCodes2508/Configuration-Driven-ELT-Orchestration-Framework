@@ -2,16 +2,20 @@
 #DEV
 ################################################################################
 
-resource "google_secret_manager_secret" "dev_configuration_driven_elt_orchestration_framework_coingecko_api_key_secrets" {
-  secret_id = "dev-configuration-driven-elt-orchestration-framework-coingecko-api-key-secret"
+resource "google_secret_manager_secret" "dev_coingecko_api_key_secret" {
+  secret_id = "dev-coingecko-api-key-secret"
+
+  deletion_protection = false
 
   replication {
     auto {}
   }
 }
 
-resource "google_secret_manager_secret" "dev_configuration_driven_elt_orchestration_framework_neon_db_url_secrets" {
-  secret_id = "dev-configuration-driven-elt-orchestration-framework-neon-db-url-secret"
+resource "google_secret_manager_secret" "dev_neon_db_url_secret" {
+  secret_id = "dev-neon-db-url-secret"
+
+  deletion_protection = false
 
   replication {
     auto {}
@@ -22,8 +26,8 @@ resource "google_secret_manager_secret" "dev_configuration_driven_elt_orchestrat
 #PROD
 ################################################################################
 
-resource "google_secret_manager_secret" "prod_market_analytics_platform_coingecko_api_keysecrets" {
-  secret_id = "prod-market-analytics-platform-coingecko-api-key-secret"
+resource "google_secret_manager_secret" "prod_neon_db_url_secret" {
+  secret_id = "prod-neon-db-url-secret"
 
   lifecycle {
     prevent_destroy = true
@@ -36,40 +40,13 @@ resource "google_secret_manager_secret" "prod_market_analytics_platform_coingeck
   deletion_protection = true
 }
 
-resource "google_secret_manager_secret" "prod_market_analytics_platform_neon_db_url_secrets" {
-  secret_id = "prod-market-analytics-platform-neon-db-url-secret"
+resource "google_secret_manager_secret" "prod_coingecko_api_key_secret" {
+  secret_id = "prod-coingecko-api-key-secret"
 
   lifecycle {
     prevent_destroy = true
   }
 
-  replication {
-    auto {}
-  }
-
-  deletion_protection = true
-}
-
-resource "google_secret_manager_secret" "prod_configuration_driven_elt_orchestration_framework_coingecko_api_key_secrets" {
-  secret_id = "prod-configuration-driven-elt-orchestration-framework-coingecko-api-key-secret"
-
-  lifecycle {
-    prevent_destroy = true
-  }
-
-  replication {
-    auto {}
-  }
-
-  deletion_protection = true
-}
-
-resource "google_secret_manager_secret" "prod_configuration_driven_elt_orchestration_framework_neon_db_url_secrets" {
-  secret_id = "prod-configuration-driven-elt-orchestration-framework-neon-db-url-secret"
-
-lifecycle {
-  prevent_destroy = true
-}
   replication {
     auto {}
   }

@@ -1,17 +1,19 @@
-import json
+import argparse as arg
+import os
 import sys
-import time
-from concurrent.futures import ThreadPoolExecutor as tpe
-from subprocess import CalledProcessError as sperr
-from subprocess import run as sp
+from datetime import datetime as dt
+from datetime import timezone as tz
+from uuid import UUID
 
-from google.cloud import logging_v2 as lv2
-from google.cloud.run_v2 import ExecutionsClient, JobsClient, RunJobRequest
+import psycopg2 as pg2
 from loguru import logger as log
+from psycopg2.extras import Json, register_uuid
 from uuid6 import uuid7 as uid
 
-from elt_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
-from elt_system.orchestrator.loader import JobCatalog
+from elt_system.orchestrator.loader import JobConfigLoader
+from elt_system.orchestrator.metadata import Metadata
+from elt_system.orchestrator.runner import Runner
+from elt_system.orchestrator.validator import Validator
 
 log.remove()
 
@@ -26,264 +28,217 @@ log.add(
 log.add(sink=sys.stderr, filter=lambda record: record["level"].name == "CRITICAL")
 
 
-class Orchestrator:
-    def __init__(self, env):
-
-        self.env = env
-
-    def get_run_job_name_and_base_path(self, env):
-
-        run_job_name = "dev-elt-system-run"
-
-        if env == "PROD":
-            run_job_name = "prod-elt-system-run"
-
-        base_path = "projects/instant-medium-491107-t6/locations/asia-south1/jobs"
-
-        return run_job_name, base_path
-
-    def run_concurrent_jobs(self, path, job_name):
-
-        try:
-            jobs_client = JobsClient()
-
-            executions_client = ExecutionsClient()
-
-            logging_client = lv2.Client(project="instant-medium-491107-t6")
-
-            run_job_name, base_path = self.get_run_job_name_and_base_path(env=self.env)
-
-            request = RunJobRequest(
-                name=(f"{base_path}/{run_job_name}"),
-                overrides=RunJobRequest.Overrides(
-                    container_overrides=[
-                        RunJobRequest.Overrides.ContainerOverride(
-                            args=[
-                                "elt_system.orchestrator.executor",
-                                "--job_name",
-                                str(object=job_name),
-                                "--file_path",
-                                str(object=path),
-                            ]
-                        )
-                    ]
-                ),
-            )
-
-            operation = jobs_client.run_job(request=request)
-
-            execution_name = operation.metadata.name
-
-            log.info(f"Job Execution Name: {execution_name}...")
-
-            while True:
-                execution = executions_client.get_execution(name=execution_name)
-
-                if execution.completion_time:
-                    log.info("Successfully Got Final Job Execution...")
-
-                    break
-
-                time.sleep(3)
-
-            exec_name = execution_name.rsplit("/", 1)[-1]
-
-            job_filter = f'''
-
-                resource.labels.job_name="{run_job_name}"
-                resource.labels.location="asia-south1"
-                labels."run.googleapis.com/execution_name"="{exec_name}"
-                textPayload:"METADATA_DUMP"
-
-            '''
-
-            dump = None
-
-            for sec in range(100):
-                entries = logging_client.list_entries(filter_=job_filter)
-
-                for entry in entries:
-                    txt_log = entry.payload
-
-                    dump = txt_log.rsplit("METADATA_DUMP: ", 1)[-1]
-
-                    break
-
-                if dump is not None:
-                    break
-
-                time.sleep(3)
-
-            else:
-                raise TimeoutError("TImeout Hit | Couldnt Fetch Metadata Dump")
-
-            return dump
-
-        except Exception as excp:
-            log.error(
-                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
-            )
-
-            raise
-
-    def run_concurrent_jobs_local(self, path, job_name):
-
-        try:
-            process = sp(
-                [
-                    "docker",
-                    "run",
-                    "--rm",
-                    "-e",
-                    "COINGECKO_API_KEY",
-                    "framework:latest",
-                    "elt_system.orchestrator.executor",
-                    "--job_name",
-                    str(object=job_name),
-                    "--file_path",
-                    str(object=path),
-                ],
-                capture_output=True,
-                check=True,
-                text=True,
-            )
-
-            output = process.stdout
-
-            log.info(output)
-
-            dump = output.rsplit("METADATA_DUMP: ", 1)[-1]
-
-            decoder = json.JSONDecoder()
-
-            obj, _end = decoder.raw_decode(dump)
-
-            return json.dumps(obj=obj)
-
-        except sperr as err:
-            log.exception("Error Occured: While Executing Job")
-
-            log.error(f"{err.stderr}")
-
-            raise
-
-
 class Main:
-    def __init__(self):
+    def __init__(self) -> None:
 
         pass
 
-    def main(self):
+    ##### Helper Functions :3 #####
 
-        def getenv(job_catalog_loader):
+    def build_run_id(self) -> UUID:
 
-            env = job_catalog_loader.job_catalog_run()
+        runID: UUID = UUID(str(uid()))
 
-            if not env:
-                raise ValueError(f"Invalid or Missing Env: {env}")
+        log.info("Job Run ID Created...")
 
-            return env
+        return runID
 
-        try:
-            job_catalog_loader = JobCatalog()
+    def write_to_db(self, query: str, values: tuple) -> None:
 
-            env = getenv(job_catalog_loader=job_catalog_loader)
+        register_uuid()
 
-            log.info(f"Successfully Loaded the Env: {env}...")
+        with pg2.connect(str(os.environ["neonDBURL"])) as conn, conn.cursor() as csr:
+            csr.execute(query, values)
 
-        except Exception:
-            log.opt(exception=True).critical(
-                "System: elt | Failed to Load Job Catalog, Aborting Job Executions"
+        log.info("Successfully logged job metadata into DB")
+
+    ##### End #####
+
+    def execute_job(self, fp: str, job_name: str) -> None:
+
+        pipelineRunID: UUID = UUID(os.environ["pipelineRunID"])
+
+        log.info("Creating Job Run ID...")
+
+        jobRunID: UUID = self.build_run_id()
+
+        log.info(
+            f"Job Execution: {job_name} | runID: {jobRunID} | PipelineRunID: {pipelineRunID} | RUNNING...",
+        )
+
+        metadata: Metadata = Metadata(
+            jobRunID=jobRunID,
+            pipelineRunID=pipelineRunID,
+            jobName=job_name,
+        )
+
+        job_cfg_loader: JobConfigLoader = JobConfigLoader(fp=fp)
+
+        job_cfg_loader.job_cfg_loader_run()
+
+        validator: Validator = Validator(loader=job_cfg_loader)
+
+        validator.validator_run()
+
+        runner: Runner = Runner(
+            metadata_cfg=job_cfg_loader.job_cfg["metadata"],
+            jobRunID=jobRunID,
+        )
+
+        for key, val in job_cfg_loader.job_cfg["layer"].items():
+            running_metadata_dump = metadata.build_job_metadata(
+                jobType=key,
+                status="RUNNING",
+                created_at=dt.now(tz=tz.utc),
+                start_time=dt.now(tz=tz.utc),
             )
 
-            raise
+            insert_running_query: str = """
+                INSERT INTO public.job_runs(
+                    run_id,
+                    pipeline_run_id,
+                    job_name,
+                    job_type,
+                    status,
+                    created_at,
+                    start_time,
+                    end_time,
+                    error_message,
+                    job_metrics
+                )
 
-        try:
-            orchestrator = Orchestrator(env=env)
+                VALUES(
+                    %s, 
+                    %s, 
+                    %s, 
+                    %s, 
+                    %s, 
+                    %s, 
+                    %s, 
+                    %s, 
+                    %s, 
+                    %s
+                )
+            """
 
-            log.info("All Job Executions Started...")
-
-            futures = []
-
-            with tpe(max_workers=5) as executor:
-                for job in job_catalog_loader.jobs:
-                    if env == "LOCAL":
-                        futures.append(
-                            executor.submit(
-                                orchestrator.run_concurrent_jobs_local,
-                                job["path"],
-                                job["job_name"],
-                            )
-                        )
-
-                    elif env in {"DEV", "PROD"}:
-                        futures.append(
-                            executor.submit(
-                                orchestrator.run_concurrent_jobs,
-                                job["path"],
-                                job["job_name"],
-                            )
-                        )
-
-            log.info("All Job Executions Completed...")
-
-        except Exception as strt_err:
-            results = []
-
-            for job in job_catalog_loader.jobs:
-                dump = {
-                    "job_run_id": str(object=uid()),
-                    "job_name": job.get("job_name"),
-                    "system": "elt",
-                    "job_type": None,
-                    "sub_jobtype": None,
-                    "status": "FAILED",
-                    "error_message": str(object=strt_err),
-                    "job_metrics": None,
-                }
-
-                results.append(json.dumps(obj=dump))
-
-            log.opt(exception=True).critical(
-                "System: elt | Failed to Start the Thread Pool Executor, Aborting Job Executions"
+            running_query_values: tuple = (
+                running_metadata_dump["run_id"],
+                running_metadata_dump["pipeline_run_id"],
+                running_metadata_dump["job_name"],
+                running_metadata_dump["job_type"],
+                running_metadata_dump["status"],
+                running_metadata_dump["created_at"],
+                running_metadata_dump["start_time"],
+                running_metadata_dump["end_time"],
+                running_metadata_dump["error_message"],
+                running_metadata_dump["job_metrics"],
             )
 
-            log.info(f"ALL_METADATA_DUMPS: {results}")
+            self.write_to_db(query=insert_running_query, values=running_query_values)
 
-            raise
+            try:
+                runner.run(layer=key, job_cfg=val)
 
-        results = []
+            except Exception as job_err:
+                failed_metadata_dump: dict = metadata.build_job_metadata(
+                    jobType=key,
+                    status="FAILED",
+                    end_time=dt.now(tz=tz.utc),
+                    errMsg=job_err,
+                )
 
-        try:
-            for future in futures:
-                results.append(future.result())
+                update_failed_query: str = """
+                    UPDATE public.job_runs
+                    SET status=%s,
+                        end_time=%s,
+                        error_message=%s
+                    WHERE run_id=%s
+                        AND pipeline_run_id=%s
+                        AND job_name=%s
+                        AND job_type=%s
+                """
 
-            log.info(f"ALL_METADATA_DUMPS: {results}")
+                failed_query_values: tuple = (
+                    failed_metadata_dump["status"],
+                    failed_metadata_dump["end_time"],
+                    failed_metadata_dump["error_message"],
+                    failed_metadata_dump["run_id"],
+                    failed_metadata_dump["pipeline_run_id"],
+                    failed_metadata_dump["job_name"],
+                    failed_metadata_dump["job_type"],
+                )
 
-        except Exception as job_err:
-            for job in job_catalog_loader.jobs:
-                dump = {
-                    "job_run_id": str(object=uid()),
-                    "job_name": job.get("job_name"),
-                    "system": "elt",
-                    "job_type": None,
-                    "sub_jobtype": None,
-                    "status": "FAILED",
-                    "error_message": str(object=job_err),
-                    "job_metrics": None,
-                }
+                self.write_to_db(query=update_failed_query, values=failed_query_values)
 
-                results.append(json.dumps(obj=dump))
+                log.error(
+                    f"Job Execution: {job_name} | runID: {jobRunID} | PipelineRunID: {pipelineRunID} | FAILED...",
+                )
 
-            log.opt(exception=True).critical("System: elt | One or More Jobs Failed")
+                log.error(f"Error = {job_err}")
 
-            log.info(f"ALL_METADATA_DUMPS: {results}")
-
-            if job_err:
                 raise
+
+            else:
+                successful_metadata_dump: dict = metadata.build_job_metadata(
+                    jobType=key,
+                    status="SUCCESS",
+                    end_time=dt.now(tz=tz.utc),
+                    jobMetrics=runner.job_metrics,
+                )
+
+                update_successful_query: str = """
+                    UPDATE public.job_runs
+                    SET status=%s,
+                        end_time=%s,
+                        job_metrics=%s
+                    WHERE run_id=%s
+                        AND pipeline_run_id=%s
+                        AND job_name=%s
+                        AND job_type=%s
+                """
+
+                successful_query_values: tuple = (
+                    successful_metadata_dump["status"],
+                    successful_metadata_dump["end_time"],
+                    Json(successful_metadata_dump["job_metrics"]),
+                    successful_metadata_dump["run_id"],
+                    successful_metadata_dump["pipeline_run_id"],
+                    successful_metadata_dump["job_name"],
+                    successful_metadata_dump["job_type"],
+                )
+
+                self.write_to_db(
+                    query=update_successful_query,
+                    values=successful_query_values,
+                )
+
+                log.success(
+                    f"Job Execution: {job_name} | runID: {jobRunID} | PipelineRunID: {pipelineRunID} | jobType: {key} | jobMetrics: {runner.job_metrics} | SUCCESS...",
+                )
 
 
 if __name__ == "__main__":
-    main = Main()
+    parser = arg.ArgumentParser(
+        description="Job Name and Job Config File Path for Job Executions",
+    )
 
-    main.main()
+    parser.add_argument(
+        "--job_name",
+        help="--job_name jobName",
+        required=True,
+    )
+
+    parser.add_argument(
+        "--file_path",
+        help="--file_path filePath",
+        required=True,
+    )
+
+    args = parser.parse_args()
+
+    main: Main = Main()
+
+    main.execute_job(
+        fp=args.file_path,
+        job_name=args.job_name,
+    )

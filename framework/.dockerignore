@@ -3,6 +3,8 @@ terraform/
 docs/
 .vscode/
 __pycache__/
+.mypy_cache/
+.ruff_cache/
 .pytest_cache/
 dbt_packages/
 logs/

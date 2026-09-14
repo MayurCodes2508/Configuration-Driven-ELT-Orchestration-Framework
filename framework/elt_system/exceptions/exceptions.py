@@ -1,10 +1,10 @@
 from builtins import (
-    Exception,
     AttributeError,
+    Exception,
     FileNotFoundError,
     ImportError,
-    ModuleNotFoundError,
     KeyError,
+    ModuleNotFoundError,
     OSError,
     PermissionError,
     RuntimeError,
@@ -12,32 +12,27 @@ from builtins import (
     TypeError,
     ValueError,
 )
-
 from json.decoder import JSONDecodeError
-
-from subprocess import SubprocessError, CalledProcessError, TimeoutExpired
-
-from jsonschema import ValidationError, SchemaError
-
-from requests.exceptions import RequestException, HTTPError, Timeout
-
-from google.auth.exceptions import DefaultCredentialsError, RefreshError
+from subprocess import CalledProcessError, SubprocessError, TimeoutExpired
 
 from google.api_core.exceptions import (
+    Forbidden,
     GoogleAPICallError,
     NotFound,
-    Forbidden,
     TooManyRequests,
 )
-
+from google.auth.exceptions import DefaultCredentialsError, RefreshError
+from jsonschema import SchemaError, ValidationError
 from psycopg2 import (
     DatabaseError,
     IntegrityError,
     OperationalError,
     ProgrammingError,
+)
+from psycopg2 import (
     Error as Psycopg2Error,
 )
-
+from requests.exceptions import HTTPError, RequestException, Timeout
 
 EXCEPTION_DESCRIPTIONS = {
     Exception: "An unexpected error occurred.",

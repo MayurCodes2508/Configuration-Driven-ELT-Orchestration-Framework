@@ -1,63 +1,48 @@
-from loguru import logger as log
+from uuid import UUID
 
-from elt_system.exceptions.exceptions import EXCEPTION_DESCRIPTIONS
+from loguru import logger as log
 
 
 class Metadata:
-    def __init__(self, loader):
+    def __init__(
+        self,
+        jobRunID: UUID,
+        pipelineRunID: UUID,
+        jobName: str,
+    ) -> None:
 
-        self.job_cfg = loader.job_cfg
+        self.jobRunID: UUID = jobRunID
+        self.pipelineRunID: UUID = pipelineRunID
+        self.jobName: str = jobName
 
         log.info("Obj: metadata | Instance Initialized Successfully...")
 
         log.info("Metadata Loading Completed...")
 
-    def get_metadata(self):
-
-        try:
-            exec_cfg = self.job_cfg["exec"]
-
-            dest_cfg = self.job_cfg.get("dest", {})
-
-            self.job_type = "extraction"
-
-            if dest_cfg:
-                self.job_type = "ingestion"
-
-            exec_type = exec_cfg["exec_type"]
-
-            self.sub_jobtype = exec_type.split("ExecCmd", 1)[0]
-
-        except Exception as excp:
-            log.error(
-                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
-            )
-
-            raise
-
     def build_job_metadata(
-        self, job_run_id, job_name, status, error_message, job_metrics
-    ):
+        self,
+        jobType: str,
+        status: str,
+        created_at=None,
+        start_time=None,
+        end_time=None,
+        errMsg=None,
+        jobMetrics=None,
+    ) -> dict:
 
-        try:
-            metadata_dump = {
-                "job_run_id": job_run_id,
-                "job_name": job_name,
-                "system": "elt",
-                "job_type": self.job_type,
-                "sub_jobtype": self.sub_jobtype,
-                "status": status,
-                "error_message": error_message,
-                "job_metrics": job_metrics,
-            }
+        metadata_dump: dict = {
+            "run_id": self.jobRunID,
+            "pipeline_run_id": self.pipelineRunID,
+            "job_name": self.jobName,
+            "job_type": jobType,
+            "status": status,
+            "created_at": created_at,
+            "start_time": start_time,
+            "end_time": end_time,
+            "error_message": errMsg,
+            "job_metrics": jobMetrics,
+        }
 
-            log.info("Metadata Building Completed...")
+        log.info("Metadata Building Completed...")
 
-            return metadata_dump
-
-        except Exception as excp:
-            log.error(
-                f"{EXCEPTION_DESCRIPTIONS.get(type(excp), 'Unexpected Error Occured')}"
-            )
-
-            raise
+        return metadata_dump
