@@ -6,6 +6,28 @@
 #JOBS
 ################################################################################
 
+resource "google_cloud_run_v2_job" "dev_execution_job" {
+  name = "dev-execution-job"
+  project = var.gcp_project_id
+  location = var.gcp_region
+  
+  deletion_protection = false
+
+  template {
+    template {
+      max_retries = 2
+      timeout = "300s"
+
+      service_account = "development-cloud-resources-jo@instant-medium-491107-t6.iam.gserviceaccount.com"
+
+      containers {
+        image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/configuration-driven-elt-orchestration-framework-repository/framework:testing"
+        command = [ "python", "-u", "-m", "elt_system.orchestrator.main" ]
+      }
+    }
+  }
+}
+
 ################################################################################
 #SERVICES
 ################################################################################
@@ -30,6 +52,10 @@ resource "google_cloud_run_v2_service" "dev_execution_service" {
     
     containers {
       image = "asia-south1-docker.pkg.dev/instant-medium-491107-t6/configuration-driven-elt-orchestration-framework-repository/framework:testing"
+      env {
+        name = "triggeredBy"
+        value = "scheduler"
+      }
     }
     
   }
