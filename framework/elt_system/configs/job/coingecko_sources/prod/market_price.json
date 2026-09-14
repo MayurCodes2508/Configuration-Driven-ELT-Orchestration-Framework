@@ -43,7 +43,7 @@
 
             "storage_type": "GCS",
             "bucket": "raw-configuration-driven-elt-orchestration-framework-bucket",
-            "format": "json",
+            "format": "parquet",
             "path_template": "{source}/{dataset}/{entity}/ingestionDT={ingestionDT}/ingestionTS={ingestionTS}/jobRunID={jobRunID}.{format}"
         }
     }
