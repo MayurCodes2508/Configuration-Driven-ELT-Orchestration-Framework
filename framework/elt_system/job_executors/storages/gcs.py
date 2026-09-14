@@ -105,9 +105,13 @@ class Gcs:
 
         path, now = self.build_path()
 
-        rows_stored, bucket_path_stored = self.upload_to_gcs(path=path, data=self.data, now=now)
+        rows_stored, bucket_path_stored = self.upload_to_gcs(
+            path=path, data=self.data, now=now
+        )
 
-        job_metrics = {"rows_stored": rows_stored,
-                       "bucket_path_stored": bucket_path_stored}
+        job_metrics = {
+            "rows_stored": rows_stored,
+            "bucket_path_stored": bucket_path_stored,
+        }
 
         return job_metrics
