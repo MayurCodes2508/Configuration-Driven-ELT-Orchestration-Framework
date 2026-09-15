@@ -1,0 +1,45 @@
+name: CI Build Docker Image
+
+on:
+  push:
+    branches:
+      - refactor/**
+
+    paths:
+      - "framework/Dockerfile"
+      - "framework/.dockerignore" 
+
+  pull_request:
+    branches:
+      - main
+      - dev
+
+    paths:
+      - "framework/Dockerfile"
+      - "framework/.dockerignore"
+
+defaults:
+  run:
+    working-directory: ./framework
+
+permissions:
+  contents: read
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Build Docker Img and Verify Img Existence
+        run: |
+          echo "===== Building Image ====="
+          docker build -t framework .
+          echo "===== Done ====="
+
+          echo "===== Verifying Image ====="
+          docker image inspect framework
+          echo "===== Done ====="
