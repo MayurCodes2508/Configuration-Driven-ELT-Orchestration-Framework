@@ -1,0 +1,206 @@
+main:
+  steps:
+    - assign_values:
+        steps:
+          - assign_env_vars:
+              assign:
+                - projectNumber: $${sys.get_env("GOOGLE_CLOUD_PROJECT_NUMBER")}
+                - projectID: $${sys.get_env("GOOGLE_CLOUD_PROJECT_ID")}
+                - location: $${sys.get_env("GOOGLE_CLOUD_LOCATION")}
+                - workflowID: $${sys.get_env("GOOGLE_CLOUD_WORKFLOW_ID")}
+                - workflowRevisionID: $${sys.get_env("GOOGLE_CLOUD_WORKFLOW_REVISION_ID")}
+                - workflowExecutionID: $${sys.get_env("GOOGLE_CLOUD_WORKFLOW_EXECUTION_ID")}
+
+          - assign_strings_A:
+              assign:
+                - app_url: "https://prod-execution-service-144449440045.asia-south1.run.app"
+
+          - checking_for_server_activity_status:
+              try:
+                steps:
+                  - calling_run_service_for_status:
+                      call: http.post
+                      args:
+                        url: $${app_url + "/status"}
+                        auth:
+                          type: OIDC
+                        body: {}
+
+                  - log_success_server_status_response:
+                      call: sys.log
+                      args:
+                        data:
+                          message: "Server is active, executions can be started"
+                          projectNumber: $${projectNumber}
+                          projectID: $${projectID}
+                          location: $${location}
+                          workflowID: $${workflowID}
+                          workflowRevisionID: $${workflowRevisionID}
+                          workflowExecutionID: $${workflowExecutionID}
+                        severity: INFO
+
+              except:
+                as: e
+                steps:
+                  - log_failed_server_status_response:
+                      call: sys.log
+                      args:
+                        data:
+                          message: "Server is not active, cannot start executions"
+                          error: $${e}
+                          projectNumber: $${projectNumber}
+                          projectID: $${projectID}
+                          location: $${location}
+                          workflowID: $${workflowID}
+                          workflowRevisionID: $${workflowRevisionID}
+                          workflowExecutionID: $${workflowExecutionID}
+                        severity: CRITICAL
+
+                  - handling_call_failure:
+                      raise:
+                        message: "Server is not active, cannot start executions"
+
+          - execution:
+              steps:
+                - call_secrets_manager:
+                    steps:
+                      - get_secrets_and_assign:
+                          steps:
+                            - init_A:
+                                assign:
+                                  - coingeckoAPIKeySecret: null
+                                  - neonDBURLSecret: null
+                            
+                            - parallel_and_branches_A:
+                                parallel:
+                                  shared:
+                                    - coingeckoAPIKeySecret
+                                    - neonDBURLSecret
+                                  branches:
+                                    - get_and_assign_coingecko_api_key:
+                                        steps:
+                                          - get_coingecko_api_key:
+                                              call: googleapis.secretmanager.v1.projects.secrets.versions.accessString
+                                              args:
+                                                secret_id: "prod-coingecko-api-key-secret"
+                                                version: "1"
+                                                project_id: $${projectID}
+                                              result: coingeckoAPIKeyStringResult
+
+                                          - assign_coingecko_api_key:
+                                              assign:
+                                                - coingeckoAPIKeySecret: $${coingeckoAPIKeyStringResult}
+
+                                    - get_and_assign_neon_db_url:
+                                        steps:
+                                          - get_neon_db_url:
+                                              call: googleapis.secretmanager.v1.projects.secrets.versions.accessString
+                                              args:
+                                                secret_id: "prod-neon-db-url-secret"
+                                                version: "1"
+                                                project_id: $${projectID}
+                                              result: neonDBURLStringResult
+
+                                          - assign_neon_db_url:
+                                              assign:
+                                                - neonDBURLSecret: $${neonDBURLStringResult}
+
+                - calling_run_service:
+                    steps:
+                      - initB:
+                          assign:
+                            - runResultA: {}
+                            - runResultB: {}
+          
+                      - assign_list_A:
+                          assign:
+                            - catalog:
+                              "coingecko-pipeline":
+                                - job_name: "coingecko_market_price"
+                                  file_path: "elt_system/configs/job/coingecko_sources/prod/market_price.json"    
+
+                      - executing_pipelines:
+                          for:
+                            value: "pipeline"
+                            in: $${keys(catalog)}
+                            steps:
+                              - execute_service_for_pipeline_start_metadata_and_logging:
+                                  steps:
+                                    - calling_service_A:
+                                        call: http.post
+                                        args:
+                                          url: $${app_url + "/pipeline_start_metadata"}
+                                          auth:
+                                            type: OIDC
+                                          body:
+                                            pipeline_name: $${pipeline}
+                                            neonDBURL: $${neonDBURLSecret}
+                                        result: runResultA
+
+                                    - assign_runResultA:
+                                        assign:
+                                          - runResultA: $${runResultA.body}
+
+                              - try_except_job_executions:
+                                  try:
+                                    steps:
+                                      - execute_jobs:
+                                          for:
+                                            value: job
+                                            in: $${catalog[pipeline]}
+                                            steps:
+                                              - calling_job_A:
+                                                  call: googleapis.run.v2.projects.locations.jobs.run
+                                                  args:
+                                                    name: $${"projects/" + projectID + "/locations/" + location + "/jobs/prod-execution-job"}
+                                                    body:
+                                                      overrides:
+                                                        containerOverrides:
+                                                          args: 
+                                                            - --job_name
+                                                            - $${job.job_name}
+                                                            - --file_path
+                                                            - $${job.file_path}
+                                                          env:
+                                                            - name: coingeckoAPIKey
+                                                              value: $${coingeckoAPIKeySecret}
+                                                            - name: neonDBURL
+                                                              value: $${neonDBURLSecret}
+                                                            - name: pipelineRunID
+                                                              value: $${runResultA.run_id}
+                                                  result: runResultB
+
+                                  except:
+                                    as: job_err
+                                    steps:
+                                      - failed_execute_service_for_pipeline_end_metadata_and_logging:
+                                          steps:
+                                            - calling_service_B:
+                                                call: http.post
+                                                args:
+                                                  url: $${app_url + "/pipeline_end_metadata"}
+                                                  auth:
+                                                    type: OIDC
+                                                  body:
+                                                    pipeline_start_metadata_payload: $${runResultA}
+                                                    status: "FAILED"
+                                                    error_message: $${job_err}
+                                                    neonDBURL: $${neonDBURLSecret}
+
+                                            - raise_err:
+                                                raise:
+                                                  message: "One of the job executions failed!!"
+
+                              - success_execute_service_for_pipeline_end_metadata_and_logging:
+                                  steps:
+                                    - calling_service_C:
+                                        call: http.post
+                                        args:
+                                          url: $${app_url + "/pipeline_end_metadata"}
+                                          auth:
+                                            type: OIDC
+                                          body:
+                                            pipeline_start_metadata_payload: $${runResultA}
+                                            status: "SUCCESS"
+                                            neonDBURL: $${neonDBURLSecret}
+                              

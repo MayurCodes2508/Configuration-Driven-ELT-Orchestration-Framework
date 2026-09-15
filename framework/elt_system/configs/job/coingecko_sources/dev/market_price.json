@@ -1,0 +1,50 @@
+{
+
+    "metadata": {
+
+        "source": "coingecko",
+        "dataset": "market_price",
+        "entity": "cryptocurrency"
+    },
+
+    "layer": {
+
+        "ingestion": {
+
+            "ingestion_type": "API",
+            "path": "/coins/markets",
+            "pagination": {
+
+                "strategy": "page",
+                "page_param": "page"
+            },
+
+            "page_size": {
+
+                "param": "per_page",
+                "value": 50
+            },
+
+            "query_params": {
+
+                "vs_currency": "inr"
+            },
+
+            "auth": {
+
+                "auth_type": "api_key",
+                "key_env": "coingeckoAPIKey",
+                "location": "header",
+                "name": "x-cg-demo-api-key"
+            }
+        },
+
+        "storage": {
+
+            "storage_type": "GCS",
+            "bucket": "dev-configuration-driven-elt-orchestration-framework-bucket",
+            "format": "parquet",
+            "path_template": "{source}/{dataset}/{entity}/ingestionDT={ingestionDT}/ingestionTS={ingestionTS}/jobRunID={jobRunID}.{format}"
+        }
+    }
+}

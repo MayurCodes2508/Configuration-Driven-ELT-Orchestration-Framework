@@ -1,0 +1,13 @@
+FROM python:3.12.3-slim
+
+WORKDIR /framework
+
+COPY requirements.txt .
+
+ENV PIP_ROOT_USER_ACTION=ignore
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+CMD [ "python", "-u", "-m", "server" ]

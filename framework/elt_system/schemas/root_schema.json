@@ -1,0 +1,66 @@
+{
+    
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+
+    "type": "object",
+
+    "required": ["metadata" ,"layer"],
+
+    "properties": {
+
+        "metadata": {
+
+            "type": "object",
+
+            "required": ["source", "dataset", "entity"],
+
+            "properties": {
+
+                "source": {
+
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 75
+                },
+
+                "dataset": {
+
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 75
+                },
+
+                "entity": {
+
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 75
+                }
+            },
+
+            "additionalProperties": false
+        },
+
+        "layer": {
+
+            "type": "object",
+
+            "properties": {
+
+                "ingestion": {
+
+                    "$ref": "ingestion_schemas/api_ingestion_schema.json"
+                },
+
+                "storage": {
+
+                    "$ref": "storage_schemas/gcs_storage_schema.json"
+                }
+            },
+
+            "additionalProperties": false
+        }
+    },
+
+    "additionalProperties": false
+}

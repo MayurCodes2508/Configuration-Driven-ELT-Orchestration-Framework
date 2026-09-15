@@ -1,0 +1,36 @@
+{
+
+        "type": "object",
+
+        "required": ["storage_type", "bucket", "format", "path_template"],
+    
+
+        "properties": {
+
+            "storage_type": {
+
+              "type": "string",
+              "const": "GCS"
+            },
+
+            "bucket": {
+
+                "type": "string",
+                "minLength": 2,
+                "maxLength": 100
+            },
+
+            "format": {
+
+                "type": "string",
+                "enum": ["json", "parquet"]
+            },
+
+            "path_template": {
+                
+                "type": "string",
+                "const": "{source}/{dataset}/{entity}/ingestionDT={ingestionDT}/ingestionTS={ingestionTS}/jobRunID={jobRunID}.{format}"
+            }
+        },
+        "additionalProperties": false
+    }
