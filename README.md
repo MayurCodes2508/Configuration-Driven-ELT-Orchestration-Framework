@@ -8,7 +8,7 @@ Last Updated: 2026-09-15
 
 A configuration-driven framework for building and orchestrating ELT pipelines on Google Cloud. Jobs are defined through JSON configuration and executed through a modular ingestion → storage → processing(soon) model, with Google Cloud Workflows coordinating execution and PostgreSQL providing centralized run metadata.
 
-**Core technologies:** Python · FastAPI · GCP · PostgreSQL (Neon) · Terraform · Github Action (CI)
+**Core technologies:** Python · FastAPI · GCP · PostgreSQL (Neon) · Terraform · Docker · Github Action (CI)
 
 ## Architecture
 
