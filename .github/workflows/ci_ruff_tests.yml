@@ -2,13 +2,12 @@ name: CI Ruff Tests
 
 on:
   pull_request:
-		branches:
-			- main
-			- dev
-		
-		paths:
-			- "framework/**/*.py"
+    branches:
+      - main
+      - dev
 
+    paths:
+      - "framework/**/*.py"
 
 defaults:
   run:
@@ -22,29 +21,29 @@ jobs:
   ruff:
     runs-on: ubuntu-latest
 
-		steps:
-			- name: Checkout Repo
-				uses: actions/checkout@v4
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
 
-			- name: Setup Py Runtime Env
-				uses: actions/setup-python@v5
-				with:
-					python-version: "3.12.3"
+      - name: Setup Py Runtime Env
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.3"
 
-			- name: Install Pip Deps
-				run: |
-					pip install -r dev-requirements.txt
+      - name: Install Pip Deps
+        run: |
+          pip install -r dev-requirements.txt
 
-			- name: Check for Broken Deps
-				run: |
-					pip check
+      - name: Check for Broken Deps
+        run: |
+          pip check
 
-			- name: Check for Py Linting and Formatting Issues
-				run: |
-					echo "===== Checking for Linting Issues ====="
-					ruff check .
-					echo "===== Done ====="		
-		
-					echo "===== Checking for Formating Issues ====="
-					ruff format --check .
-					echo "===== Done ====="					
+      - name: Check for Py Linting and Formatting Issues
+        run: |
+          echo "===== Checking for Linting Issues ====="
+          ruff check .
+          echo "===== Done ====="		
+
+          echo "===== Checking for Formating Issues ====="
+          ruff format --check .
+          echo "===== Done ====="					
