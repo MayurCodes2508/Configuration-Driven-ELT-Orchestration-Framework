@@ -16,6 +16,8 @@ anyio==4.14.2
     # via
     #   -r requirements.txt
     #   starlette
+ast-serialize==0.11.2
+    # via mypy
 attrs==26.1.0
     # via
     #   -r requirements.txt
@@ -94,8 +96,14 @@ jsonschema-specifications==2025.9.1
     # via
     #   -r requirements.txt
     #   jsonschema
+librt==0.15.0
+    # via mypy
 loguru==0.7.3
     # via -r requirements.txt
+mypy==2.3.1
+    # via -r dev-requirements.in
+mypy-extensions==1.1.0
+    # via mypy
 numpy==2.5.1
     # via
     #   -r requirements.txt
@@ -104,6 +112,8 @@ packaging==26.2
     # via pytest
 pandas==3.0.3
     # via -r requirements.txt
+pathspec==1.1.1
+    # via mypy
 pluggy==1.6.0
     # via
     #   pytest
@@ -186,6 +196,7 @@ typing-extensions==4.16.0
     #   -r requirements.txt
     #   anyio
     #   fastapi
+    #   mypy
     #   pydantic
     #   pydantic-core
     #   referencing

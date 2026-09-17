@@ -25,6 +25,7 @@ log.add(sink=sys.stderr, filter=lambda record: record["level"].name == "CRITICAL
 
 ##### Helper Functions :3 #####
 
+
 def build_run_id() -> UUID:
 
     runID: UUID = UUID(str(uid()))
@@ -32,6 +33,7 @@ def build_run_id() -> UUID:
     log.info("Pipeline Run ID Created...")
 
     return runID
+
 
 def write_to_db(query: str, values: tuple, auth: str) -> None:
 
@@ -42,10 +44,12 @@ def write_to_db(query: str, values: tuple, auth: str) -> None:
 
     log.info("Successfully logged pipeline metadata into DB")
 
+
 ##### End #####
 
 
 router = apir()
+
 
 @router.post("/pipeline_start_metadata")
 async def pipeline_start_metadata(payload: dict) -> dict:
@@ -93,7 +97,11 @@ async def pipeline_start_metadata(payload: dict) -> dict:
         pipeline_start_metadata_payload["error_message"],
     )
 
-    write_to_db(query=insert_query, values=insert_query_values, auth=payload["neonDBURL"])
+    write_to_db(
+        query=insert_query,
+        values=insert_query_values,
+        auth=payload["neonDBURL"],
+    )
 
     return pipeline_start_metadata_payload
 
@@ -128,4 +136,8 @@ async def pipeline_end_metadata(payload: dict) -> None:
         pipeline_end_metadata_payload["pipeline_name"],
     )
 
-    write_to_db(query=update_query, values=update_query_values, auth=payload["neonDBURL"])
+    write_to_db(
+        query=update_query,
+        values=update_query_values,
+        auth=payload["neonDBURL"],
+    )
