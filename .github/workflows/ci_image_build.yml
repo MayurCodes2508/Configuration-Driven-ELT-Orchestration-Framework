@@ -1,14 +1,6 @@
 name: CI Build Docker Image
 
 on:
-  push:
-    branches:
-      - refactor/**
-
-    paths:
-      - "framework/Dockerfile"
-      - "framework/.dockerignore" 
-
   pull_request:
     branches:
       - main
@@ -18,28 +10,36 @@ on:
       - "framework/Dockerfile"
       - "framework/.dockerignore"
 
+  workflow_dispatch:
+
 defaults:
   run:
     working-directory: ./framework
 
-permissions:
-  contents: read
-
+permissions: {}
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
 
-      - name: Build Docker Img and Verify Img Existence
-        run: |
-          echo "===== Building Image ====="
-          docker build -t framework .
-          echo "===== Done ====="
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@v3
 
-          echo "===== Verifying Image ====="
-          docker image inspect framework
-          echo "===== Done ====="
+      - name: Build and Export Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          tags: framework:testing
+          outputs: type=docker,dest=/tmp/framework.tar
+
+      - name: Upload Image Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: /tmp/framework.tar
