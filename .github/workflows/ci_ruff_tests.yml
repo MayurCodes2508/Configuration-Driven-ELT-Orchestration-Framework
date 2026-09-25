@@ -8,18 +8,20 @@ on:
 
     paths:
       - "framework/**/*.py"
+  
+  workflow_dispatch:
 
 defaults:
   run:
     working-directory: ./framework
 
-permissions:
-  contents: read
-
+permissions: {}
 
 jobs:
   ruff:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout Repo
