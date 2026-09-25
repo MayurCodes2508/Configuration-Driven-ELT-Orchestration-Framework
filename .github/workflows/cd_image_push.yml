@@ -1,0 +1,28 @@
+name: CD Push Docker Image
+
+on:
+  workflow_run:
+    workflows:
+      - "CI Build Docker Image"
+    types:
+      - completed
+
+permissions: {}
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    permissions:
+      contents: none
+
+    steps:
+      - name: Download Image Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image
+          path: /tmp
+
+      - name: Load Image
+        run: |
+          docker load --input /tmp/framework.tar

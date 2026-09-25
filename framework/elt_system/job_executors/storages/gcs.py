@@ -1,8 +1,8 @@
 import io
+import json
 from datetime import datetime as dt
 from datetime import timezone as tz
 
-import pandas as pd
 from google.cloud import storage
 from loguru import logger as log
 
@@ -65,32 +65,21 @@ class Gcs:
 
             blob = bucket.blob(path)
 
-            if not data:
-                raise ValueError("No data received to upload")
-
-            df = pd.DataFrame(data)
-
-            df["ingestion_timestamp"] = now
+            for record in data:
+                record["ingestion_timestamp"] = now
 
             log.info(
-                "Successfully converted the raw JSON data to Pandas DataFrame and added ingestion metadata(ingestion_timestamp)",
+                "Successfully Added the ingestion_timestamp column to all records",
             )
 
-            buffer = io.BytesIO()
-
-            df.to_parquet(buffer, index=False, compression="snappy")
-
-            log.info(
-                "Successfully converted, compressed to Parquet & finished writing it to RAM buffer",
+            blob.upload_from_file(
+                io.BytesIO(json.dumps(obj=data, default=str).encode("utf-8")),
+                content_type="application/json",
             )
 
-            buffer.seek(0)
+            log.info("Successfully uploaded the data to GCS")
 
-            blob.upload_from_file(buffer, content_type="application/octet-stream")
-
-            log.info("Successfully uploaded the parquet data to GCS")
-
-            return len(df), self.formatted_path
+            return len(data), self.formatted_path
 
         except Exception as excp:
             log.error(
