@@ -1,7 +1,5 @@
 uuid6
 loguru
-pandas
-pyarrow
 uvicorn
 fastapi
 jsonschema_rs
