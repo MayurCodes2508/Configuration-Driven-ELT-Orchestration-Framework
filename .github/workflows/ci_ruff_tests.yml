@@ -8,6 +8,13 @@ on:
 
     paths:
       - "framework/**/*.py"
+
+  push:
+    branches:
+      - dev
+
+    paths:
+      - "framework/**/*.py"
   
   workflow_dispatch:
 
@@ -30,7 +37,7 @@ jobs:
       - name: Setup Py Runtime Env
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12.3"
+          python-version: "3.14.4"
 
       - name: Install Pip Deps
         run: |
